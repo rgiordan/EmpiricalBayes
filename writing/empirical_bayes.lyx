@@ -1,0 +1,762 @@
+#LyX 2.1 created this file. For more info see http://www.lyx.org/
+\lyxformat 474
+\begin_document
+\begin_header
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_math auto
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Standard
+\begin_inset FormulaMacro
+\newcommand{\mbe}{\mathbb{E}}
+{\mathbb{E}}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Derivation
+\end_layout
+
+\begin_layout Standard
+Given a parameter 
+\begin_inset Formula $\theta$
+\end_inset
+
+, a meta-parameter 
+\begin_inset Formula $\alpha$
+\end_inset
+
+, and data 
+\begin_inset Formula $x$
+\end_inset
+
+, we want the posterior:
+\begin_inset Formula 
+\begin{eqnarray*}
+p\left(\theta,\alpha\vert x\right) & = & \frac{p\left(x\vert\theta,\alpha\right)p\left(\theta\right)p\left(\alpha\right)}{\int p\left(x\vert\theta,\alpha\right)p\left(\theta\right)p\left(\alpha\right)d\theta d\alpha}
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+We will do empirical Bayes on 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ and MCMC on 
+\begin_inset Formula $\theta$
+\end_inset
+
+.
+ Specifically, given
+\begin_inset Formula 
+\begin{eqnarray*}
+\hat{\alpha} & := & \underset{\alpha}{\textrm{argmax}}\left\{ \int p\left(x\vert\theta,\alpha\right)p\left(\theta\right)p\left(\alpha\right)d\theta\right\} \\
+\theta_{n} & \sim & p\left(\theta\vert x,\hat{\alpha}\right)
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+A common question is how uncertainty in 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ would translate into uncertainty in 
+\begin_inset Formula $\theta$
+\end_inset
+
+ if it were not fixed at 
+\begin_inset Formula $\hat{\alpha}$
+\end_inset
+
+.
+ We can answer this question with linear response and importance sampling
+ by conditioning on the MCMC sample.
+\end_layout
+
+\begin_layout Standard
+First, we must express the mutual dependence that exists between our estimates
+ of 
+\begin_inset Formula $p\left(\theta\vert x,\hat{\alpha}\right)$
+\end_inset
+
+ and 
+\begin_inset Formula $\hat{\alpha}$
+\end_inset
+
+.
+ Generally 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ is taken as the value that maximizes the marginal of the data, but let
+ us simply define it as a function of some posterior expectation.
+ How to do this precisely will depend on the problem and is an interesting
+ shortcoming of the ideas I'm going to discuss here.
+ Often, 
+\begin_inset Formula $\hat{\alpha}$
+\end_inset
+
+ is chosen in some way that may not appear to depend on the posterior of
+ 
+\begin_inset Formula $\theta$
+\end_inset
+
+, for example, by maximizing an exact expression for the marginal likelihood
+ of the data.
+ If there is no dependence of 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ on 
+\begin_inset Formula $\theta$
+\end_inset
+
+, however, it may not make much sense to talk about extra uncertainty in
+ 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ propagating to uncertainty in 
+\begin_inset Formula $\theta$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+For the moment, assume that 
+\begin_inset Formula $\hat{\alpha}$
+\end_inset
+
+ is chosen as a function of some posterior moments, 
+\begin_inset Formula $\mu$
+\end_inset
+
+, which are esimated with the draws 
+\begin_inset Formula $\theta_{n}$
+\end_inset
+
+:
+\begin_inset Formula 
+\begin{eqnarray*}
+\hat{\alpha} & = & \underset{\alpha}{\textrm{argmax}}\left\{ \sum_{n}\mu\left(\theta_{n},\alpha\right)\right\} \\
+0 & = & \sum_{n}\frac{\partial\mu\left(\theta_{n},\hat{\alpha}\right)}{\partial\alpha}:=\sum_{n}\mu_{\alpha}\left(\theta_{n},\hat{\alpha}\right)
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+It will be convenient to define
+\begin_inset Formula 
+\begin{eqnarray*}
+\rho\left(\alpha,\theta\right) & := & p\left(x\vert\theta,\alpha\right)p\left(\theta\right)p\left(\alpha\right)\\
+\frac{\partial\rho\left(\alpha,\theta_{n}\right)}{\partial\alpha} & =: & \rho_{\alpha}\left(\alpha,\theta_{n}\right)\\
+\frac{\partial\rho_{\alpha}\left(\alpha,\theta_{n}\right)}{\partial\alpha} & =: & \rho_{\alpha\alpha}\left(\alpha,\theta_{n}\right)
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Given 
+\begin_inset Formula $\alpha$
+\end_inset
+
+, the posterior of 
+\begin_inset Formula $\theta$
+\end_inset
+
+ is given by
+\begin_inset Formula 
+\begin{eqnarray*}
+p\left(\theta\vert x,\alpha\right) & = & \frac{p\left(x\vert\theta,\alpha\right)p\left(\alpha\right)p\left(\theta\right)}{\int p\left(x\vert\theta,\alpha\right)p\left(\alpha\right)p\left(\theta\right)d\theta}\\
+ & = & \frac{\rho\left(\theta,\alpha\right)}{\int\rho\left(\theta,\alpha\right)d\theta}\\
+ & = & \frac{\rho\left(\theta,\alpha\right)}{c\left(\alpha\right)}
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Where it will also be covenient to define
+\begin_inset Formula 
+\begin{eqnarray*}
+c\left(\alpha\right) & := & \int\rho\left(\theta,\alpha\right)d\theta
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Next, suppose we had changed 
+\begin_inset Formula $\hat{\alpha}$
+\end_inset
+
+ to 
+\begin_inset Formula $\tilde{\alpha}$
+\end_inset
+
+.
+ We can use importance sampling to estimate the change in the MCMC sample
+ with weights given by
+\begin_inset Formula 
+\begin{eqnarray*}
+w_{n} & = & \frac{p\left(\theta_{n}\vert\tilde{\alpha}\right)}{p\left(\theta_{n}\vert\hat{\alpha}\right)}\\
+ & = & \frac{c\left(\hat{\alpha}\right)\rho\left(\tilde{\alpha},\theta_{n}\right)}{c\left(\tilde{\alpha}\right)\rho\left(\hat{\alpha},\theta_{n}\right)}
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In order to estimate the covariance of 
+\begin_inset Formula $\theta$
+\end_inset
+
+, we need to consider the tilted likelihood:
+\begin_inset Formula 
+\begin{eqnarray*}
+p_{t}\left(\theta\vert x\right) & = & \frac{p\left(x\vert\theta,\alpha\right)p\left(\theta\right)p\left(\alpha\right)\exp\left(t\theta\right)}{p_{t}\left(x\right)}\\
+\rho_{t}\left(\theta,\alpha\right) & = & \rho\left(\theta,\alpha\right)\exp\left(t\theta\right)\\
+c_{t}\left(\alpha\right) & = & \int\rho\left(\theta,\alpha\right)\exp\left(t\theta\right)d\theta
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Then conditional on the MCMC samples, which were drawn from 
+\begin_inset Formula $p_{t}$
+\end_inset
+
+ with 
+\begin_inset Formula $t=0$
+\end_inset
+
+,
+\begin_inset Formula 
+\begin{eqnarray*}
+\hat{\alpha}_{t} & = & \underset{\alpha}{\textrm{argmax}}\left\{ \sum_{n}w_{t,n}\mu\left(\theta_{n},\alpha\right)\right\} \\
+w_{t,n} & = & \frac{c\left(\hat{\alpha}\right)}{c_{t}\left(\alpha\right)}\cdot\frac{\rho\left(\theta,\alpha\right)\exp\left(t\theta\right)}{\rho\left(\hat{\alpha},\theta_{n}\right)}
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Note that
+\begin_inset Formula 
+\begin{eqnarray*}
+\frac{\partial}{\partial t}\left.\frac{c\left(\hat{\alpha}\right)}{c_{t}\left(\alpha_{t}\right)}\right|_{t=0} & = & -\left.\frac{c\left(\hat{\alpha}\right)}{c_{t}\left(\alpha_{t}\right)^{2}}\int\theta\rho\left(\theta,\alpha\right)\exp\left(t\theta\right)d\theta\right|_{t=0}\\
+ & = & -\mbe_{\theta\vert x,\alpha}\left[\theta\right]
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+and
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{eqnarray*}
+\frac{\partial}{\partial t}\left.\frac{\rho\left(\theta,\alpha_{t}\right)\exp\left(t\theta\right)}{\rho\left(\hat{\alpha},\theta_{n}\right)}\right|_{t=0} & = & \theta
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+To find the covariance of 
+\begin_inset Formula $\theta$
+\end_inset
+
+, we need to determine
+\begin_inset Formula 
+\begin{eqnarray*}
+m & := & \frac{1}{n}\sum_{n}\theta_{n}\\
+m_{t} & := & \frac{1}{n}\sum_{n}w_{t,n}\theta_{n}\\
+\hat{\Sigma}_{\theta} & = & \frac{dm_{t}}{dt}\\
+ & = & \frac{1}{n}\sum_{n}\frac{dw_{t,n}}{dt}\theta_{n}\\
+ & = & \frac{1}{n}\sum_{n}\left.\left(\frac{\partial w_{t,n}}{\partial\alpha}\frac{d\alpha}{dt}+\frac{\partial w_{t,n}}{\partial t}\right)\right|_{t=0}\theta_{n}
+\end{eqnarray*}
+
+\end_inset
+
+Plugging in from above,
+\begin_inset Formula 
+\begin{eqnarray*}
+\left.\frac{\partial w_{t,n}}{\partial t}\right|_{t=0} & = & \left.\frac{c\left(\hat{\alpha}\right)}{c_{t}\left(\alpha\right)}\cdot\frac{\rho\left(\theta,\alpha\right)\exp\left(t\theta\right)}{\rho\left(\hat{\alpha},\theta_{n}\right)}\right|_{t=0}\\
+ & = & \left(\theta_{n}-\mbe_{\theta\vert x,\alpha}\left[\theta\right]\right)\\
+\left.\frac{\partial w_{t,n}}{d\alpha}\right|_{t=0} & = & \frac{\rho_{\alpha}\left(\alpha,\theta_{n}\right)}{\rho\left(\hat{\alpha},\theta_{n}\right)}
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+So
+\begin_inset Formula 
+\begin{eqnarray*}
+\hat{\Sigma}_{\theta} & = & \frac{1}{n}\sum_{n}\left.\left(\frac{\rho_{\alpha}\left(\hat{\alpha},\theta_{n}\right)}{\rho\left(\hat{\alpha},\theta_{n}\right)}\frac{d\alpha}{dt}+\left(\theta_{n}-\mbe_{\theta\vert x,\alpha}\left[\theta\right]\right)\right)\right|_{t=0}\theta_{n}\\
+ & = & \frac{1}{n}\sum_{n}\left.\frac{\rho_{\alpha}\left(\hat{\alpha},\theta_{n}\right)}{\rho\left(\hat{\alpha},\theta_{n}\right)}\frac{d\alpha}{dt}\right|_{t=0}\theta_{n}+\frac{1}{n}\sum_{n}\left(\theta_{n}-\mbe_{\theta\vert x,\alpha}\left[\theta\right]\right)\left(\theta_{n}-\mbe_{\theta\vert x,\alpha}\left[\theta\right]\right)^{T}\\
+ & = & \frac{1}{n}\sum_{n}\left.\frac{\rho_{\alpha}\left(\hat{\alpha},\theta_{n}\right)}{\rho\left(\hat{\alpha},\theta_{n}\right)}\frac{d\alpha}{dt}\right|_{t=0}\theta_{n}+\widehat{\textrm{Cov}\left(\theta\right)}
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Note that if 
+\begin_inset Formula $\frac{d\alpha}{dt}=0$
+\end_inset
+
+ -- that is, if the estimate for 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ does not depend on the tilting of the likelihood -- then the estimated
+ covariance of 
+\begin_inset Formula $\theta$
+\end_inset
+
+ is simply the MCMC sample covariance.
+\end_layout
+
+\begin_layout Standard
+Finally, bringing in the equations for 
+\begin_inset Formula $\alpha_{t}$
+\end_inset
+
+, 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{eqnarray*}
+0 & = & \sum_{n}w_{t,n}\left(\alpha_{t},\theta\right)\mu_{\alpha}\left(\theta_{n},\alpha_{t}\right)
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Differnetiating both sides with respect to 
+\begin_inset Formula $t$
+\end_inset
+
+,
+\begin_inset Formula 
+\begin{eqnarray*}
+0 & = & \sum_{n}w_{t,n}\left(\alpha_{t},\theta\right)\mu_{\alpha}\left(\theta_{n},\alpha_{t}\right)\\
+ & = & \sum_{n}\left(\frac{\partial}{\partial\alpha}w_{t,n}\left(\alpha_{t},\theta\right)\mu_{\alpha}\left(\theta_{n},\alpha_{t}\right)\frac{d\alpha}{dt}+\frac{\partial}{\partial t}w_{t,n}\left(\alpha_{t},\theta\right)\mu_{\alpha}\left(\theta_{n},\alpha_{t}\right)\right)\\
+ & = & \sum_{n}\left(\left(\frac{\rho_{\alpha}\left(\hat{\alpha},\theta_{n}\right)}{\rho\left(\hat{\alpha},\theta_{n}\right)}\mu_{\alpha}\left(\theta_{n},\alpha_{t}\right)+w_{t,n}\left(\alpha_{t},\theta\right)\mu_{\alpha\alpha}\left(\theta_{n},\alpha_{t}\right)\right)\frac{d\alpha}{dt}+\left(\theta_{n}-\mbe_{\theta\vert x,\alpha}\left[\theta\right]\right)\mu_{\alpha}\left(\theta_{n},\alpha_{t}\right)\right)
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Scaling and evaluating at 
+\begin_inset Formula $t=0$
+\end_inset
+
+ gives
+\begin_inset Formula 
+\begin{eqnarray*}
+0 & = & \left[\frac{1}{n}\sum_{n}\left(\frac{\rho_{\alpha}\left(\hat{\alpha},\theta_{n}\right)}{\rho\left(\hat{\alpha},\theta_{n}\right)}\mu_{\alpha}\left(\theta_{n},\hat{\alpha}\right)+\mu_{\alpha\alpha}\left(\theta_{n},\alpha_{t}\right)\right)\right]\frac{d\alpha}{dt}+\widehat{\textrm{Cov}\left(\theta,\mu_{\alpha}\right)}
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Thus, solving for 
+\begin_inset Formula $\frac{d\alpha}{dt}$
+\end_inset
+
+,
+\begin_inset Formula 
+\begin{eqnarray*}
+\frac{d\alpha}{dt} & = & \left[\frac{1}{n}\sum_{n}\left(\frac{\rho_{\alpha}\left(\hat{\alpha},\theta_{n}\right)}{\rho\left(\hat{\alpha},\theta_{n}\right)}\mu_{\alpha}\left(\theta_{n},\hat{\alpha}\right)+\mu_{\alpha\alpha}\left(\theta_{n},\alpha_{t}\right)\right)\right]^{-1}\widehat{\textrm{Cov}\left(\theta,\mu_{\alpha}\right)}
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+It is convenient to use the fact that
+\begin_inset Formula 
+\begin{eqnarray*}
+\frac{\partial\rho}{\partial\alpha} & = & \rho\frac{\partial\log\rho}{\partial\alpha}
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+So that
+\begin_inset Formula 
+\begin{eqnarray*}
+\frac{d\alpha}{dt} & = & \left[\frac{1}{n}\sum_{n}\left(\frac{\partial}{\partial\alpha}\left.\log\rho\left(\alpha,\theta_{n}\right)\right|_{\hat{\alpha}}\mu_{\alpha}\left(\theta_{n},\hat{\alpha}\right)+\mu_{\alpha\alpha}\left(\theta_{n},\alpha_{t}\right)\right)\right]^{-1}\widehat{\textrm{Cov}\left(\theta,\mu_{\alpha}\right)}
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Although cumbersome, this is a linear system only as big as the moment condition
+s on 
+\begin_inset Formula $\alpha$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Section
+Example
+\end_layout
+
+\begin_layout Standard
+Let's take a classic EB problem, a simple Gamma-Poisson model.
+\begin_inset Formula 
+\begin{eqnarray*}
+y_{i}\vert\lambda_{i} & \sim & \textrm{Poisson}\left(\lambda_{i}\right)\\
+\lambda_{i} & \sim & \textrm{Gamma}\left(\gamma,\beta\right)\\
+\mbe\left[\lambda_{i}\right] & = & \frac{\gamma}{\beta}
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+It is known that, marginally, 
+\begin_inset Formula 
+\begin{eqnarray*}
+y_{i}\vert\gamma,\beta & \sim & \textrm{NegBinom}\left(r,p\right)\\
+\gamma & = & r\\
+\beta & = & \frac{1-p}{p}\Rightarrow\\
+p & = & \frac{1}{1+\beta}
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Typically, 
+\begin_inset Formula $\gamma$
+\end_inset
+
+ and 
+\begin_inset Formula $\beta$
+\end_inset
+
+ are chosen to maximize 
+\begin_inset Formula $p\left(y\vert\gamma,\beta\right)$
+\end_inset
+
+ since 
+\begin_inset Formula $\lambda_{i}$
+\end_inset
+
+ can be analytically marginalized out.
+ However, if you knew 
+\begin_inset Formula $\lambda_{i}$
+\end_inset
+
+, then 
+\begin_inset Formula $y_{i}$
+\end_inset
+
+ becomes ancillary for 
+\begin_inset Formula $\gamma$
+\end_inset
+
+ and 
+\begin_inset Formula $\beta$
+\end_inset
+
+.
+ In that case, a reasonable choice for 
+\begin_inset Formula $\gamma$
+\end_inset
+
+ and 
+\begin_inset Formula $\beta$
+\end_inset
+
+ might be the MLE (or MAP with a prior):
+\begin_inset Formula 
+\begin{eqnarray*}
+\log p\left(\lambda_{i}\vert\gamma,\beta\right) & = & -\beta\lambda_{i}+\left(\gamma-1\right)\log\lambda_{i}+C\\
+\hat{\gamma},\hat{\beta} & = & \textrm{argmax}\left\{ \frac{1}{N_{i}}\sum_{i}\left(-\beta\lambda_{i}+\left(\gamma-1\right)\log\lambda_{i}\right)\right\} \\
+ & = & \textrm{argmax}\left\{ -\beta\frac{1}{N_{i}}\sum_{i}\lambda_{i}+\left(\gamma-1\right)\frac{1}{N}\sum_{i}\log\lambda_{i}\right\} 
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+This is for a single sample, however, and we must choose a 
+\begin_inset Formula $\gamma$
+\end_inset
+
+ and 
+\begin_inset Formula $\beta$
+\end_inset
+
+ to use for all the samples.
+ A natural choice is the average MLE, where the average is taken over the
+ posterior.
+ In this case, 
+\begin_inset Formula $\alpha=\left(\gamma,\beta\right)$
+\end_inset
+
+, 
+\begin_inset Formula $\theta=\left(\lambda_{1},...,\lambda_{i},...,\lambda_{N_{i}}\right)$
+\end_inset
+
+ and
+\begin_inset Formula 
+\begin{eqnarray*}
+\mu_{\alpha}\left(\lambda_{n},\gamma,\beta\right) & = & \left(\begin{array}{c}
+\frac{1}{N_{i}}\sum_{i}\log\lambda_{in}\\
+-\frac{1}{N_{i}}\sum_{i}\lambda_{in}
+\end{array}\right)\\
+\mu_{\alpha\alpha} & = & \left(\begin{array}{cc}
+0 & 0\\
+0 & 0
+\end{array}\right)
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Next,
+\begin_inset Formula 
+\begin{eqnarray*}
+\log p\left(y_{i}\vert\lambda_{i}\right) & = & -\lambda_{i}+y_{i}\log\lambda_{i}+C\textrm{ (no dependence on }\alpha\textrm{)}\\
+\log p\left(\lambda_{i}\vert\gamma,\beta\right) & = & \gamma\log\beta-\log\Gamma\left(\gamma\right)-\beta\lambda_{i}+\left(\gamma-1\right)\log\lambda_{i}\\
+\log\rho\left(\lambda_{n},\gamma,\beta\right) & = & \log\prod_{i}p\left(y_{i}\vert\lambda_{i},\gamma,\beta\right)\\
+ & = & \sum_{i}\log p\left(\lambda_{i}\vert\gamma,\beta\right)+C\\
+ & = & N_{i}\gamma\log\beta-N_{i}\log\Gamma\left(\gamma\right)-\beta\sum_{i}\lambda_{i}+\left(\gamma-1\right)\sum_{i}\log\lambda_{i}
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+So that
+\begin_inset Formula 
+\begin{eqnarray*}
+\frac{\partial}{\partial\gamma}\log\rho\left(\lambda_{n},\gamma,\beta\right) & = & N_{i}\left(\log\beta-\psi\left(\gamma\right)\right)+\sum_{i}\log\lambda_{i}\\
+ & = & N_{i}\left(\log\beta-\psi\left(\gamma\right)+\frac{1}{N_{i}}\sum_{i}\log\lambda_{i}\right)\\
+\frac{\partial}{\partial\beta}\log\rho\left(\lambda_{n},\gamma,\beta\right) & = & N_{i}\frac{\gamma}{\beta}-\sum\lambda_{i}\\
+ & = & N_{i}\left(\frac{\gamma}{\beta}-\frac{1}{N_{i}}\sum\lambda_{i}\right)
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+These are the differences between the means as given by 
+\begin_inset Formula $\gamma$
+\end_inset
+
+ and 
+\begin_inset Formula $\beta$
+\end_inset
+
+ and the sample means from the MCMC sample.
+ Plugging in
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{eqnarray*}
+\frac{d\alpha}{dt} & = & \left[\frac{1}{n}\sum_{n}\frac{\partial}{\partial\alpha}\left.\log\rho\left(\alpha,\theta_{n}\right)\right|_{\hat{\alpha}}\mu_{\alpha}\left(\theta_{n},\hat{\alpha}\right)\right]^{-1}\widehat{\textrm{Cov}\left(\theta,\mu_{\alpha}\right)}
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+From this, we can see that
+\begin_inset Formula 
+\begin{eqnarray*}
+\widehat{\textrm{Cov}\left(\theta,\mu_{\alpha}\right)} & = & \widehat{\textrm{Cov}\left(\left(\begin{array}{c}
+\lambda_{1n}\\
+\vdots\\
+\lambda_{in}\\
+\vdots\\
+\lambda_{N_{i}n}
+\end{array}\right),\left(\begin{array}{c}
+\frac{1}{N_{i}}\sum_{i}\log\lambda_{in}\\
+-\frac{1}{N_{i}}\sum_{i}\lambda_{in}
+\end{array}\right)\right)}
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+That is, the sample covariance between the individual draws and their own
+ population means.
+ And
+\begin_inset Formula 
+\begin{eqnarray*}
+\frac{\partial}{\partial\alpha}\left.\log\rho\left(\alpha,\theta_{n}\right)\right|_{\hat{\alpha}}\mu_{\alpha}\left(\theta_{n},\hat{\alpha}\right) & = & N_{i}\left(\begin{array}{c}
+-\left(\psi\left(\gamma\right)-\log\beta\right)+\frac{1}{N_{i}}\sum_{i}\log\lambda_{i}\\
+\frac{\gamma}{\beta}-\frac{1}{N_{i}}\sum\lambda_{i}
+\end{array}\right)\left(\begin{array}{cc}
+\frac{1}{N_{i}}\sum_{i}\log\lambda_{in} & -\frac{1}{N_{i}}\sum_{i}\lambda_{in}\end{array}\right)
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+This is sensible -- the relationship between 
+\begin_inset Formula $\lambda$
+\end_inset
+
+ and 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ is effected through 
+\begin_inset Formula $\mu_{\alpha}$
+\end_inset
+
+, and we have the two covariances.
+\end_layout
+
+\end_body
+\end_document
