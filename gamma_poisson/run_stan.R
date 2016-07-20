@@ -1,15 +1,9 @@
-library(ggplot2)
-library(dplyr)
-library(reshape2)
 library(rstan)
-library(Matrix)
 library(boot) # For inverse logit
 
 project_directory <- file.path(Sys.getenv("GIT_REPO_LOC"), "EmpiricalBayes/gamma_poisson")
 data_directory <- file.path(project_directory, "data/")
 stan_directory <- file.path(project_directory, "stan/")
-
-analysis_name <- "gamma_poisson"
 
 set.seed(42)
 
@@ -17,7 +11,7 @@ set.seed(42)
 LoadStanModel <- function(stan_model_name) {
   model_file <- file.path(stan_directory, paste(stan_model_name, "stan", sep="."))
   model_file_rdata <- file.path(stan_directory, paste(stan_model_name, "Rdata", sep="."))
-  stan_model_env <- environment() 
+  stan_model_env <- environment()
   if (file.exists(model_file_rdata)) {
     print("Loading pre-compiled Stan model.")
     load(model_file_rdata, env=stan_model_env)
