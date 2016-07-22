@@ -69,13 +69,17 @@ fixed_model <- LoadStanModel("gamma_poisson_fixed_prior")
 # Stan data.
 stan_dat <- list(N = length(y),
                  y = y,
+                 prior_gamma_mean=gamma_est,
+                 prior_gamma_var=100,
+                 prior_beta_mean=beta_est,
+                 prior_gamma_var=100,
                  prior_gamma = gamma_est,
                  prior_beta = beta_est)
 
 # Some knobs we can tweak.  Note that we need many iterations to accurately assess
 # the prior sensitivity in the MCMC noise.
 chains <- 1
-iters <- 500
+iters <- 5000
 seed <- 42
 
 # Draw the draws and save.
