@@ -17,6 +17,7 @@ lambda_free <- extract(stan_results$free_stan_sim)
 
 true_lambda <- stan_results$true_params$lambda
 lambda_true_df <- data.frame(g=1:length(true_lambda), "true_lambda"=true_lambda)
+lambda_true_df$y <- stan_results$stan_dat$y
 
 lambda_free_df <-
   melt(lambda_free$lambda) %>% rename(g=Var2, draw=iterations, lambda=value) %>%
@@ -37,6 +38,8 @@ ggplot(lambda_summary) +
     geom_point(aes(x=fixed, y=free, color="free")) +
     geom_abline(aes(intercept=0, slope=1))
 
+##############################
+# Accuracy
 
 lambda_grouped <-
   dcast(lambda_df, g + draw ~ method, value.var="lambda") %>%
@@ -52,5 +55,61 @@ rmse <-
   melt(id.vars=c("g", "method")) %>%
   rename(measure=variable)
 
-group_by(rmse, method, measure) %>% summarize(mean=mean(value))
-dcast(rmse, g ~ measure + method)
+#dcast(rmse, g ~ measure + method)
+group_by(rmse, method, measure) %>%
+  summarize(mean=mean(value)) %>%
+  ungroup() %>% arrange(measure, method)
+
+
+##############################
+# Mean and variance
+
+lambda_stats <-
+  select(lambda_grouped, g, draw, method, lambda) %>%
+  group_by(g, method) %>%
+  summarize(sd=sd(lambda), mean=mean(lambda)) %>%
+  inner_join(lambda_true_df, by="g")
+  
+# Free has more variance
+ggplot(dcast(lambda_stats, g ~ method, value.var="sd")) +
+  geom_point(aes(x=fixed, y=free)) +
+  geom_abline(aes(slope=1, intercept=0))
+
+# Fixed shrinks more
+ggplot(dcast(lambda_stats, g + y ~ method, value.var="mean")) +
+  geom_point(aes(x=y, y=y - free, color="y - free")) +
+  geom_point(aes(x=y, y=y - fixed, color="y - fixed")) +
+  geom_hline(aes(yintercept=0))
+
+
+
+#########
+# Hyperparameter posteriors
+
+prior_df <- data.frame(gamma=stan_results$lambda_free$prior_gamma,
+                       beta=stan_results$lambda_free$prior_beta)
+beta_est <- stan_results$stan_dat$prior_beta
+gamma_est <- stan_results$stan_dat$prior_gamma
+stan_results$stan_dat$prior_gamma_mean
+
+gamma_prior_sd <- sqrt(stan_results$stan_dat$prior_gamma_var)
+beta_prior_sd <- sqrt(stan_results$stan_dat$prior_beta_var)
+
+# Sanity check
+median(lambda_free$gamma_alpha / lambda_free$gamma_beta) - gamma_est
+median(lambda_free$beta_alpha / lambda_free$beta_beta) - beta_est
+
+# There's actually quite a lot of dispersion even with a highly informative prior
+ggplot(prior_df) +
+  geom_histogram(aes(x=gamma), bins=100) +
+  geom_vline(aes(xintercept=gamma_est), lwd=3) +
+  geom_vline(aes(xintercept=gamma_est - 2 * gamma_prior_sd), lwd=1) +
+  geom_vline(aes(xintercept=gamma_est + 2 * gamma_prior_sd), lwd=1)
+  
+ggplot(prior_df) +
+  geom_histogram(aes(x=beta), bins=100) +
+  geom_vline(aes(xintercept=beta_est), lwd=3) +
+  geom_vline(aes(xintercept=beta_est - 2 * beta_prior_sd), lwd=1) +
+  geom_vline(aes(xintercept=beta_est + 2 * beta_prior_sd), lwd=1)
+
+

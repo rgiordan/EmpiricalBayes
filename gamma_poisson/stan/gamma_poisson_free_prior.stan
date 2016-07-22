@@ -21,7 +21,7 @@ transformed parameters {
   gamma_beta <- prior_gamma_mean / prior_gamma_var;
   
   beta_alpha <- (prior_beta_mean ^ 2) / prior_beta_var;
-  beta_beta <-prior_gamma_mean / prior_beta_var;
+  beta_beta <-prior_beta_mean / prior_beta_var;
 }
 model {
   prior_gamma ~ gamma(gamma_alpha, gamma_beta);

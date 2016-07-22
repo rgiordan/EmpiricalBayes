@@ -71,9 +71,9 @@ fixed_model <- LoadStanModel("gamma_poisson_fixed_prior")
 stan_dat <- list(N = length(y),
                  y = y,
                  prior_gamma_mean=gamma_est,
-                 prior_gamma_var=100,
+                 prior_gamma_var=0.01,
                  prior_beta_mean=beta_est,
-                 prior_beta_var=100,
+                 prior_beta_var=0.01,
                  prior_gamma = gamma_est,
                  prior_beta = beta_est)
 
