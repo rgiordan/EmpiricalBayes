@@ -83,7 +83,7 @@ ggplot(dcast(lambda_stats, g + y ~ method, value.var="mean")) +
 
 
 
-#########
+############################
 # Hyperparameter posteriors
 
 prior_df <- data.frame(gamma=stan_results$lambda_free$prior_gamma,
@@ -99,7 +99,6 @@ beta_prior_sd <- sqrt(stan_results$stan_dat$prior_beta_var)
 median(lambda_free$gamma_alpha / lambda_free$gamma_beta) - gamma_est
 median(lambda_free$beta_alpha / lambda_free$beta_beta) - beta_est
 
-# There's actually quite a lot of dispersion even with a highly informative prior
 ggplot(prior_df) +
   geom_histogram(aes(x=gamma), bins=100) +
   geom_vline(aes(xintercept=gamma_est), lwd=3) +
@@ -112,4 +111,6 @@ ggplot(prior_df) +
   geom_vline(aes(xintercept=beta_est - 2 * beta_prior_sd), lwd=1) +
   geom_vline(aes(xintercept=beta_est + 2 * beta_prior_sd), lwd=1)
 
+
+########################
 
