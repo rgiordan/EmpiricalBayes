@@ -11,17 +11,18 @@ set.seed(42)
 LoadStanModel <- function(stan_model_name) {
   model_file <- file.path(stan_directory, paste(stan_model_name, "stan", sep="."))
   model_file_rdata <- file.path(stan_directory, paste(stan_model_name, "Rdata", sep="."))
-  stan_model_env <- environment()
   if (file.exists(model_file_rdata)) {
     print("Loading pre-compiled Stan model.")
+    stan_model_env <- environment()
     load(model_file_rdata, env=stan_model_env)
+    return(stan_model_env$model)
   } else {
     print("Compiling Stan model.")
     model_file <- file.path(stan_directory, paste(stan_model_name, "stan", sep="."))
-    stan_model_env$model <- stan_model(model_file)
-    save(stan_model_env$model, file=model_file_rdata)
+    model <- stan_model(model_file)
+    save(model, file=model_file_rdata)
+    return(model)
   }
-  return(model)
 }
 
 
@@ -72,7 +73,7 @@ stan_dat <- list(N = length(y),
                  prior_gamma_mean=gamma_est,
                  prior_gamma_var=100,
                  prior_beta_mean=beta_est,
-                 prior_gamma_var=100,
+                 prior_beta_var=100,
                  prior_gamma = gamma_est,
                  prior_beta = beta_est)
 
