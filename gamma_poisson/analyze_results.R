@@ -128,6 +128,7 @@ M_aa <- matrix(NaN, 2, 2)
 M_aa[1, 1] <- mean(trigamma(gamma_est + y)) - trigamma(gamma_est)
 M_aa[2, 1] <- M_aa[1, 2] <- 1 / beta_est - 1 / (1 + beta_est)
 M_aa[2, 2] <- -1 * gamma_est / (beta_est ^ 2) + (gamma_est + mean(y)) / ((1 + beta_est) ^ 2)
+M_aa <- M_aa * n_g
 
 M_at <- matrix(NaN, 2, n_g)
 M_at[1, ] <- 1 / (1 + beta_est)
@@ -143,6 +144,10 @@ lambda_moments <-
 ell_alpha <- matrix(NaN, max(lambda_moments$draw), 2)
 ell_alpha[, 1] <- log(beta_est) - digamma(gamma_est) + lambda_moments$e_log
 ell_alpha[, 2] <- gamma_est / beta_est - lambda_moments$e
+ell_alpha <- ell_alpha * n_g
+
+dalpha_dt <- -1 * solve(M_aa, M_at) / n_g
+(gamma_est + dalpha_dt[1, 1]) / (beta_est + dalpha_dt[2, 1]) - gamma_est / beta_est
 
 # Lambda draws as a matrix
 lambda_draws <- as.matrix(
@@ -150,14 +155,16 @@ lambda_draws <- as.matrix(
     dcast(g ~ draw, value.var="lambda") %>%
     select(-g))
 
-dalpha_dt <- -1 * solve(M_aa, M_at)
-cov_corr <- lambda_draws %*% ell_alpha %*% dalpha_dt
+# Strange that this is negative.
+cov_corr <- lambda_draws %*% ell_alpha %*% dalpha_dt / n_draws
 
 lambda_means <- rowMeans(lambda_draws)
 sample_cov <- lambda_draws %*% t(lambda_draws) / (n_draws - 1) -
               lambda_means %*% t(lambda_means) * n_draws / (n_draws - 1)
+
 lr_cov <- sample_cov + cov_corr
+plot(diag(sample_cov), diag(lr_cov)); abline(0, 1)
 
-
+# Sanity check
 max(abs(lambda_means - filter(lambda_stats, method == "fixed")$mean))
-sqrt(diag(sample_cov)) - filter(lambda_stats, method == "fixed")$sd
+max(abs(sqrt(diag(sample_cov)) - filter(lambda_stats, method == "fixed")$sd))
