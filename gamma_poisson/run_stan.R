@@ -89,3 +89,4 @@ free_stan_sim <- sampling(free_model, data = stan_dat, seed = seed, chains = cha
 fixed_stan_sim <- sampling(fixed_model, data = stan_dat, seed = seed, chains = chains, iter = iters)
 
 save(free_stan_sim, fixed_stan_sim, stan_dat, true_params, file=stan_draws_file)
+

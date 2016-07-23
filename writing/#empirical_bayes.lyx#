@@ -192,7 +192,7 @@ with implicit dependence on
  Then
 \begin_inset Formula 
 \begin{eqnarray*}
-\Sigma_{\theta}:=\frac{d}{dt^{T}}\mbe_{p_{t}}\left[\theta\right] & = & Cov_{p}\left(\theta\right)
+\Sigma_{\theta}:=\frac{d}{dt}\mbe_{p_{t}}\left[\theta\right] & = & Cov_{p}\left(\theta\right)
 \end{eqnarray*}
 
 \end_inset
@@ -218,11 +218,7 @@ As a function of
 \end_layout
 
 \begin_layout Standard
-Suppose we also have 
-\begin_inset Formula $D$
-\end_inset
-
- MCMC draws from 
+Suppose we also have MCMC draws from 
 \begin_inset Formula $p\left(\theta\vert x,\hat{\alpha}\right)$
 \end_inset
 
@@ -230,7 +226,7 @@ Suppose we also have
 \begin_inset Formula 
 \begin{eqnarray*}
 \theta_{1},...,\theta_{N} & \sim & p\left(\theta\vert x,\hat{\alpha}\right)\\
-\mbe_{p}\left[\theta\vert x,\hat{\alpha}\right] & \approx & \frac{1}{D}\sum_{d=1}^{D}\theta_{d}
+\mbe_{p}\left[\theta\vert x,\hat{\alpha}\right] & \approx & \frac{1}{D}\sum_{d=1}^{}\theta_{n}
 \end{eqnarray*}
 
 \end_inset
@@ -250,9 +246,9 @@ As a function of
  using importance sampling:
 \begin_inset Formula 
 \begin{eqnarray*}
-\mbe_{p_{t}}\left[\theta\vert x,\hat{\alpha}_{t}\right] & \approx & \frac{1}{D}\sum_{d=1}^{D}w_{d,t}\theta_{d}\\
-\hat{\Sigma}_{\theta} & := & \frac{1}{D}\sum_{d=1}^{D}\theta_{d}\\
-w_{d,t} & = & \exp\left(\ell\left(\theta_{d},\hat{\alpha}_{t},t\right)-c\left(t\right)-\ell\left(\theta_{d},\hat{\alpha},0\right)+c\left(0\right)\right)
+\mbe_{p_{t}}\left[\theta\vert x,\hat{\alpha}_{t}\right] & \approx & \frac{1}{N}\sum_{n=1}^{N}w_{n,t}\theta_{n}\\
+\hat{\Sigma}_{\theta} & := & \frac{1}{N}\sum_{n=1}^{N}\theta_{n}\\
+w_{n,t} & = & \exp\left(\ell\left(\theta_{n},\hat{\alpha}_{t},t\right)-c\left(t\right)-\ell\left(\theta_{n},\hat{\alpha},0\right)+c\left(0\right)\right)
 \end{eqnarray*}
 
 \end_inset
@@ -264,8 +260,8 @@ w_{d,t} & = & \exp\left(\ell\left(\theta_{d},\hat{\alpha}_{t},t\right)-c\left(t\
 This can be differentiated:
 \begin_inset Formula 
 \begin{eqnarray*}
-\frac{d}{dt^{T}}\frac{1}{D}\sum_{d=1}^{D}w_{d,t}\theta_{d} & = & \frac{1}{D}\sum_{d=1}^{D}\theta_{d}\frac{dw_{d,t}}{dt^{T}}\\
- & = & \frac{1}{D}\sum_{d=1}^{D}\theta_{d}\left(\frac{\partial w_{d,t}}{\partial\alpha^{T}}\frac{d\alpha}{dt^{T}}+\frac{\partial w_{d,t}}{\partial t^{T}}\right)
+\frac{d}{dt}\frac{1}{N}\sum_{n=1}^{N}w_{n,t}\theta_{n} & = & \frac{1}{N}\sum_{n=1}^{N}\frac{dw_{n,t}}{dt}\theta_{n}\\
+ & = & \frac{1}{N}\sum_{n=1}^{N}\left(\frac{\partial w_{n,t}}{\partial\alpha}\frac{d\alpha}{dt}+\frac{\partial w_{n,t}}{\partial t}\right)\theta_{n}
 \end{eqnarray*}
 
 \end_inset
@@ -277,8 +273,8 @@ This can be differentiated:
 Where
 \begin_inset Formula 
 \begin{eqnarray*}
-\frac{\partial w_{d,t}}{\partial\alpha} & = & w_{d,t}\frac{\partial\ell\left(\theta_{d},\alpha,t\right)}{\partial\alpha}\\
-\frac{\partial w_{d,t}}{\partial t} & = & w_{d,t}\left(\frac{\partial\ell\left(\theta_{d},\alpha,t\right)}{\partial t}-\frac{\partial c\left(t\right)}{\partial t}\right)
+\frac{\partial w_{n,t}}{\partial\alpha} & = & w_{n,t}\frac{\partial\ell\left(\theta_{n},\alpha,t\right)}{\partial\alpha}\\
+\frac{\partial w_{n,t}}{\partial t} & = & w_{n,t}\left(\frac{\partial\ell\left(\theta_{n},\alpha,t\right)}{\partial t}-\frac{\partial c\left(t\right)}{\partial t}\right)
 \end{eqnarray*}
 
 \end_inset
@@ -290,8 +286,8 @@ Where
 From above, we can see that
 \begin_inset Formula 
 \begin{eqnarray*}
-\frac{\partial\ell\left(\theta_{d},\alpha,t\right)}{\partial t}-\frac{\partial c\left(t\right)}{\partial t} & = & \frac{\theta_{d}\cdot p\left(x\vert\theta_{d},\alpha\right)p\left(\theta_{d}\right)p\left(\alpha\right)e^{t\theta_{d}}}{p\left(x\vert\theta_{d},\alpha\right)p\left(\theta_{d}\right)p\left(\alpha\right)e^{t\theta_{d}}}-\frac{\int\exp\left(\ell\left(\alpha,t\right)\right)\theta d\theta d\alpha}{\int\exp\left(\ell\left(\alpha,t\right)\right)d\theta d\alpha}\\
- & = & \theta_{d}-\mbe_{p_{t}}\left[\theta\right]
+\frac{\partial\ell\left(\theta_{n},\alpha,t\right)}{\partial t}-\frac{\partial c\left(t\right)}{\partial t} & = & \frac{\theta_{n}\cdot p\left(x\vert\theta_{n},\alpha\right)p\left(\theta_{n}\right)p\left(\alpha\right)e^{t\theta_{n}}}{p\left(x\vert\theta_{n},\alpha\right)p\left(\theta_{n}\right)p\left(\alpha\right)e^{t\theta_{n}}}-\frac{\int\exp\left(\ell\left(\alpha,t\right)\right)\theta d\theta d\alpha}{\int\exp\left(\ell\left(\alpha,t\right)\right)d\theta d\alpha}\\
+ & = & \theta_{n}-\mbe_{p_{t}}\left[\theta\right]
 \end{eqnarray*}
 
 \end_inset
@@ -303,7 +299,7 @@ From above, we can see that
 Denoting
 \begin_inset Formula 
 \begin{eqnarray*}
-\ell_{\alpha,d} & := & \frac{\partial\ell\left(\theta_{d},\alpha,0\right)}{\partial\alpha}
+\ell_{\alpha,n} & := & \frac{\partial\ell\left(\theta_{n},\alpha,0\right)}{\partial\alpha}
 \end{eqnarray*}
 
 \end_inset
@@ -315,7 +311,7 @@ Denoting
 And substituting again
 \begin_inset Formula 
 \begin{eqnarray*}
-\mbe_{p}\left[\theta\right] & \approx & \frac{1}{D}\sum_{d=1}^{D}\theta_{n}
+\mbe_{p}\left[\theta\right] & \approx & \frac{1}{N}\sum_{n}\theta_{n}
 \end{eqnarray*}
 
 \end_inset
@@ -323,9 +319,9 @@ And substituting again
 we can see that
 \begin_inset Formula 
 \begin{eqnarray*}
-\hat{\Sigma}_{\theta} & = & \left.\frac{d}{dt^{T}}\frac{1}{D}\sum_{d=1}^{D}w_{d,t}\theta_{d}\right|_{t=0}\\
- & = & \frac{1}{D}\sum_{d=1}^{D}\theta_{d}\left(\ell_{\alpha,d}^{T}\left.\frac{d\alpha}{dt^{T}}\right|_{\alpha=\hat{\alpha}}+\theta_{d}^{T}-\frac{1}{N}\sum_{n}\theta_{n}^{T}\right)\\
- & = & \frac{1}{D}\sum_{d=1}^{D}\theta_{d}\ell_{\alpha,d}^{T}\left.\frac{d\alpha}{dt^{T}}\right|_{\alpha=\hat{\alpha}}+\widehat{\textrm{Cov}\left(\theta\right)}
+\hat{\Sigma}_{\theta} & = & \left.\frac{d}{dt}\frac{1}{N}\sum_{n=1}^{N}w_{n,t}\theta_{n}\right|_{t=0}\\
+ & = & \frac{1}{N}\sum_{n=1}^{N}\left(\ell_{\alpha,n}^{T}\left.\frac{d\alpha}{dt}\right|_{\alpha=\hat{\alpha}}+\theta_{n}-\frac{1}{N}\sum_{n}\theta_{n}\right)\theta_{n}\\
+ & = & \frac{1}{N}\sum_{n=1}^{N}\ell_{\hat{\alpha},n}^{T}\left.\frac{d\alpha}{dt}\right|_{\alpha=\hat{\alpha}}\theta_{n}+\widehat{\textrm{Cov}\left(\theta\right)}
 \end{eqnarray*}
 
 \end_inset
@@ -343,7 +339,7 @@ where
 \end_layout
 
 \begin_layout Standard
-It remains only to calculate 
+It remains to calculate 
 \begin_inset Formula $d\alpha/dt$
 \end_inset
 
@@ -386,7 +382,10 @@ In many EB applications (e.g.
 \end_inset
 
  are conjugate and the marginal is a ratio of normalizing constants.
- In any case, since for any 
+\end_layout
+
+\begin_layout Standard
+In any case, since for any 
 \begin_inset Formula $t$
 \end_inset
 
@@ -402,7 +401,7 @@ In many EB applications (e.g.
 \end_layout
 
 \begin_layout Standard
-we can differentiate using the chain rule, giving
+we can differentiate, giving
 \begin_inset Formula 
 \begin{eqnarray*}
 \frac{\partial^{2}M}{\partial\alpha\partial\alpha^{T}}\frac{d\alpha}{dt}+\frac{\partial^{2}M}{\partial\alpha\partial t} & = & 0\Rightarrow\\
@@ -426,7 +425,7 @@ Note that since
 \begin_layout Standard
 \begin_inset Formula 
 \begin{eqnarray*}
-\hat{\Sigma}_{\theta} & = & \widehat{\textrm{Cov}\left(\theta\right)}-\frac{1}{D}\sum_{d=1}^{D}\theta_{d}\ell_{\hat{\alpha},d}^{T}\left(\frac{\partial^{2}M}{\partial\alpha\partial\alpha^{T}}\right)^{-1}\frac{\partial^{2}M}{\partial\alpha\partial t^{T}}
+\hat{\Sigma}_{\theta} & = & \widehat{\textrm{Cov}\left(\theta\right)}-\frac{1}{N}\sum_{n=1}^{N}\ell_{\hat{\alpha},n}^{T}\left(\frac{\partial^{2}M}{\partial\alpha\partial\alpha^{T}}\right)^{-1}\frac{\partial^{2}M}{\partial\alpha\partial t^{T}}\theta_{n}
 \end{eqnarray*}
 
 \end_inset
@@ -522,12 +521,8 @@ So
 Here, 
 \begin_inset Formula 
 \begin{eqnarray*}
-\ell_{\hat{\alpha},d} & = & \left(\begin{array}{c}
-\frac{\partial}{\partial\gamma}\ell\left(\theta_{d},\hat{\alpha},0\right)\\
-\frac{\partial}{\partial\beta}\ell\left(\theta_{d},\hat{\alpha},0\right)
-\end{array}\right)\\
-\frac{\partial}{\partial\gamma}\ell\left(\theta,\alpha,0\right) & = & N\left(\log\beta-\psi\left(\gamma\right)+\frac{1}{N}\sum_{i}\log\lambda_{i}\right)\\
-\frac{\partial}{\partial\beta}\ell\left(\theta,\alpha,0\right) & = & N\left(\frac{\gamma}{\beta}-\frac{1}{N}\sum\lambda_{i}\right)
+\frac{\partial}{\partial\gamma}\ell\left(\theta,\alpha,t\right) & = & N\left(\log\beta-\psi\left(\gamma\right)+\frac{1}{N}\sum_{i}\log\lambda_{i}\right)\\
+\frac{\partial}{\partial\beta}\ell\left(\theta,\alpha,t\right) & = & N\left(\frac{\gamma}{\beta}-\frac{1}{N}\sum\lambda_{i}\right)
 \end{eqnarray*}
 
 \end_inset
@@ -540,71 +535,8 @@ Note that here
 \begin_inset Formula $N$
 \end_inset
 
- refers to observations within a sample, not the number of MCMC draws, which
- is denoted by 
-\begin_inset Formula $D$
-\end_inset
-
-.
- Also, the leading N in the Hessian cancels the leading 
-\begin_inset Formula $N$
-\end_inset
-
- in 
-\begin_inset Formula $\ell_{\alpha,d}$
-\end_inset
-
-.
-\end_layout
-
-\begin_layout Standard
-Here, if the vector draws 
-\begin_inset Formula $\lambda_{d}$
-\end_inset
-
- are arranged columnwise:
-\begin_inset Formula 
-\begin{eqnarray*}
-\Lambda & = & \left(\begin{array}{ccc}
-\lambda_{1} & \cdots & \lambda_{D}\end{array}\right)
-\end{eqnarray*}
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-...and we stack the products 
-\begin_inset Formula $\ell_{\hat{\alpha},d}^{T}\left(\frac{\partial^{2}M}{\partial\alpha\partial\alpha^{T}}\right)^{-1}\frac{\partial^{2}M}{\partial\alpha\partial t^{T}}$
-\end_inset
-
- in rows, so that 
-\begin_inset Formula 
-\begin{eqnarray*}
-Q & = & \left(\begin{array}{c}
-\ell_{\hat{\alpha},1}^{T}\left(\frac{\partial^{2}M}{\partial\alpha\partial\alpha^{T}}\right)^{-1}\frac{\partial^{2}M}{\partial\alpha\partial t^{T}}\\
-\vdots\\
-\ell_{\hat{\alpha},D}^{T}\left(\frac{\partial^{2}M}{\partial\alpha\partial\alpha^{T}}\right)^{-1}\frac{\partial^{2}M}{\partial\alpha\partial t^{T}}
-\end{array}\right)\\
- & = & \left(\begin{array}{c}
-\ell_{\hat{\alpha},1}^{T}\\
-\vdots\\
-\ell_{\hat{\alpha},D}^{T}
-\end{array}\right)\left(\frac{\partial^{2}M}{\partial\alpha\partial\alpha^{T}}\right)^{-1}\frac{\partial^{2}M}{\partial\alpha\partial t^{T}}
-\end{eqnarray*}
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-Then the covariance correctoin can be estimated with 
-\begin_inset Formula $\frac{1}{D}\Lambda Q$
-\end_inset
-
-.
+ refers to observations within a sample, not the number of MCMC draws.
+ This is confusing notation given the other section, TODO: fix.
 \end_layout
 
 \begin_layout Part

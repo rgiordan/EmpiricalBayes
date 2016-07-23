@@ -113,4 +113,51 @@ ggplot(prior_df) +
 
 
 ########################
+# Linear response
 
+# Second derivatives
+n_g <- max(lambda_fixed_df$g)
+n_draws <- max(lambda_fixed_df$draw)
+
+y <- stan_results$stan_dat$y
+gamma_est <- stan_results$stan_dat$prior_gamma
+beta_est <- stan_results$stan_dat$prior_beta
+
+# Note that the leading N in M_aa cancels the leading N in ell_alpha
+M_aa <- matrix(NaN, 2, 2)
+M_aa[1, 1] <- mean(trigamma(gamma_est + y)) - trigamma(gamma_est)
+M_aa[2, 1] <- M_aa[1, 2] <- 1 / beta_est - 1 / (1 + beta_est)
+M_aa[2, 2] <- -1 * gamma_est / (beta_est ^ 2) + (gamma_est + mean(y)) / ((1 + beta_est) ^ 2)
+
+M_at <- matrix(NaN, 2, n_g)
+M_at[1, ] <- 1 / (1 + beta_est)
+M_at[2, ] <- (gamma_est + t(y)) / ((1 + beta_est) ^ 2)
+
+# Means within a draw
+lambda_moments <-
+  ungroup(lambda_fixed_df)  %>%
+  group_by(draw) %>%
+  summarize(e=mean(lambda), e_log=mean(log(lambda))) %>%
+  arrange(draw)
+
+ell_alpha <- matrix(NaN, max(lambda_moments$draw), 2)
+ell_alpha[, 1] <- log(beta_est) - digamma(gamma_est) + lambda_moments$e_log
+ell_alpha[, 2] <- gamma_est / beta_est - lambda_moments$e
+
+# Lambda draws as a matrix
+lambda_draws <- as.matrix(
+  select(lambda_fixed_df, lambda, g, draw) %>%
+    dcast(g ~ draw, value.var="lambda") %>%
+    select(-g))
+
+dalpha_dt <- -1 * solve(M_aa, M_at)
+cov_corr <- lambda_draws %*% ell_alpha %*% dalpha_dt
+
+lambda_means <- rowMeans(lambda_draws)
+sample_cov <- lambda_draws %*% t(lambda_draws) / (n_draws - 1) -
+              lambda_means %*% t(lambda_means) * n_draws / (n_draws - 1)
+lr_cov <- sample_cov + cov_corr
+
+
+max(abs(lambda_means - filter(lambda_stats, method == "fixed")$mean))
+sqrt(diag(sample_cov)) - filter(lambda_stats, method == "fixed")$sd
