@@ -287,6 +287,23 @@ Where
 \end_layout
 
 \begin_layout Standard
+Note that since
+\begin_inset Formula 
+\begin{eqnarray*}
+\sum_{d}w_{d,t} & = & 1\\
+\sum_{d}\frac{dw_{d,t}}{dt} & = & 0
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Consequently the estimate is shift invariant, as expected.
+\end_layout
+
+\begin_layout Standard
 From above, we can see that
 \begin_inset Formula 
 \begin{eqnarray*}
@@ -390,7 +407,11 @@ In many EB applications (e.g.
 \begin_inset Formula $t$
 \end_inset
 
-,
+, 
+\begin_inset Formula $\hat{\alpha}$
+\end_inset
+
+ is chosen so that
 \begin_inset Formula 
 \begin{eqnarray*}
 \left.\frac{\partial M}{\partial\alpha}\right|_{t} & = & 0
@@ -470,7 +491,7 @@ This can be marginalized exactly as a function of
  & = & N\gamma\log\beta-N\log\Gamma\left(\gamma\right)-\sum_{i}\log y_{i}!\\
  &  & +\sum_{i}\left[-\left(\beta+1-t_{i}\right)\lambda_{i}+\left(\gamma+y_{i}-1\right)\log\lambda_{i}+\left(\gamma+y_{i}\right)\log\left(\beta+1-t_{i}\right)-\log\Gamma\left(\gamma+y_{i}\right)\right]\\
  &  & -\sum_{i}\left[\left(\gamma+y_{i}\right)\log\left(\beta+1-t_{i}\right)-\log\Gamma\left(\gamma+y_{i}\right)\right]\Rightarrow\\
-\log p_{t}\left(y\vert\gamma,\beta\right) & = & N\gamma\log\beta-N\log\Gamma\left(\gamma\right)-\sum_{i}\log y_{i}!-\sum_{i}\left(\gamma+y_{i}\right)\log\left(\beta+1-t_{i}\right)+\sum_{i}\log\Gamma\left(\gamma+y_{i}\right)
+\log p_{t}\left(y\vert\gamma,\beta\right) & = & N\gamma\log\beta-N\log\Gamma\left(\gamma\right)-\sum_{i}\left(\gamma+y_{i}\right)\log\left(\beta+1-t_{i}\right)+\sum_{i}\log\Gamma\left(\gamma+y_{i}\right)-\sum_{i}\log y_{i}!
 \end{eqnarray*}
 
 \end_inset
@@ -546,7 +567,11 @@ Note that here
 \end_inset
 
 .
- Also, the leading N in the Hessian cancels the leading 
+ Also, the leading 
+\begin_inset Formula $N$
+\end_inset
+
+ in the Hessian cancels the leading 
 \begin_inset Formula $N$
 \end_inset
 
@@ -600,11 +625,22 @@ Q & = & \left(\begin{array}{c}
 \end_layout
 
 \begin_layout Standard
-Then the covariance correctoin can be estimated with 
+Then the covariance correction can be estimated with 
 \begin_inset Formula $\frac{1}{D}\Lambda Q$
 \end_inset
 
-.
+:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{eqnarray*}
+\hat{\Sigma}_{\theta} & = & \widehat{\textrm{Cov}\left(\theta\right)}-\frac{1}{D}\Lambda Q
+\end{eqnarray*}
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Part
