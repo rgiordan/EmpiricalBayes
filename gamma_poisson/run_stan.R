@@ -45,7 +45,15 @@ y <- rpois(n_obs, lambda=true_params$lambda)
 # Get an empirical Bayes prior
 
 DecodeTheta <- function(theta) {
-  list(r=exp(theta[1]), p=inv.logit(theta[2]))
+  # Note: the negative binomial in R is opposite wikipedia notation
+  # Here, p will follow R's convention so that p is the probability of
+  # the non-terminating probability.
+
+  r <- exp(theta[1])
+  p <- inv.logit(theta[2])
+  gamma <- r
+  beta <- p / (1 - p)
+  list(r=r, p=p, gamma=gamma, beta=beta)
 }
 
 NegBinLogLik <- function(theta) {
@@ -56,9 +64,38 @@ NegBinLogLik <- function(theta) {
 prior_mle_optim <- optim(c(0, 0), NegBinLogLik, control=list(fnscale=-1))
 prior_mle <- DecodeTheta(prior_mle_optim$par)
 
-gamma_est <- prior_mle$r
-beta_est <- (1 - prior_mle$p) / prior_mle$p
+# Check derivatives
+epsilon <- 1
+obs <- 1
 
+NegBinLogLikManual <- function(theta) {
+  par <- DecodeTheta(theta)
+  log_lik <-
+    n_obs * (par$gamma * log(par$beta) - lgamma(par$gamma)) -
+    sum((par$gamma + y) * log(par$beta + 1 - t_vec)) +
+    sum(lgamma(par$gamma + y))
+  return(log_lik)
+}
+
+# Look at manual derivatives.
+
+vals <- list()
+for (epsilon in seq(0, 1, length.out=100)) {
+  t_vec <- rep(0, n_obs)
+  t_vec[obs] <- epsilon
+  manual_prior_mle_optim <- optim(c(0, 0), NegBinLogLikManual, control=list(fnscale=-1))
+  manual_prior_mle <- DecodeTheta(manual_prior_mle_optim$par)
+  vals[[length(vals) + 1]] <- c(epsilon, manual_prior_mle$gamma, manual_prior_mle$beta)
+}
+vals <- do.call(rbind, vals)
+plot(vals[, 1], vals[, 2])
+plot(vals[, 1], vals[, 3])
+
+ind_diff <- 10
+(vals[ind_diff, 2] - vals[1, 2]) / (vals[ind_diff, 1] - vals[1, 1])
+(vals[ind_diff, 3] - vals[1, 3]) / (vals[ind_diff, 1] - vals[1, 1])
+
+dalpha_dt[, obs] * epsilon
 
 
 ######################################
