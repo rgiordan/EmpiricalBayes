@@ -380,8 +380,8 @@ then plugging in
 \begin_inset Formula 
 \begin{eqnarray*}
 \frac{d\bar{w}_{d,t}}{dt} & = & \frac{1}{\sum_{d'}w_{d',t}}\left(w_{d,t}\left(\frac{d\alpha^{T}}{dt}\frac{\partial\ell\left(\theta_{d},\alpha,t\right)}{\partial\alpha^{T}}+\theta_{d}-\mbe_{p_{t}}\left[\theta\right]\right)-\frac{w_{d,t}}{\sum_{d'}w_{d',t}}\sum_{d''}\frac{dw_{d'',t}}{dt}\right)\\
-\left.\frac{d\bar{w}_{d,t}}{dt}\right|_{t=0} & = & \frac{d\alpha^{T}}{dt}\ell_{\alpha,d}+\theta_{d}-\mbe_{p_{t}}\left[\theta\right]-\frac{1}{D}\sum_{d'}\left(\frac{d\alpha^{T}}{dt}\ell_{\alpha,d'}+\theta_{d'}-\mbe_{p_{t}}\left[\theta\right]\right)\\
- & = & \ell_{\alpha,d}^{T}\frac{d\alpha}{dt}+\theta_{d}-\frac{1}{D}\sum_{d'}\left(\frac{d\alpha^{T}}{dt}\ell_{\alpha,d'}+\theta_{d'}\right)
+\left.\frac{d\bar{w}_{d,t}}{dt}\right|_{t=0} & = & \frac{1}{D}\left(\frac{d\alpha^{T}}{dt}\ell_{\alpha,d}+\theta_{d}-\mbe_{p_{t}}\left[\theta\right]-\frac{1}{D}\sum_{d'}\left(\frac{d\alpha^{T}}{dt}\ell_{\alpha,d'}+\theta_{d'}-\mbe_{p_{t}}\left[\theta\right]\right)\right)\\
+ & = & \frac{1}{D}\left(\ell_{\alpha,d}^{T}\frac{d\alpha}{dt}+\theta_{d}-\frac{1}{D}\sum_{d'}\left(\frac{d\alpha^{T}}{dt}\ell_{\alpha,d'}+\theta_{d'}\right)\right)
 \end{eqnarray*}
 
 \end_inset
@@ -413,7 +413,7 @@ So we can center
  for simplicity to get 
 \begin_inset Formula 
 \begin{eqnarray*}
-\hat{\Sigma}_{\theta} & = & \left.\frac{d}{dt^{T}}\frac{1}{D}\sum_{d=1}^{D}w_{d,t}\theta_{d}\right|_{t=0}\\
+\hat{\Sigma}_{\theta} & = & \left.\frac{d}{dt^{T}}\sum_{d=1}^{D}w_{d,t}\theta_{d}\right|_{t=0}\\
  & = & \frac{1}{D}\sum_{d=1}^{D}\left(\theta_{d}-\bar{\theta}\right)\left(\ell_{\alpha,d}^{T}\frac{d\alpha}{dt^{T}}+\theta_{d}^{T}\right)\\
  & = & \frac{1}{D}\sum_{d=1}^{D}\left(\theta_{d}-\bar{\theta}\right)\ell_{\alpha,d}^{T}\left.\frac{d\alpha}{dt^{T}}\right|_{\alpha=\hat{\alpha}}+\widehat{\textrm{Cov}\left(\theta\right)}
 \end{eqnarray*}
@@ -430,6 +430,13 @@ where
 
  is the usual MCMC sampling covariance.
  
+\end_layout
+
+\begin_layout Subsection
+\begin_inset Formula $d\alpha/dt$
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -557,14 +564,134 @@ This can be marginalized exactly as a function of
 \begin_layout Standard
 \begin_inset Formula 
 \begin{eqnarray*}
-\log p_{t}\left(y_{i}\vert\lambda_{i}\right) & = & -\lambda_{i}+y_{i}\log\lambda_{i}+t_{i}\lambda_{i}-\log y_{i}!\\
- & = & -\left(1-t_{i}\right)\lambda_{i}+y_{i}\log\lambda_{i}-\log y_{i}!\\
+\log p\left(y_{i}\vert\lambda_{i}\right) & = & -\lambda_{i}+y_{i}\log\lambda_{i}-\log y_{i}!\\
 \log p\left(\lambda_{i}\vert\gamma,\beta\right) & = & \gamma\log\beta-\log\Gamma\left(\gamma\right)-\beta\lambda_{i}+\left(\gamma-1\right)\log\lambda_{i}\\
-\log p_{t}\left(y,\lambda\vert\gamma,\beta\right) & = & N\gamma\log\beta-N\log\Gamma\left(\gamma\right)-\sum_{i}\left(\beta+1-t_{i}\right)\lambda_{i}+\sum_{i}\left(\gamma+y_{i}-1\right)\log\lambda_{i}-\sum_{i}\log y_{i}!\\
+\log p_{t}\left(y,\lambda\vert\gamma,\beta\right) & = & N\gamma\log\beta-N\log\Gamma\left(\gamma\right)-\sum_{i}\left(\beta+1\right)\lambda_{i}+\sum_{i}\left(\gamma+y_{i}-1\right)\log\lambda_{i}-\sum_{i}\log y_{i}!+\sum_{i}\lambda_{i}t_{i}\\
+ & = & N\gamma\log\beta-N\log\Gamma\left(\gamma\right)-\sum_{i}\left(\beta+1-t_{i}\right)\lambda_{i}+\sum_{i}\left(\gamma+y_{i}-1\right)\log\lambda_{i}-\sum_{i}\log y_{i}!\\
  & = & N\gamma\log\beta-N\log\Gamma\left(\gamma\right)-\sum_{i}\log y_{i}!\\
  &  & +\sum_{i}\left[-\left(\beta+1-t_{i}\right)\lambda_{i}+\left(\gamma+y_{i}-1\right)\log\lambda_{i}+\left(\gamma+y_{i}\right)\log\left(\beta+1-t_{i}\right)-\log\Gamma\left(\gamma+y_{i}\right)\right]\\
  &  & -\sum_{i}\left[\left(\gamma+y_{i}\right)\log\left(\beta+1-t_{i}\right)-\log\Gamma\left(\gamma+y_{i}\right)\right]\Rightarrow\\
-\log p_{t}\left(y\vert\gamma,\beta\right) & = & N\gamma\log\beta-N\log\Gamma\left(\gamma\right)-\sum_{i}\left(\gamma+y_{i}\right)\log\left(\beta+1-t_{i}\right)+\sum_{i}\log\Gamma\left(\gamma+y_{i}\right)-\sum_{i}\log y_{i}!
+\log p_{t}\left(y\vert\gamma,\beta\right) & = & N\left(\gamma\log\beta-\log\Gamma\left(\gamma\right)\right)-\sum_{i}\left(\gamma+y_{i}\right)\log\left(\beta+1-t_{i}\right)+\sum_{i}\log\Gamma\left(\gamma+y_{i}\right)-\sum_{i}\log y_{i}!
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Note: this does not normalize as a function of 
+\begin_inset Formula $y$
+\end_inset
+
+ when 
+\begin_inset Formula $t\ne0$
+\end_inset
+
+ and so cannot be correct.
+ Correction attempt 1:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{eqnarray*}
+\log p_{t}\left(y_{i}\vert\lambda_{i}\right) & = & -\left(1-t_{i}\right)\lambda_{i}+y_{i}\log\left(\left(1-t_{i}\right)\lambda_{i}\right)-\log y_{i}!\\
+ & = & -\left(1-t_{i}\right)\lambda_{i}+y_{i}\log\lambda_{i}+y_{i}\log\left(1-t_{i}\right)-\log y_{i}!\\
+\log p\left(\lambda_{i}\vert\gamma,\beta\right) & = & \gamma\log\beta-\log\Gamma\left(\gamma\right)-\beta\lambda_{i}+\left(\gamma-1\right)\log\lambda_{i}\\
+\log p_{t}\left(y,\lambda\vert\gamma,\beta\right) & = & N\gamma\log\beta-N\log\Gamma\left(\gamma\right)-\sum_{i}\left(\beta+1-t_{i}\right)\lambda_{i}+\sum_{i}\left(\left(y_{i}+\gamma-1\right)\log\lambda_{i}+y_{i}\log\left(1-t_{i}\right)\right)-\sum_{i}\log y_{i}!\\
+ & = & N\gamma\log\beta-N\log\Gamma\left(\gamma\right)-\sum_{i}\log y_{i}!+\sum_{i}y_{i}\log\left(1-t_{i}\right)\\
+ &  & \sum_{i}\left(-\left(\beta+1-t_{i}\right)\lambda_{i}+\left(y_{i}+\gamma-1\right)\log\lambda_{i}\right)+\\
+ &  & \sum_{i}\left[\left(\gamma+y_{i}\right)\log\left(\beta+1-t_{i}\right)-\log\Gamma\left(\gamma+y_{i}\right)\right]-\\
+ &  & \sum_{i}\left[\left(\gamma+y_{i}\right)\log\left(\beta+1-t_{i}\right)-\log\Gamma\left(\gamma+y_{i}\right)\right]\\
+\log p_{t}\left(y\vert\gamma,\beta\right) & = & N\gamma\log\beta-N\log\Gamma\left(\gamma\right)-\sum_{i}\log y_{i}!+\sum_{i}y_{i}\log\left(1-t_{i}\right)-\\
+ &  & \sum_{i}\left[\left(\gamma+y_{i}\right)\log\left(\beta+1-t_{i}\right)-\log\Gamma\left(\gamma+y_{i}\right)\right]\\
+\log p_{t}\left(y_{i}\vert\gamma,\beta\right) & = & \gamma\log\beta-\log\Gamma\left(\gamma\right)-\log y_{i}!+y_{i}\log\left(1-t_{i}\right)-\gamma\log\left(\beta+1-t_{i}\right)-y_{i}\log\left(\beta+1-t_{i}\right)-\log\Gamma\left(\gamma+y_{i}\right)\\
+ & = & \gamma\log\beta-\log\Gamma\left(\gamma\right)-\log y_{i}!\\
+ &  & -\gamma\log\left(\frac{\beta}{1-t_{i}}+1\right)+\gamma\log\left(\frac{1}{1-t_{i}}\right)-y_{i}\log\left(\frac{\beta}{1-t_{i}}+1\right)-\log\Gamma\left(\gamma+y_{i}\right)\\
+ & = & \gamma\log\left(\frac{\beta}{1-t_{i}}\right)-\log\Gamma\left(\gamma\right)-\log y_{i}!-\left(y_{i}-\gamma\right)\log\left(\frac{\beta}{1-t_{i}}+1\right)-\log\Gamma\left(\gamma+y_{i}\right)
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+(NB: probably an error in the sign here)
+\end_layout
+
+\begin_layout Standard
+This obviously normalizes; it is the negative binomial with 
+\begin_inset Formula $\beta$
+\end_inset
+
+ replaced by 
+\begin_inset Formula $\beta/\left(1-t_{i}\right)$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Correction attempt 2, which should be the same:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{eqnarray*}
+\log p\left(y_{i}\vert\lambda_{i}\right) & = & -\lambda_{i}+y_{i}\log\left(\lambda_{i}\right)-\log y_{i}!\\
+\log p_{t}\left(\lambda_{i}\vert\gamma,\beta\right) & = & \gamma\log\left(\beta-t_{i}\right)-\log\Gamma\left(\gamma\right)-\left(\beta-t_{i}\right)\lambda_{i}+\left(\gamma-1\right)\log\lambda_{i}\\
+\log p_{t}\left(y_{i}\vert\gamma,\beta\right) & = & \gamma\log\left(\beta-t_{i}\right)-\log\Gamma\left(\gamma\right)-\left(\gamma+y_{i}\right)\log\left(\beta-t_{i}+1\right)+\log\Gamma\left(\gamma+y_{i}\right)-\log y_{i}!
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Strangely, these are not the same.
+ They are both acceptible marginal distributions of 
+\begin_inset Formula $y$
+\end_inset
+
+.
+ Here are our three answers:
+\begin_inset Formula 
+\begin{eqnarray*}
+\log p_{t}\left(y_{i}\vert\gamma,\beta\right) & = & \gamma\log\beta-\log\Gamma\left(\gamma\right)-\left(\gamma+y_{i}\right)\log\left(\beta+1-t_{i}\right)+\log\Gamma\left(\gamma+y_{i}\right)-\log y_{i}!\\
+\log p_{t}\left(y_{i}\vert\gamma,\beta\right) & = & \gamma\log\left(\beta-t_{i}\right)-\log\Gamma\left(\gamma\right)-\left(\gamma+y_{i}\right)\log\left(\beta+1-t_{i}\right)+\log\Gamma\left(\gamma+y_{i}\right)-\log y_{i}!\\
+\log p_{t}\left(y_{i}\vert\gamma,\beta\right) & = & \gamma\log\left(\frac{\beta}{1-t_{i}}\right)-\log\Gamma\left(\gamma\right)-\left(\gamma+y_{i}\right)\log\left(\frac{\beta}{1-t_{i}}+1\right)-\log\Gamma\left(\gamma+y_{i}\right)-\log y_{i}!
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+What is up here?
+\end_layout
+
+\begin_layout Standard
+Sanity check: the negative binomial distribution (using the Wikipedia, not
+ the R parameterization) is
+\begin_inset Formula 
+\begin{eqnarray*}
+\beta & = & \frac{1-\pi}{\pi}\\
+\pi\beta+\pi & = & 1\\
+\pi & = & \frac{1}{1+\beta}
+\end{eqnarray*}
+
+\end_inset
+
+
+\begin_inset Formula 
+\begin{eqnarray*}
+p_{t}\left(y_{i}\vert\gamma,\pi\right) & = & \frac{\Gamma\left(y_{i}+\gamma\right)}{\Gamma\left(\gamma\right)y!}\pi^{\gamma}\left(1-\pi\right)^{y_{i}}\\
+\log p_{t}\left(y_{i}\vert\gamma,\pi\right) & = & \log\Gamma\left(y_{i}+\gamma\right)-\log\Gamma\left(\gamma\right)-\log y!+\gamma\log\left(1-\pi\right)+y_{i}\log\pi\\
+ & = & \log\Gamma\left(y_{i}+\gamma\right)-\log\Gamma\left(\gamma\right)-\log y!+\gamma\log\left(\frac{\beta}{1+\beta}\right)+y_{i}\log\left(\frac{1}{1+\beta}\right)\\
+ & = & \log\Gamma\left(y_{i}+\gamma\right)-\log\Gamma\left(\gamma\right)-\log y!-\gamma\log\left(1+\beta\right)+\gamma\log\left(\beta\right)-y_{i}\log\left(1+\beta\right)
 \end{eqnarray*}
 
 \end_inset
@@ -613,7 +740,16 @@ So
 \end_layout
 
 \begin_layout Standard
-Here, 
+Here,
+\begin_inset Formula 
+\begin{eqnarray*}
+\ell\left(\theta,\alpha,t\right) & = & \log p_{t}\left(y,\lambda\vert\gamma,\beta\right)\\
+ & = & N\gamma\log\beta-N\log\Gamma\left(\gamma\right)-\sum_{i}\left(\beta+1-t_{i}\right)\lambda_{i}+\sum_{i}\left(\gamma+y_{i}-1\right)\log\lambda_{i}-\sum_{i}\log y_{i}!
+\end{eqnarray*}
+
+\end_inset
+
+ 
 \begin_inset Formula 
 \begin{eqnarray*}
 \ell_{\hat{\alpha},d} & = & \left(\begin{array}{c}
@@ -664,7 +800,7 @@ Here, if the vector draws
 \begin_inset Formula 
 \begin{eqnarray*}
 \Lambda & = & \left(\begin{array}{ccc}
-\lambda_{1} & \cdots & \lambda_{D}\end{array}\right)
+\left(\lambda_{1}-\bar{\lambda}\right) & \cdots & \left(\lambda_{D}-\bar{\lambda}\right)\end{array}\right)
 \end{eqnarray*}
 
 \end_inset

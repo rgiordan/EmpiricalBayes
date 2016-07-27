@@ -155,6 +155,8 @@ lambda_draws <- as.matrix(
     dcast(g ~ draw, value.var="lambda") %>%
     select(-g))
 
+lambda_draws <- lambda_draws - rowMeans(lambda_draws)
+
 # Strange that this is negative.
 cov_corr <- lambda_draws %*% ell_alpha %*% dalpha_dt / n_draws
 
