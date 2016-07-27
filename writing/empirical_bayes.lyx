@@ -250,9 +250,10 @@ As a function of
  using importance sampling:
 \begin_inset Formula 
 \begin{eqnarray*}
-\mbe_{p_{t}}\left[\theta\vert x,\hat{\alpha}_{t}\right] & \approx & \frac{1}{D}\sum_{d=1}^{D}w_{d,t}\theta_{d}\\
-\hat{\Sigma}_{\theta} & := & \frac{1}{D}\sum_{d=1}^{D}\theta_{d}\\
-w_{d,t} & = & \exp\left(\ell\left(\theta_{d},\hat{\alpha}_{t},t\right)-c\left(t\right)-\ell\left(\theta_{d},\hat{\alpha},0\right)+c\left(0\right)\right)
+\mbe_{p_{t}}\left[\theta\vert x,\hat{\alpha}_{t}\right] & \approx & \sum_{d=1}^{D}\bar{w}_{d,t}\theta_{d}\\
+w_{d,t} & = & \exp\left(\ell\left(\theta_{d},\hat{\alpha}_{t},t\right)-c\left(t\right)-\ell\left(\theta_{d},\hat{\alpha},0\right)+c\left(0\right)\right)\\
+\bar{w}_{d,t} & = & \frac{w_{d,t}}{\sum_{d'}w_{d',t}}\\
+\hat{\Sigma}_{\theta} & := & \frac{d}{dt}\mbe_{p_{t}}\left[\theta\vert x,\hat{\alpha}_{t}\right]
 \end{eqnarray*}
 
 \end_inset
@@ -264,8 +265,7 @@ w_{d,t} & = & \exp\left(\ell\left(\theta_{d},\hat{\alpha}_{t},t\right)-c\left(t\
 This can be differentiated:
 \begin_inset Formula 
 \begin{eqnarray*}
-\frac{d}{dt^{T}}\frac{1}{D}\sum_{d=1}^{D}w_{d,t}\theta_{d} & = & \frac{1}{D}\sum_{d=1}^{D}\theta_{d}\frac{dw_{d,t}}{dt^{T}}\\
- & = & \frac{1}{D}\sum_{d=1}^{D}\theta_{d}\left(\frac{\partial w_{d,t}}{\partial\alpha^{T}}\frac{d\alpha}{dt^{T}}+\frac{\partial w_{d,t}}{\partial t^{T}}\right)
+\frac{d}{dt^{T}}\sum_{d=1}^{D}w_{d,t}\theta_{d} & = & \sum_{d=1}^{D}\theta_{d}\frac{d\bar{w}_{d,t}}{dt^{T}}
 \end{eqnarray*}
 
 \end_inset
@@ -274,9 +274,58 @@ This can be differentiated:
 \end_layout
 
 \begin_layout Standard
-Where
+By the product rule,
+\end_layout
+
+\begin_layout Standard
 \begin_inset Formula 
 \begin{eqnarray*}
+\frac{d\bar{w}_{d,t}}{dt} & = & \frac{1}{\sum_{d'}w_{d',t}}\frac{dw_{d,t}}{dt}-\frac{w_{d,t}}{\left(\sum_{d'}w_{d',t}\right)^{2}}\sum_{d''}\frac{dw_{d'',t}}{dt}\\
+ & = & \frac{1}{\sum_{d'}w_{d',t}}\left(\frac{dw_{d,t}}{dt}-\frac{w_{d,t}}{\sum_{d'}w_{d',t}}\sum_{d''}\frac{dw_{d'',t}}{dt}\right)
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Note that
+\begin_inset Formula 
+\begin{eqnarray*}
+\sum_{d}\frac{d\bar{w}_{d,t}}{dt} & = & \frac{1}{\sum_{d'}w_{d',t}}\left(\sum_{d}\frac{dw_{d,t}}{dt}-\frac{\sum_{d}w_{d,t}}{\sum_{d'}w_{d',t}}\sum_{d''}\frac{dw_{d'',t}}{dt}\right)\\
+ & = & \frac{1}{\sum_{d'}w_{d',t}}\left(\sum_{d}\frac{dw_{d,t}}{dt}-\sum_{d''}\frac{dw_{d'',t}}{dt}\right)\\
+ & = & 0
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Consequently the estimate is shift invariant in 
+\begin_inset Formula $\theta$
+\end_inset
+
+, as would be hoped.
+ This is just a sanity check, since automatically:
+\begin_inset Formula 
+\begin{eqnarray*}
+\sum_{d}\bar{w}_{d,t} & = & 1\Rightarrow\\
+\sum_{d}\frac{d\bar{w}_{d,t}}{dt} & = & 0
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Above,
+\begin_inset Formula 
+\begin{eqnarray*}
+\frac{dw_{d,t}}{dt} & = & \frac{d\alpha^{T}}{dt}\frac{\partial w_{d,t}}{\partial\alpha}+\frac{\partial w_{d,t}}{\partial t}\\
 \frac{\partial w_{d,t}}{\partial\alpha} & = & w_{d,t}\frac{\partial\ell\left(\theta_{d},\alpha,t\right)}{\partial\alpha}\\
 \frac{\partial w_{d,t}}{\partial t} & = & w_{d,t}\left(\frac{\partial\ell\left(\theta_{d},\alpha,t\right)}{\partial t}-\frac{\partial c\left(t\right)}{\partial t}\right)
 \end{eqnarray*}
@@ -284,27 +333,6 @@ Where
 \end_inset
 
 
-\end_layout
-
-\begin_layout Standard
-Note that since
-\begin_inset Formula 
-\begin{eqnarray*}
-\sum_{d}w_{d,t} & = & 1\\
-\sum_{d}\frac{dw_{d,t}}{dt} & = & 0
-\end{eqnarray*}
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-Consequently the estimate is shift invariant, as expected.
-\end_layout
-
-\begin_layout Standard
-NOTE: this is not true, but if we normalize the weights it will be.
 \end_layout
 
 \begin_layout Standard
@@ -336,17 +364,58 @@ Denoting
 And substituting again
 \begin_inset Formula 
 \begin{eqnarray*}
-\mbe_{p}\left[\theta\right] & \approx & \frac{1}{D}\sum_{d=1}^{D}\theta_{n}
+\left.\frac{\partial c\left(t\right)}{\partial t}\right|_{t=0}=\mbe_{p}\left[\theta\right] & \approx & \frac{1}{D}\sum_{d=1}^{D}\theta_{n}
 \end{eqnarray*}
 
 \end_inset
 
-we can see that
+
+\end_layout
+
+\begin_layout Standard
+then plugging in
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{eqnarray*}
+\frac{d\bar{w}_{d,t}}{dt} & = & \frac{1}{\sum_{d'}w_{d',t}}\left(w_{d,t}\left(\frac{d\alpha^{T}}{dt}\frac{\partial\ell\left(\theta_{d},\alpha,t\right)}{\partial\alpha^{T}}+\theta_{d}-\mbe_{p_{t}}\left[\theta\right]\right)-\frac{w_{d,t}}{\sum_{d'}w_{d',t}}\sum_{d''}\frac{dw_{d'',t}}{dt}\right)\\
+\left.\frac{d\bar{w}_{d,t}}{dt}\right|_{t=0} & = & \frac{d\alpha^{T}}{dt}\ell_{\alpha,d}+\theta_{d}-\mbe_{p_{t}}\left[\theta\right]-\frac{1}{D}\sum_{d'}\left(\frac{d\alpha^{T}}{dt}\ell_{\alpha,d'}+\theta_{d'}-\mbe_{p_{t}}\left[\theta\right]\right)\\
+ & = & \ell_{\alpha,d}^{T}\frac{d\alpha}{dt}+\theta_{d}-\frac{1}{D}\sum_{d'}\left(\frac{d\alpha^{T}}{dt}\ell_{\alpha,d'}+\theta_{d'}\right)
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Of course, in general
+\begin_inset Formula 
+\begin{eqnarray*}
+\sum x\left(y-\bar{y}\right) & = & \sum\left(x-\bar{x}\right)\left(y-\bar{y}\right)=\sum\left(x-\bar{x}\right)y
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+So we can center 
+\begin_inset Formula $\theta$
+\end_inset
+
+ instead of 
+\begin_inset Formula $d\bar{w}/dt$
+\end_inset
+
+ for simplicity to get 
 \begin_inset Formula 
 \begin{eqnarray*}
 \hat{\Sigma}_{\theta} & = & \left.\frac{d}{dt^{T}}\frac{1}{D}\sum_{d=1}^{D}w_{d,t}\theta_{d}\right|_{t=0}\\
- & = & \frac{1}{D}\sum_{d=1}^{D}\theta_{d}\left(\ell_{\alpha,d}^{T}\left.\frac{d\alpha}{dt^{T}}\right|_{\alpha=\hat{\alpha}}+\theta_{d}^{T}-\frac{1}{N}\sum_{n}\theta_{n}^{T}\right)\\
- & = & \frac{1}{D}\sum_{d=1}^{D}\theta_{d}\ell_{\alpha,d}^{T}\left.\frac{d\alpha}{dt^{T}}\right|_{\alpha=\hat{\alpha}}+\widehat{\textrm{Cov}\left(\theta\right)}
+ & = & \frac{1}{D}\sum_{d=1}^{D}\left(\theta_{d}-\bar{\theta}\right)\left(\ell_{\alpha,d}^{T}\frac{d\alpha}{dt^{T}}+\theta_{d}^{T}\right)\\
+ & = & \frac{1}{D}\sum_{d=1}^{D}\left(\theta_{d}-\bar{\theta}\right)\ell_{\alpha,d}^{T}\left.\frac{d\alpha}{dt^{T}}\right|_{\alpha=\hat{\alpha}}+\widehat{\textrm{Cov}\left(\theta\right)}
 \end{eqnarray*}
 
 \end_inset
@@ -451,7 +520,7 @@ Note that since
 \begin_layout Standard
 \begin_inset Formula 
 \begin{eqnarray*}
-\hat{\Sigma}_{\theta} & = & \widehat{\textrm{Cov}\left(\theta\right)}-\frac{1}{D}\sum_{d=1}^{D}\theta_{d}\ell_{\hat{\alpha},d}^{T}\left(\frac{\partial^{2}M}{\partial\alpha\partial\alpha^{T}}\right)^{-1}\frac{\partial^{2}M}{\partial\alpha\partial t^{T}}
+\hat{\Sigma}_{\theta} & = & \widehat{\textrm{Cov}\left(\theta\right)}-\frac{1}{D}\sum_{d=1}^{D}\left(\theta_{d}-\bar{\theta}\right)\ell_{\hat{\alpha},d}^{T}\left(\frac{\partial^{2}M}{\partial\alpha\partial\alpha^{T}}\right)^{-1}\frac{\partial^{2}M}{\partial\alpha\partial t^{T}}
 \end{eqnarray*}
 
 \end_inset
