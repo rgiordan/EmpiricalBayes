@@ -64,39 +64,6 @@ NegBinLogLik <- function(theta) {
 prior_mle_optim <- optim(c(0, 0), NegBinLogLik, control=list(fnscale=-1))
 prior_mle <- DecodeTheta(prior_mle_optim$par)
 
-# Check derivatives
-epsilon <- 1
-obs <- 1
-
-NegBinLogLikManual <- function(theta) {
-  par <- DecodeTheta(theta)
-  log_lik <-
-    n_obs * (par$gamma * log(par$beta) - lgamma(par$gamma)) -
-    sum((par$gamma + y) * log(par$beta + 1 - t_vec)) +
-    sum(lgamma(par$gamma + y))
-  return(log_lik)
-}
-
-# Look at manual derivatives.
-
-vals <- list()
-for (epsilon in seq(0, 1, length.out=100)) {
-  t_vec <- rep(0, n_obs)
-  t_vec[obs] <- epsilon
-  manual_prior_mle_optim <- optim(c(0, 0), NegBinLogLikManual, control=list(fnscale=-1))
-  manual_prior_mle <- DecodeTheta(manual_prior_mle_optim$par)
-  vals[[length(vals) + 1]] <- c(epsilon, manual_prior_mle$gamma, manual_prior_mle$beta)
-}
-vals <- do.call(rbind, vals)
-plot(vals[, 1], vals[, 2])
-plot(vals[, 1], vals[, 3])
-
-ind_diff <- 10
-(vals[ind_diff, 2] - vals[1, 2]) / (vals[ind_diff, 1] - vals[1, 1])
-(vals[ind_diff, 3] - vals[1, 3]) / (vals[ind_diff, 1] - vals[1, 1])
-
-dalpha_dt[, obs] * epsilon
-
 
 ######################################
 # STAN
@@ -126,4 +93,64 @@ free_stan_sim <- sampling(free_model, data = stan_dat, seed = seed, chains = cha
 fixed_stan_sim <- sampling(fixed_model, data = stan_dat, seed = seed, chains = chains, iter = iters)
 
 save(free_stan_sim, fixed_stan_sim, stan_dat, true_params, file=stan_draws_file)
+
+
+################################
+# Check derivatives
+epsilon <- 1
+obs <- 1
+
+library(numDeriv)
+
+t_vec <- rep(0, n_obs)
+NegBinLogLikArgs <- function(theta) {
+  gamma <- theta[1]
+  beta <- theta[2]
+  t_vec <- theta[3:length(theta)]
+  log_lik <-
+    sum(gamma * log(beta - t_vec) - lgamma(gamma)) -
+    sum((gamma + y) * log(beta + 1 - t_vec)) +
+    sum(lgamma(gamma + y))
+  return(log_lik)
+}
+
+NegBinLogLikManual <- function(theta) {
+  par <- DecodeTheta(theta)
+  return(NegBinLogLikArgs(c(par$gamma, par$beta, rep(0, n_obs))))
+}
+
+gamma_est <- prior_mle$gamma
+beta_est <- prior_mle$beta
+M_aa[1, 1] <- sum(trigamma(gamma_est + y) - trigamma(gamma_est))
+M_aa[2, 1] <- M_aa[1, 2] <- n_obs * (1 / beta_est - 1 / (1 + beta_est))
+M_aa[2, 2] <- sum(gamma_est / (beta_est ^ 2) - (gamma_est + y) / ((1 + beta_est) ^ 2))
+
+auto_hess <- hessian(NegBinLogLikArgs, c(gamma_est, beta_est, rep(0, n_obs)))
+auto_hess[1:2, 1:2]
+M_aa
+
+auto_hess[1:2, 3:(2 + n_obs)][1, ] - M_at[1,]
+auto_hess[1:2, 3:(2 + n_obs)][2, ] - M_at[2,] 
+
+# Look at manual derivatives.
+
+vals <- list()
+for (epsilon in seq(0, 1, length.out=100)) {
+  t_vec <- rep(0, n_obs)
+  t_vec[obs] <- epsilon
+  manual_prior_mle_optim <- optim(c(0, 0), NegBinLogLikManual, control=list(fnscale=-1))
+  manual_prior_mle <- DecodeTheta(manual_prior_mle_optim$par)
+  vals[[length(vals) + 1]] <- c(epsilon, manual_prior_mle$gamma, manual_prior_mle$beta)
+}
+vals <- do.call(rbind, vals)
+
+plot(vals[, 1], vals[, 2])
+plot(vals[, 1], vals[, 3])
+
+ind_diff <- 10
+(vals[ind_diff, 2] - vals[1, 2]) / (vals[ind_diff, 1] - vals[1, 1])
+(vals[ind_diff, 3] - vals[1, 3]) / (vals[ind_diff, 1] - vals[1, 1])
+
+dalpha_dt[, obs] * epsilon
+
 

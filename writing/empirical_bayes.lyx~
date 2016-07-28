@@ -608,32 +608,6 @@ This can be marginalized exactly as a function of
 \end_layout
 
 \begin_layout Standard
-Sanity check: the negative binomial distribution (using the Wikipedia, not
- the R parameterization) is
-\begin_inset Formula 
-\begin{eqnarray*}
-\beta & = & \frac{1-\pi}{\pi}\\
-\pi\beta+\pi & = & 1\\
-\pi & = & \frac{1}{1+\beta}
-\end{eqnarray*}
-
-\end_inset
-
-
-\begin_inset Formula 
-\begin{eqnarray*}
-p_{t}\left(y_{i}\vert\gamma,\pi\right) & = & \frac{\Gamma\left(y_{i}+\gamma\right)}{\Gamma\left(\gamma\right)y!}\pi^{\gamma}\left(1-\pi\right)^{y_{i}}\\
-\log p_{t}\left(y_{i}\vert\gamma,\pi\right) & = & \log\Gamma\left(y_{i}+\gamma\right)-\log\Gamma\left(\gamma\right)-\log y!+\gamma\log\left(1-\pi\right)+y_{i}\log\pi\\
- & = & \log\Gamma\left(y_{i}+\gamma\right)-\log\Gamma\left(\gamma\right)-\log y!+\gamma\log\left(\frac{\beta}{1+\beta}\right)+y_{i}\log\left(\frac{1}{1+\beta}\right)\\
- & = & \log\Gamma\left(y_{i}+\gamma\right)-\log\Gamma\left(\gamma\right)-\log y!-\gamma\log\left(1+\beta\right)+\gamma\log\left(\beta\right)-y_{i}\log\left(1+\beta\right)
-\end{eqnarray*}
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
 We choose 
 \begin_inset Formula $\gamma$
 \end_inset
@@ -645,7 +619,7 @@ We choose
  to maximize this, so that
 \begin_inset Formula 
 \begin{eqnarray*}
-0=\frac{\partial}{\partial\gamma}\log p_{t} & = & N\log\left(\beta-t_{i}\right)-N\psi\left(\gamma\right)-\sum_{i}\log\left(\beta+1-t_{i}\right)+\sum_{i}\psi\left(\gamma+y_{i}\right)\\
+0=\frac{\partial}{\partial\gamma}\log p_{t} & = & \sum_{i}\log\left(\beta-t_{i}\right)-N\psi\left(\gamma\right)-\sum_{i}\log\left(\beta+1-t_{i}\right)+\sum_{i}\psi\left(\gamma+y_{i}\right)\\
 0=\frac{\partial}{\partial\beta}\log p_{t} & = & \sum_{i}\left(\frac{\gamma}{\beta-t_{i}}-\frac{\gamma+y_{i}}{1+\beta-t_{i}}\right)
 \end{eqnarray*}
 
@@ -656,15 +630,23 @@ We choose
 
 \begin_layout Standard
 So
+\end_layout
+
+\begin_layout Standard
+TODO: I think there's a sign herror in the 
+\begin_inset Formula $\beta,\beta$
+\end_inset
+
+ term of the Hessian.
 \begin_inset Formula 
 \begin{eqnarray*}
 \frac{\partial^{2}M}{\partial\alpha\partial\alpha^{T}} & = & N\left(\begin{array}{cc}
-\frac{1}{N}\sum_{i}\left(\psi'\left(\gamma+y_{i}\right)-\psi'\left(\gamma\right)\right) & \frac{1}{\beta-t_{i}}-\frac{1}{N}\sum_{i}\frac{1}{1+\beta-t_{i}}\\
-\frac{1}{\beta-t_{i}}-\frac{1}{N}\sum_{i}\frac{1}{1+\beta-t_{i}} & -\frac{\gamma}{\left(\beta-t_{i}\right)^{2}}+\frac{1}{N}\sum_{i}\frac{\gamma+y_{i}}{\left(1+\beta-t_{i}\right)^{2}}
+\frac{1}{N}\sum_{i}\left(\psi'\left(\gamma+y_{i}\right)-\psi'\left(\gamma\right)\right) & \frac{1}{N}\sum_{i}\left(\frac{1}{\beta-t_{i}}-\frac{1}{1+\beta-t_{i}}\right)\\
+\frac{1}{N}\sum_{i}\left(\frac{1}{\beta-t_{i}}-\frac{1}{1+\beta-t_{i}}\right) & \frac{1}{N}\sum_{i}\left(\frac{\gamma}{\left(\beta-t_{i}\right)^{2}}-\frac{\gamma+y_{i}}{\left(1+\beta-t_{i}\right)^{2}}\right)
 \end{array}\right)\\
 \frac{\partial^{2}M}{\partial\alpha\partial t_{i}} & = & \left(\begin{array}{c}
 \frac{1}{1+\beta-t_{i}}-\frac{1}{\beta-t_{i}}\\
-\frac{\gamma}{\left(\beta-t_{i}\right)^{2}}-\frac{\gamma+y_{i}}{\left(1+\beta-t_{i}\right)^{2}}-
+\frac{\gamma}{\left(\beta-t_{i}\right)^{2}}-\frac{\gamma+y_{i}}{\left(1+\beta-t_{i}\right)^{2}}
 \end{array}\right)
 \end{eqnarray*}
 
@@ -678,7 +660,7 @@ Here,
 \begin_inset Formula 
 \begin{eqnarray*}
 \ell\left(\theta,\alpha,t\right) & = & \log p_{t}\left(y,\lambda\vert\gamma,\beta\right)\\
- & = & N\gamma\log\beta-N\log\Gamma\left(\gamma\right)-\sum_{i}\left(\beta+1-t_{i}\right)\lambda_{i}+\sum_{i}\left(\gamma+y_{i}-1\right)\log\lambda_{i}-\sum_{i}\log y_{i}!
+ & = & N\gamma\log\left(\beta-t_{i}\right)-N\log\Gamma\left(\gamma\right)-\sum_{i}\left(\beta+1-t_{i}\right)\lambda_{i}+\sum_{i}\left(\gamma+y_{i}-1\right)\log\lambda_{i}-\sum_{i}\log y_{i}!
 \end{eqnarray*}
 
 \end_inset
@@ -788,6 +770,32 @@ Then the covariance correction can be estimated with
 
 \begin_layout Part
 Old writing, ignore past this point
+\end_layout
+
+\begin_layout Standard
+Sanity check: the negative binomial distribution (using the Wikipedia, not
+ the R parameterization) is
+\begin_inset Formula 
+\begin{eqnarray*}
+\beta & = & \frac{1-\pi}{\pi}\\
+\pi\beta+\pi & = & 1\\
+\pi & = & \frac{1}{1+\beta}
+\end{eqnarray*}
+
+\end_inset
+
+
+\begin_inset Formula 
+\begin{eqnarray*}
+p_{t}\left(y_{i}\vert\gamma,\pi\right) & = & \frac{\Gamma\left(y_{i}+\gamma\right)}{\Gamma\left(\gamma\right)y!}\pi^{\gamma}\left(1-\pi\right)^{y_{i}}\\
+\log p_{t}\left(y_{i}\vert\gamma,\pi\right) & = & \log\Gamma\left(y_{i}+\gamma\right)-\log\Gamma\left(\gamma\right)-\log y!+\gamma\log\left(1-\pi\right)+y_{i}\log\pi\\
+ & = & \log\Gamma\left(y_{i}+\gamma\right)-\log\Gamma\left(\gamma\right)-\log y!+\gamma\log\left(\frac{\beta}{1+\beta}\right)+y_{i}\log\left(\frac{1}{1+\beta}\right)\\
+ & = & \log\Gamma\left(y_{i}+\gamma\right)-\log\Gamma\left(\gamma\right)-\log y!-\gamma\log\left(1+\beta\right)+\gamma\log\left(\beta\right)-y_{i}\log\left(1+\beta\right)
+\end{eqnarray*}
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Section
