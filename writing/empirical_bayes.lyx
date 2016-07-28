@@ -670,7 +670,39 @@ Strangely, these are not the same.
 \end_layout
 
 \begin_layout Standard
-What is up here?
+What is up here? This:
+\begin_inset Formula 
+\begin{eqnarray*}
+p\left(x,\theta,\alpha\right) & = & p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)\\
+p_{t}\left(x,\theta,\alpha\right) & = & \frac{p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)e^{\theta t}}{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)e^{\theta t}dxd\theta d\alpha}\\
+p_{t}\left(x\vert\alpha\right) & = & \frac{\int p_{t}\left(x,\theta,\alpha\right)d\theta}{p_{t}\left(\alpha\right)}\\
+ & = & \frac{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)e^{\theta t}d\theta}{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)e^{\theta t}dxd\theta d\alpha}\frac{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)e^{\theta t}dxd\theta d\alpha}{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)e^{\theta t}dxd\theta}\\
+ & = & \frac{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)e^{\theta t}d\theta}{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)e^{\theta t}dxd\theta}\\
+ & = & \frac{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)e^{\theta t}d\theta}{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)e^{\theta t}dxd\theta}\\
+ & = & \frac{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)e^{\theta t}d\theta}{\left(\int p\left(x\vert\theta\right)dx\right)p\left(\theta\vert\alpha\right)e^{\theta t}d\theta}\\
+ & = & \int p\left(x\vert\theta\right)\frac{p\left(\theta\vert\alpha\right)e^{\theta t}}{\int p\left(\theta'\vert\alpha\right)e^{\theta't}d\theta'}d\theta
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+So the right place to put the 
+\begin_inset Formula $t$
+\end_inset
+
+ is inside 
+\begin_inset Formula $p\left(\theta\vert\alpha\right)$
+\end_inset
+
+.
+ When 
+\begin_inset Formula $\theta$
+\end_inset
+
+ is a natural sufficient statistic, this will be easy.
 \end_layout
 
 \begin_layout Standard
