@@ -131,8 +131,8 @@ M_aa[2, 2] <- -1 * gamma_est / (beta_est ^ 2) + (gamma_est + mean(y)) / ((1 + be
 M_aa <- M_aa * n_g
 
 M_at <- matrix(NaN, 2, n_g)
-M_at[1, ] <- 1 / (1 + beta_est)
-M_at[2, ] <- (gamma_est + t(y)) / ((1 + beta_est) ^ 2)
+M_at[1, ] <- 1 / (1 + beta_est) - 1 / beta_est
+M_at[2, ] <- gamma_est / (beta_est ^ 2) - (gamma_est + t(y)) / ((1 + beta_est) ^ 2)
 
 # Means within a draw
 lambda_moments <-
