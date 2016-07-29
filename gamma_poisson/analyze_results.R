@@ -18,6 +18,10 @@ lambda_free <- extract(stan_results$free_stan_sim)
 true_lambda <- stan_results$true_params$lambda
 lambda_true_df <- data.frame(g=1:length(true_lambda), "true_lambda"=true_lambda)
 lambda_true_df$y <- stan_results$stan_dat$y
+gamma_est <- stan_results$stan_dat$prior_gamma
+beta_est <- stan_results$stan_dat$prior_beta
+lambda_true_df$true_mean <- with(lambda_true_df, (y + gamma_est) / (1 + beta_est))
+lambda_true_df$true_sd <- with(lambda_true_df, sqrt(y + gamma_est) / ((1 + beta_est)))
 
 lambda_free_df <-
   melt(lambda_free$lambda) %>% rename(g=Var2, draw=iterations, lambda=value) %>%
@@ -33,10 +37,11 @@ lambda_summary <-
   dcast(g ~ method, value.var="mean") %>%
   inner_join(lambda_true_df, by="g")
 
-ggplot(lambda_summary) +
-    geom_point(aes(x=fixed, y=true_lambda, color="true")) +
-    geom_point(aes(x=fixed, y=free, color="free")) +
-    geom_abline(aes(intercept=0, slope=1))
+# ggplot(lambda_summary) +
+#     geom_point(aes(x=fixed, y=true_lambda, color="true")) +
+#     geom_point(aes(x=fixed, y=free, color="free")) +
+#     geom_abline(aes(intercept=0, slope=1))
+
 
 ##############################
 # Accuracy
@@ -70,16 +75,21 @@ lambda_stats <-
   summarize(sd=sd(lambda), mean=mean(lambda)) %>%
   inner_join(lambda_true_df, by="g")
   
-# Free has more variance
-ggplot(dcast(lambda_stats, g ~ method, value.var="sd")) +
-  geom_point(aes(x=fixed, y=free)) +
-  geom_abline(aes(slope=1, intercept=0))
+if (FALSE) {
+  # Free has more variance
+  ggplot(dcast(lambda_stats, g ~ method, value.var="sd")) +
+    geom_point(aes(x=fixed, y=free)) +
+    geom_abline(aes(slope=1, intercept=0)) +
+    ggtitle("Posterior standard deviations")
+  
+  # Fixed shrinks more
+  ggplot(dcast(lambda_stats, g + y ~ method, value.var="mean")) +
+    geom_point(aes(x=y, y=y - free, color="y - free")) +
+    geom_point(aes(x=y, y=y - fixed, color="y - fixed")) +
+    geom_hline(aes(yintercept=0)) +
+    ggtitle("Mean vs residuals")
+}
 
-# Fixed shrinks more
-ggplot(dcast(lambda_stats, g + y ~ method, value.var="mean")) +
-  geom_point(aes(x=y, y=y - free, color="y - free")) +
-  geom_point(aes(x=y, y=y - fixed, color="y - fixed")) +
-  geom_hline(aes(yintercept=0))
 
 
 
@@ -99,18 +109,23 @@ beta_prior_sd <- sqrt(stan_results$stan_dat$prior_beta_var)
 median(lambda_free$gamma_alpha / lambda_free$gamma_beta) - gamma_est
 median(lambda_free$beta_alpha / lambda_free$beta_beta) - beta_est
 
-ggplot(prior_df) +
-  geom_histogram(aes(x=gamma), bins=100) +
-  geom_vline(aes(xintercept=gamma_est), lwd=3) +
-  geom_vline(aes(xintercept=gamma_est - 2 * gamma_prior_sd), lwd=1) +
-  geom_vline(aes(xintercept=gamma_est + 2 * gamma_prior_sd), lwd=1)
+if (FALSE) {
+  ggplot(prior_df) +
+    geom_histogram(aes(x=gamma), bins=100) +
+    geom_vline(aes(xintercept=gamma_est), lwd=3) +
+    geom_vline(aes(xintercept=gamma_est - 2 * gamma_prior_sd), lwd=1) +
+    geom_vline(aes(xintercept=gamma_est + 2 * gamma_prior_sd), lwd=1)
   
-ggplot(prior_df) +
-  geom_histogram(aes(x=beta), bins=100) +
-  geom_vline(aes(xintercept=beta_est), lwd=3) +
-  geom_vline(aes(xintercept=beta_est - 2 * beta_prior_sd), lwd=1) +
-  geom_vline(aes(xintercept=beta_est + 2 * beta_prior_sd), lwd=1)
+  ggplot(prior_df) +
+    geom_histogram(aes(x=beta), bins=100) +
+    geom_vline(aes(xintercept=beta_est), lwd=3) +
+    geom_vline(aes(xintercept=beta_est - 2 * beta_prior_sd), lwd=1) +
+    geom_vline(aes(xintercept=beta_est + 2 * beta_prior_sd), lwd=1)
 
+    ggplot(prior_df) +
+    geom_histogram(aes(x=beta), bins=100) +
+    geom_vline(aes(xintercept=beta_est), lwd=3)
+}
 
 ########################
 # Linear response
@@ -166,10 +181,74 @@ sample_cov <- lambda_draws %*% t(lambda_draws) / (n_draws - 1) -
               lambda_means %*% t(lambda_means) * n_draws / (n_draws - 1)
 
 lr_cov <- sample_cov + cov_corr
+lr_cov <- 0.5 * (lr_cov + t(lr_cov))
 
-# The change is not that large!
-plot(diag(sample_cov), diag(lr_cov)); abline(0, 1)
+
+########################
+# Plots
+
+lambda_sd_stats <-
+  select(lambda_grouped, g, draw, method, lambda) %>%
+  group_by(g, method) %>%
+  summarize(sd=sd(lambda))
+
+lambda_sd_stats_small <-
+  select(lambda_grouped, g, draw, method, lambda) %>%
+  group_by(g, method) %>%
+  filter(draw < 100) %>%
+  summarize(sd=sd(lambda))
+
+
+if (FALSE) {
+  
+lambda_stats_lr <-
+  data.frame(g=1:n_g, method="lr", sd=sqrt(diag(lr_cov))) %>%
+  rbind(lambda_sd_stats) %>%
+  inner_join(lambda_true_df, by="g")
+
+lambda_stats_lr_wide <-
+  dcast(lambda_stats_lr, g ~ method, value.var="sd") %>%
+  inner_join(lambda_true_df, by="g")
+
+
+ggplot(dcast(lambda_sd_stats, g ~ method, value.var="sd") %>% inner_join(lambda_true_df, by="g")) +
+  geom_point(aes(x=y, y=fixed))
+
+ggplot(dcast(lambda_sd_stats_small, g ~ method, value.var="sd") %>% inner_join(lambda_true_df, by="g")) +
+  geom_point(aes(x=y, y=fixed))
+
+# L1 error
+with(lambda_stats_lr_wide, sum(abs(lr - free)))
+with(lambda_stats_lr_wide, sum(abs(fixed - free)))
+
+ggplot(lambda_stats_lr_wide) +
+  geom_point(aes(x=free, y=fixed, color="fixed")) +
+  geom_point(aes(x=free, y=lr, color="lr")) +
+  geom_abline(aes(intercept=0, slope=1)) +
+  ylab("Approximate sd")
+
+ggplot(lambda_stats_lr_wide) +
+  geom_point(aes(x=y, y=free, color="free")) +
+  geom_point(aes(x=y, y=fixed, color="fixed")) +
+  geom_point(aes(x=y, y=lr, color="linear response")) +
+  ylab("Approximate sd")
+
+
+ggplot(lambda_stats_lr_wide) +
+  geom_point(aes(x=true_sd, y=free, color="free")) +
+  geom_point(aes(x=true_sd, y=fixed, color="fixed")) +
+  geom_point(aes(x=true_sd, y=lr, color="linear response")) +
+  geom_abline(aes(intercept=0, slope=1)) +
+  ylab("Approximate sd")
+
+ggplot(lambda_stats_lr_wide) +
+  # geom_point(aes(x=y, y=free, color="free")) +
+  geom_point(aes(x=y, y=fixed, color="fixed")) +
+  ylab("Approximate sd")
+
 
 # Sanity check
 max(abs(lambda_means - filter(lambda_stats, method == "fixed")$mean))
 max(abs(sqrt(diag(sample_cov)) - filter(lambda_stats, method == "fixed")$sd))
+
+}

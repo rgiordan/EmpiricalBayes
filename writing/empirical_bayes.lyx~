@@ -581,6 +581,35 @@ y_{i}\vert\lambda_{i} & \sim & \textrm{Poisson}\left(\lambda_{i}\right)\\
 \end_layout
 
 \begin_layout Standard
+Additionally, we may put gamma priors on 
+\begin_inset Formula $\gamma$
+\end_inset
+
+ and 
+\begin_inset Formula $\beta$
+\end_inset
+
+ (at the risk of having too many gammas around):
+\begin_inset Formula 
+\begin{eqnarray*}
+\gamma & \sim & \textrm{Gamma}\left(a_{\gamma},b_{\gamma}\right)\\
+\beta & \sim & \textrm{Gamma}\left(a_{\beta},b_{\beta}\right)
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Variance of 
+\begin_inset Formula $\lambda$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 This can be marginalized exactly as a function of 
 \begin_inset Formula $t$
 \end_inset
@@ -630,50 +659,16 @@ We choose
 
 \begin_layout Standard
 So
-\end_layout
-
-\begin_layout Standard
-TODO: I think there's a sign herror in the 
-\begin_inset Formula $\beta,\beta$
-\end_inset
-
- term of the Hessian.
 \begin_inset Formula 
 \begin{eqnarray*}
 \frac{\partial^{2}M}{\partial\alpha\partial\alpha^{T}} & = & N\left(\begin{array}{cc}
 \frac{1}{N}\sum_{i}\left(\psi'\left(\gamma+y_{i}\right)-\psi'\left(\gamma\right)\right) & \frac{1}{N}\sum_{i}\left(\frac{1}{\beta-t_{i}}-\frac{1}{1+\beta-t_{i}}\right)\\
-\frac{1}{N}\sum_{i}\left(\frac{1}{\beta-t_{i}}-\frac{1}{1+\beta-t_{i}}\right) & \frac{1}{N}\sum_{i}\left(\frac{\gamma}{\left(\beta-t_{i}\right)^{2}}-\frac{\gamma+y_{i}}{\left(1+\beta-t_{i}\right)^{2}}\right)
+\frac{1}{N}\sum_{i}\left(\frac{1}{\beta-t_{i}}-\frac{1}{1+\beta-t_{i}}\right) & \frac{1}{N}\sum_{i}\left(\frac{\gamma+y_{i}}{\left(1+\beta-t_{i}\right)^{2}}-\frac{\gamma}{\left(\beta-t_{i}\right)^{2}}\right)
 \end{array}\right)\\
 \frac{\partial^{2}M}{\partial\alpha\partial t_{i}} & = & \left(\begin{array}{c}
 \frac{1}{1+\beta-t_{i}}-\frac{1}{\beta-t_{i}}\\
 \frac{\gamma}{\left(\beta-t_{i}\right)^{2}}-\frac{\gamma+y_{i}}{\left(1+\beta-t_{i}\right)^{2}}
 \end{array}\right)
-\end{eqnarray*}
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-Here,
-\begin_inset Formula 
-\begin{eqnarray*}
-\ell\left(\theta,\alpha,t\right) & = & \log p_{t}\left(y,\lambda\vert\gamma,\beta\right)\\
- & = & N\gamma\log\left(\beta-t_{i}\right)-N\log\Gamma\left(\gamma\right)-\sum_{i}\left(\beta+1-t_{i}\right)\lambda_{i}+\sum_{i}\left(\gamma+y_{i}-1\right)\log\lambda_{i}-\sum_{i}\log y_{i}!
-\end{eqnarray*}
-
-\end_inset
-
- 
-\begin_inset Formula 
-\begin{eqnarray*}
-\ell_{\hat{\alpha},d} & = & \left(\begin{array}{c}
-\frac{\partial}{\partial\gamma}\ell\left(\theta_{d},\hat{\alpha},0\right)\\
-\frac{\partial}{\partial\beta}\ell\left(\theta_{d},\hat{\alpha},0\right)
-\end{array}\right)\\
-\frac{\partial}{\partial\gamma}\ell\left(\theta,\alpha,0\right) & = & N\left(\log\beta-\psi\left(\gamma\right)+\frac{1}{N}\sum_{i}\log\lambda_{i}\right)\\
-\frac{\partial}{\partial\beta}\ell\left(\theta,\alpha,0\right) & = & N\left(\frac{\gamma}{\beta}-\frac{1}{N}\sum\lambda_{i}\right)
 \end{eqnarray*}
 
 \end_inset
@@ -705,6 +700,64 @@ Note that here
 \end_inset
 
 .
+\end_layout
+
+\begin_layout Standard
+Here,
+\begin_inset Formula 
+\begin{eqnarray*}
+\ell\left(\theta,\alpha,t\right) & = & \log p_{t}\left(y,\lambda\vert\gamma,\beta\right)+\log p\left(\gamma\right)+\log p\left(\beta\right)\\
+ & = & \sum_{i}\gamma\log\left(\beta-t_{i}\right)-N\log\Gamma\left(\gamma\right)-\sum_{i}\left(\beta+1-t_{i}\right)\lambda_{i}+\sum_{i}\left(\gamma+y_{i}-1\right)\log\lambda_{i}-\sum_{i}\log y_{i}!\\
+ &  & -b_{\gamma}\gamma+\left(a_{\gamma}-1\right)\log\gamma-b_{\beta}\beta+\left(b_{\beta}-1\right)\log\beta
+\end{eqnarray*}
+
+\end_inset
+
+ 
+\begin_inset Formula 
+\begin{eqnarray*}
+\ell_{\hat{\alpha},d} & = & \left(\begin{array}{c}
+\frac{\partial}{\partial\gamma}\ell\left(\theta_{d},\hat{\alpha},0\right)\\
+\frac{\partial}{\partial\beta}\ell\left(\theta_{d},\hat{\alpha},0\right)
+\end{array}\right)\\
+\frac{\partial}{\partial\gamma}\ell\left(\theta,\alpha,0\right) & = & N\left(\log\beta-\psi\left(\gamma\right)+\frac{1}{N}\sum_{i}\log\lambda_{i}-b_{\gamma}+\frac{a_{\gamma}-1}{\gamma}\right)\\
+\frac{\partial}{\partial\beta}\ell\left(\theta,\alpha,0\right) & = & N\left(\frac{\gamma}{\beta}-\frac{1}{N}\sum\lambda_{i}-b_{\beta}+\frac{a_{\beta}-1}{\beta}\right)
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Variance of 
+\begin_inset Formula $\alpha$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{eqnarray*}
+\log p\left(y_{i}\vert\lambda_{i}\right) & = & -\lambda_{i}+y_{i}\log\lambda_{i}-\log y_{i}!\\
+\log p\left(\lambda_{i}\vert\gamma,\beta\right) & = & \gamma\log\beta-\log\Gamma\left(\gamma\right)-\beta\lambda_{i}+\left(\gamma-1\right)\log\lambda_{i}\\
+\log p\left(y,\lambda\vert\gamma,\beta\right) & = & N\gamma\log\beta-N\log\Gamma\left(\gamma\right)-\sum_{i}\left(\beta+1\right)\lambda_{i}+\sum_{i}\left(\gamma+y_{i}-1\right)\log\lambda_{i}-\sum_{i}\log y_{i}!\\
+ & = & N\gamma\log\beta-N\log\Gamma\left(\gamma\right)-\sum_{i}\left(\beta+1\right)\lambda_{i}+\sum_{i}\left(\gamma+y_{i}-1\right)\log\lambda_{i}-\sum_{i}\log y_{i}!\\
+ & = & N\gamma\log\beta-N\log\Gamma\left(\gamma\right)-\sum_{i}\log y_{i}!\\
+ &  & +\sum_{i}\left[-\left(\beta+1\right)\lambda_{i}+\left(\gamma+y_{i}-1\right)\log\lambda_{i}+\left(\gamma+y_{i}\right)\log\left(\beta+1\right)-\log\Gamma\left(\gamma+y_{i}\right)\right]\\
+ &  & -\sum_{i}\left[\left(\gamma+y_{i}\right)\log\left(\beta+1\right)-\log\Gamma\left(\gamma+y_{i}\right)\right]\Rightarrow\\
+\log p\left(y\vert\gamma,\beta\right) & = & N\left(\gamma\log\beta-\log\Gamma\left(\gamma\right)\right)-\sum_{i}\left(\gamma+y_{i}\right)\log\left(\beta+1\right)+\sum_{i}\log\Gamma\left(\gamma+y_{i}\right)-\sum_{i}\log y_{i}!\\
+\log p_{t}\left(y\vert\gamma,\beta\right) & = & \sum_{i}\gamma\log\left(\beta-t_{i}\right)-N\log\Gamma\left(\gamma\right)-\sum_{i}\left(\gamma+y_{i}\right)\log\left(\beta+1-t_{i}\right)+\sum_{i}\log\Gamma\left(\gamma+y_{i}\right)-\sum_{i}\log y_{i}!
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Covariances as matrix products
 \end_layout
 
 \begin_layout Standard
@@ -762,6 +815,92 @@ Then the covariance correction can be estimated with
 \begin{eqnarray*}
 \hat{\Sigma}_{\theta} & = & \widehat{\textrm{Cov}\left(\theta\right)}-\frac{1}{D}\Lambda Q
 \end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Gamma moments
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{eqnarray*}
+x & \sim & \textrm{Gamma}\left(\alpha,\beta\right)\\
+p\left(x\right) & = & \frac{\beta^{\alpha}}{\Gamma\left(\alpha\right)}x^{\alpha-1}e^{-\beta x}
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{eqnarray*}
+\mbe\left[x^{k}\right] & = & \int\frac{\beta^{\alpha}}{\Gamma\left(\alpha\right)}x^{\alpha-1}e^{-\beta x}x^{k}dx\\
+ & = & \frac{\beta^{\alpha}}{\Gamma\left(\alpha\right)}\frac{\Gamma\left(k+\alpha\right)}{\beta^{k+\alpha}}\int\frac{\beta^{k+\alpha}}{\Gamma\left(k+\alpha\right)}x^{k+\alpha-1}e^{-\beta x}dx\\
+ & = & \frac{\Gamma\left(k+\alpha\right)}{\Gamma\left(\alpha\right)}\beta^{-k}
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+From the internet, the variance of the sample variance is given by
+\begin_inset Formula 
+\begin{eqnarray*}
+\textrm{Var}\left(s^{2}\right) & = & \frac{\left(N-1\right)^{2}}{N^{3}}\mu_{4}-\frac{\left(N-1\right)\left(N-3\right)\mu_{2}^{2}}{N^{3}}\\
+\mu_{4} & = & \mbe\left[\left(x-\mu\right)^{4}\right]\\
+ & = & \mbe\left[x^{4}-4x^{3}\mu+6x^{2}\mu^{2}-4x\mu^{3}+\mu^{4}\right]\\
+ & = & m_{4}-4m_{3}\mu+6m_{2}\mu^{2}-4\mu^{4}+\mu^{4}\\
+ & = & m_{4}-4m_{3}\mu+6m_{2}\mu^{2}-3\mu^{4}\\
+\mu_{2}
+\end{eqnarray*}
+
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset line
+LatexCommand rule
+offset "0.5ex"
+width "100col%"
+height "1pt"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset line
+LatexCommand rule
+offset "0.5ex"
+width "100col%"
+height "1pt"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset line
+LatexCommand rule
+offset "0.5ex"
+width "100col%"
+height "1pt"
 
 \end_inset
 

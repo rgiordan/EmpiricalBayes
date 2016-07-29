@@ -821,56 +821,6 @@ Then the covariance correction can be estimated with
 
 \end_layout
 
-\begin_layout Section
-Gamma moments
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula 
-\begin{eqnarray*}
-x & \sim & \textrm{Gamma}\left(\alpha,\beta\right)\\
-p\left(x\right) & = & \frac{\beta^{\alpha}}{\Gamma\left(\alpha\right)}x^{\alpha-1}e^{-\beta x}
-\end{eqnarray*}
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula 
-\begin{eqnarray*}
-\mbe\left[x^{k}\right] & = & \int\frac{\beta^{\alpha}}{\Gamma\left(\alpha\right)}x^{\alpha-1}e^{-\beta x}x^{k}dx\\
- & = & \frac{\beta^{\alpha}}{\Gamma\left(\alpha\right)}\frac{\Gamma\left(k+\alpha\right)}{\beta^{k+\alpha}}\int\frac{\beta^{k+\alpha}}{\Gamma\left(k+\alpha\right)}x^{k+\alpha-1}e^{-\beta x}dx\\
- & = & \frac{\Gamma\left(k+\alpha\right)}{\Gamma\left(\alpha\right)}\beta^{-k}
-\end{eqnarray*}
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-From the internet, the variance of the sample variance is given by
-\begin_inset Formula 
-\begin{eqnarray*}
-\textrm{Var}\left(s^{2}\right) & = & \frac{\left(N-1\right)^{2}}{N^{3}}\mu_{4}-\frac{\left(N-1\right)\left(N-3\right)\mu_{2}^{2}}{N^{3}}\\
-\mu_{4} & = & \mbe\left[\left(x-\mu\right)^{4}\right]\\
- & = & \mbe\left[x^{4}-4x^{3}\mu+6x^{2}\mu^{2}-4x\mu^{3}+\mu^{4}\right]\\
- & = & m_{4}-4m_{3}\mu+6m_{2}\mu^{2}-4\mu^{4}+\mu^{4}\\
- & = & m_{4}-4m_{3}\mu+6m_{2}\mu^{2}-3\mu^{4}\\
-\mu_{2} & = & m_{2}-\mu^{2}
-\end{eqnarray*}
-
-\end_inset
-
-
-\begin_inset Newline newline
-\end_inset
-
-
-\end_layout
-
 \begin_layout Standard
 \begin_inset CommandInset line
 LatexCommand rule
