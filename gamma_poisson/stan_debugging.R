@@ -5,31 +5,23 @@
 #####################################
 # Check posterior
 
+gamma_est <- stan_dat$prior_gamma
+beta_est <- stan_dat$prior_beta
+
 
 lambda_fixed <- extract(fixed_stan_sim)
 
 obs <- 4
 lambda <- lambda_fixed$lambda[, obs]
 true_sd <- sqrt(y[obs] + gamma_est) / (1 + beta_est)
+true_sd_sd <- sqrt(SampleSDVariance(length(lambda), gamma_est, beta_est))
 draws <- rgamma(length(lambda), shape=y[obs] + gamma_est, rate=1 + beta_est)
-draws2 <- rgamma(length(lambda), shape=y[obs] + gamma_est, rate=1 + beta_est)
 # plot(sort(lambda), sort(draws)); abline(0, 1)
-# plot(sort(draws2), sort(draws)); abline(0, 1)
 mean(lambda)
 mean(draws)
 sd(lambda)
 sd(draws)
 sd(draws2)
-
-sims <- 1000
-result <- rep(NaN, sims)
-for (sim in 1:sims) {
-  cat(".")
-  draws <- rgamma(length(lambda), shape=y[obs] + gamma_est, rate=1 + beta_est)
-  result[sim] <- sd(draws)
-}
-
-hist(result); abline(v=sd(lambda), lwd=3, col="purple"); abline(v=true_sd, lwd=3, col="salmon")
 
 
 cdf_draws_list <- list()
@@ -39,6 +31,19 @@ for (obs in 1:ncol(lambda_fixed$lambda)) {
 }
 cdf_draws <- do.call(c, cdf_draws_list)
 hist(cdf_draws, 200)
+
+sd_df_list <- list()
+for (obs in 1:ncol(lambda_fixed$lambda)) {
+  lambda <- lambda_fixed$lambda[, obs]
+  alpha <- y[obs] + gamma_est
+  beta <- 1 + beta_est
+  true_sd <- sqrt(alpha) / beta
+  true_sd_sd <- sqrt(SampleSDVariance(length(lambda), alpha, beta))
+  sd_df_list[[obs]] <- data.frame(obs=obs, true_sd=true_sd, true_sd_sd=true_sd_sd, mcmc_sd=sd(lambda))
+}
+sd_df <- do.call(rbind, sd_df_list)
+
+
 
 
 
@@ -66,22 +71,25 @@ SampleVarianceVariance <- function(n, shape, rate) {
   return(var_s2)
 }
 
+SampleSDVariance <- function(n, shape, rate) {
+  s2_var <- SampleVarianceVariance(n, shape, rate)
+  # Delta method:
+  s2_mean <- GammaMoment(2, shape, rate) - (GammaMoment(1, shape, rate)^2)
+  return(s2_var / (4 * s2_mean))
+}
+
 
 vars_list <- list()
-n_sim <- 500
-for (sim in 1:5000) {
+n_sim <- 5000
+for (sim in 1:10000) {
   draws <- rgamma(n_sim, shape=gamma_est, rate=beta_est)
   vars_list[[sim]] <- var(draws)  
 }
 vars <- unlist(vars_list)
-s2_var <- SampleVarianceVariance(n_sim, gamma_est, beta_est)
-
-sd(vars)
-sqrt(s2_var)
 
 
-
-
+sd(sqrt(vars))
+sqrt(SampleSDVariance(n_sim, gamma_est, beta_est))
 
 
 ################################

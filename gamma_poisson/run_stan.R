@@ -30,7 +30,7 @@ LoadStanModel <- function(stan_model_name) {
 #############################
 # Simualate some data
 
-n_obs <- 30
+n_obs <- 100
 
 set.seed(42)
 true_params <- list()
@@ -59,7 +59,9 @@ DecodeTheta <- function(theta) {
 
 NegBinLogLik <- function(theta) {
   par <- DecodeTheta(theta)
-  return(sum(dnbinom(y, par$r, par$p, log=TRUE)))
+  log_lik <- sum(dnbinom(y, par$r, par$p, log=TRUE)) 
+  cat(log_lik, "\n")
+  return(log_lik)
 }
 
 prior_mle_optim <- optim(c(0, 0), NegBinLogLik, control=list(fnscale=-1))

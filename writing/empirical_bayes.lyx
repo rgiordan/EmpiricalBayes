@@ -865,7 +865,15 @@ From the internet, the variance of the sample variance is given by
 \end_inset
 
 
-\begin_inset Newline newline
+\end_layout
+
+\begin_layout Standard
+Then by the delta method
+\begin_inset Formula 
+\begin{eqnarray*}
+\textrm{Var}\left(\sqrt{x}\right) & \approx & \frac{\textrm{Var}\left(x\right)}{4\mbe\left[x\right]}
+\end{eqnarray*}
+
 \end_inset
 
 

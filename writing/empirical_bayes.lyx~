@@ -859,13 +859,21 @@ From the internet, the variance of the sample variance is given by
  & = & \mbe\left[x^{4}-4x^{3}\mu+6x^{2}\mu^{2}-4x\mu^{3}+\mu^{4}\right]\\
  & = & m_{4}-4m_{3}\mu+6m_{2}\mu^{2}-4\mu^{4}+\mu^{4}\\
  & = & m_{4}-4m_{3}\mu+6m_{2}\mu^{2}-3\mu^{4}\\
-\mu_{2}
+\mu_{2} & = & m_{2}-\mu^{2}
 \end{eqnarray*}
 
 \end_inset
 
 
-\begin_inset Newline newline
+\end_layout
+
+\begin_layout Standard
+Then by the delta method
+\begin_inset Formula 
+\begin{eqnarray*}
+\textrm{Var}\left(\sqrt{x}\right) & \approx & \frac{\textrm{Var}\left(x\right)}{\mbe\left[x\right]}
+\end{eqnarray*}
+
 \end_inset
 
 
