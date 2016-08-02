@@ -42,8 +42,8 @@ for (obs in 1:ncol(lambda_fixed$lambda)) {
   sd_df_list[[obs]] <- data.frame(obs=obs, true_sd=true_sd, true_sd_sd=true_sd_sd, mcmc_sd=sd(lambda))
 }
 sd_df <- do.call(rbind, sd_df_list)
-
-
+sd_df$diff <- with(sd_df, (mcmc_sd - true_sd) / true_sd_sd)
+hist(sd_df$diff)
 
 
 

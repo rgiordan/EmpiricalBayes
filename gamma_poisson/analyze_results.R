@@ -20,8 +20,20 @@ lambda_true_df <- data.frame(g=1:length(true_lambda), "true_lambda"=true_lambda)
 lambda_true_df$y <- stan_results$stan_dat$y
 gamma_est <- stan_results$stan_dat$prior_gamma
 beta_est <- stan_results$stan_dat$prior_beta
-lambda_true_df$true_mean <- with(lambda_true_df, (y + gamma_est) / (1 + beta_est))
-lambda_true_df$true_sd <- with(lambda_true_df, sqrt(y + gamma_est) / ((1 + beta_est)))
+lambda_true_df$fixed_mean <- with(lambda_true_df, (y + gamma_est) / (1 + beta_est))
+lambda_true_df$fixed_var <- with(lambda_true_df, (y + gamma_est) / ((1 + beta_est)^2))
+lambda_true_df <-
+  inner_join(lambda_true_df, rename(free_moment_df, free_mean=lambda_mean, free_var=lambda_var), by="y")
+
+if (FALSE) {
+  ggplot(lambda_true_df) +
+    geom_point(aes(x=free_mean, y=fixed_mean)) +
+    geom_abline(aes(slope=1, intercept=0)) 
+  
+  ggplot(lambda_true_df) +
+    geom_point(aes(x=free_var, y=fixed_var)) +
+    geom_abline(aes(slope=1, intercept=0)) 
+}
 
 lambda_free_df <-
   melt(lambda_free$lambda) %>% rename(g=Var2, draw=iterations, lambda=value) %>%
@@ -145,11 +157,22 @@ M_aa[2, 1] <- M_aa[1, 2] <- 1 / beta_est - 1 / (1 + beta_est)
 M_aa[2, 2] <- (gamma_est + mean(y)) / ((1 + beta_est) ^ 2) - gamma_est / (beta_est ^ 2)
 M_aa <- M_aa * n_g
 
+# Add the prior Hessian if you're comparing with the MAP and not the maximum marignal likelihood
+M_prior_aa <- matrix(0, 2, 2)
+stopifnot(var(lambda_free$gamma_alpha) == 0)
+stopifnot(var(lambda_free$gamma_beta) == 0)
+stopifnot(var(lambda_free$beta_alpha) == 0)
+stopifnot(var(lambda_free$beta_beta) == 0)
+gamma_prior_alpha <- lambda_free$gamma_alpha[1]
+beta_prior_alpha <- lambda_free$beta_alpha[1]
+M_prior_aa[1, 1] <- -1 * (gamma_prior_alpha - 1) / (gamma_est ^ 2)
+M_prior_aa[2, 2] <- -1 * (beta_prior_alpha - 1) / (beta_est ^ 2)
+
 M_at <- matrix(NaN, 2, n_g)
 M_at[1, ] <- 1 / (1 + beta_est) - 1 / beta_est
 M_at[2, ] <- gamma_est / (beta_est ^ 2) - (gamma_est + t(y)) / ((1 + beta_est) ^ 2)
 
-dalpha_dt <- -1 * solve(M_aa, M_at)
+dalpha_dt <- -1 * solve(M_aa + M_prior_aa, M_at)
 
 # Means within a draw
 lambda_moments <-
@@ -159,12 +182,16 @@ lambda_moments <-
   arrange(draw)
 
 ell_alpha <- matrix(NaN, max(lambda_moments$draw), 2)
-ell_alpha[, 1] <- log(beta_est) - digamma(gamma_est) + lambda_moments$e_log
-ell_alpha[, 2] <- gamma_est / beta_est - lambda_moments$e
-ell_alpha <- ell_alpha * n_g
+ell_gamma_prior <- -1 * lambda_free$gamma_beta + (lambda_free$gamma_alpha - 1) / lambda_free$prior_gamma
+ell_beta_prior <- -1 * lambda_free$beta_beta + (lambda_free$beta_alpha - 1) / lambda_free$prior_beta
+ell_alpha[, 1] <- n_g * (log(beta_est) - digamma(gamma_est) + lambda_moments$e_log) + ell_gamma_prior
+ell_alpha[, 2] <- n_g * (gamma_est / beta_est - lambda_moments$e) + ell_beta_prior
 
-(gamma_est + dalpha_dt[1, 1]) / (beta_est + dalpha_dt[2, 1]) - gamma_est / beta_est
-
+# add prior
+ell_alpha[, 1] <-
+  ell_alpha[, 1]
+ell_alpha[, 2] <-
+  ell_alpha[, 2] 
 # Lambda draws as a matrix
 lambda_draws <- as.matrix(
   select(lambda_fixed_df, lambda, g, draw) %>%
@@ -174,7 +201,6 @@ lambda_draws <- as.matrix(
 lambda_draws <- lambda_draws - rowMeans(lambda_draws)
 
 cov_corr <- lambda_draws %*% ell_alpha %*% dalpha_dt / n_draws
-diag(cov_corr)
 
 lambda_means <- rowMeans(lambda_draws)
 sample_cov <- lambda_draws %*% t(lambda_draws) / (n_draws - 1) -
@@ -186,20 +212,21 @@ lr_cov <- 0.5 * (lr_cov + t(lr_cov))
 
 ########################
 # Plots
+if (FALSE) {
 
 lambda_sd_stats <-
   select(lambda_grouped, g, draw, method, lambda) %>%
   group_by(g, method) %>%
   summarize(sd=sd(lambda))
 
-lambda_sd_stats_small <-
-  select(lambda_grouped, g, draw, method, lambda) %>%
-  group_by(g, method) %>%
-  filter(draw < 100) %>%
-  summarize(sd=sd(lambda))
-
-
-if (FALSE) {
+lambda_stats_correction <-
+  data.frame(g=1:n_g, lr_diff=diag(cov_corr)) %>%
+  inner_join(lambda_true_df, by="g")
+  
+ggplot(lambda_stats_correction) +
+  geom_point(aes(x=free_var - fixed_var, y=lr_diff)) +
+  geom_abline(aes(slope=1, intercept=0)) +
+  expand_limits(x=0, y=0)
   
 lambda_stats_lr <-
   data.frame(g=1:n_g, method="lr", sd=sqrt(diag(lr_cov))) %>%
@@ -212,9 +239,6 @@ lambda_stats_lr_wide <-
 
 
 ggplot(dcast(lambda_sd_stats, g ~ method, value.var="sd") %>% inner_join(lambda_true_df, by="g")) +
-  geom_point(aes(x=y, y=fixed))
-
-ggplot(dcast(lambda_sd_stats_small, g ~ method, value.var="sd") %>% inner_join(lambda_true_df, by="g")) +
   geom_point(aes(x=y, y=fixed))
 
 # L1 error

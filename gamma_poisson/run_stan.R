@@ -34,7 +34,7 @@ n_obs <- 100
 
 set.seed(42)
 true_params <- list()
-true_params$prior_gamma <- 50;
+true_params$prior_gamma <- 30;
 true_params$prior_beta <- 3;
 
 true_params$lambda <- rep(NaN, n_obs)
@@ -68,8 +68,8 @@ prior_mle_optim <- optim(c(0, 0), NegBinLogLik, control=list(fnscale=-1))
 prior_mle <- DecodeTheta(prior_mle_optim$par)
 
 
-beta_est <- prior_mle$beta
 gamma_est <- prior_mle$gamma
+beta_est <- prior_mle$beta
 
 
 ######################################
@@ -91,7 +91,7 @@ stan_dat <- list(N = length(y),
 # Some knobs we can tweak.  Note that we need many iterations to accurately assess
 # the prior sensitivity in the MCMC noise.
 chains <- 1
-iters <- 10000
+iters <- 50000
 seed <- 42
 
 # Draw the draws and save.
@@ -99,6 +99,29 @@ stan_draws_file <- file.path(data_directory, "gamma_poisson_mcmc_draws.Rdata")
 free_stan_sim <- sampling(free_model, data = stan_dat, seed = seed, chains = chains, iter = iters)
 fixed_stan_sim <- sampling(fixed_model, data = stan_dat, seed = seed, chains = chains, iter = iters)
 
-save(free_stan_sim, fixed_stan_sim, stan_dat, true_params, file=stan_draws_file)
+
+###############################
+# Condition to get moments
+
+lambda_fixed <- extract(fixed_stan_sim)
+lambda_free <- extract(free_stan_sim)
+gamma_draws <- lambda_free$prior_gamma
+beta_draws <- lambda_free$prior_beta
+
+moment_list <- list()
+for (y_obs in unique(y)) {
+  lambda_mean_draws <- (gamma_draws + y_obs) / (beta_draws + 1)
+  lambda_var_draws <- (gamma_draws + y_obs) / ((beta_draws + 1)^2)
+  lambda_var <- mean(lambda_var_draws) + var(lambda_mean_draws)
+  moment_list[[length(moment_list) + 1]] <-
+    data.frame(y=y_obs, lambda_mean=mean(lambda_mean_draws), lambda_var=lambda_var)
+}
+free_moment_df <- do.call(rbind, moment_list)
+
+
+##################################
+# Save
+
+save(free_stan_sim, fixed_stan_sim, stan_dat, true_params, free_moment_df, file=stan_draws_file)
 
 
