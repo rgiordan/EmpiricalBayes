@@ -2,6 +2,7 @@ library(ggplot2)
 library(dplyr)
 library(reshape2)
 library(rstan)
+library(Matrix)
 
 project_directory <- file.path(Sys.getenv("GIT_REPO_LOC"), "EmpiricalBayes/gamma_poisson")
 data_directory <- file.path(project_directory, "data/")
@@ -10,7 +11,6 @@ stan_directory <- file.path(project_directory, "stan/")
 stan_draws_file <- file.path(data_directory, "gamma_poisson_mcmc_draws.Rdata")
 stan_results <- environment()
 load(stan_draws_file, env=stan_results)
-
 
 lambda_fixed <- extract(stan_results$fixed_stan_sim)
 lambda_free <- extract(stan_results$free_stan_sim)
@@ -76,32 +76,6 @@ rmse <-
 group_by(rmse, method, measure) %>%
   summarize(mean=mean(value)) %>%
   ungroup() %>% arrange(measure, method)
-
-
-##############################
-# Mean and variance
-
-lambda_stats <-
-  select(lambda_grouped, g, draw, method, lambda) %>%
-  group_by(g, method) %>%
-  summarize(sd=sd(lambda), mean=mean(lambda)) %>%
-  inner_join(lambda_true_df, by="g")
-  
-if (FALSE) {
-  # Free has more variance
-  ggplot(dcast(lambda_stats, g ~ method, value.var="sd")) +
-    geom_point(aes(x=fixed, y=free)) +
-    geom_abline(aes(slope=1, intercept=0)) +
-    ggtitle("Posterior standard deviations")
-  
-  # Fixed shrinks more
-  ggplot(dcast(lambda_stats, g + y ~ method, value.var="mean")) +
-    geom_point(aes(x=y, y=y - free, color="y - free")) +
-    geom_point(aes(x=y, y=y - fixed, color="y - fixed")) +
-    geom_hline(aes(yintercept=0)) +
-    ggtitle("Mean vs residuals")
-}
-
 
 
 
@@ -172,7 +146,17 @@ M_at <- matrix(NaN, 2, n_g)
 M_at[1, ] <- 1 / (1 + beta_est) - 1 / beta_est
 M_at[2, ] <- gamma_est / (beta_est ^ 2) - (gamma_est + t(y)) / ((1 + beta_est) ^ 2)
 
-dalpha_dt <- -1 * solve(M_aa + M_prior_aa, M_at)
+# Since we're using MLE estimates rather than MAP use the corresponding objective function.
+if (stan_results$map_estimate) {
+  dalpha_dt <- -1 * solve(M_aa + M_prior_aa, M_at)
+} else {
+  dalpha_dt <- -1 * solve(M_aa, M_at)
+}
+
+
+
+##########################
+# MCMC version
 
 # Means within a draw
 lambda_moments <-
@@ -210,6 +194,25 @@ lr_cov <- sample_cov + cov_corr
 lr_cov <- 0.5 * (lr_cov + t(lr_cov))
 
 
+
+##########################
+# Exact version
+
+dmom_dalpha <- matrix(NaN, n_g, 2)
+
+# d / d gamma
+dmom_dalpha[, 1] <- 1 / (1 + beta_est)
+
+# d / d beta
+dmom_dalpha[, 2] <- -1 * (gamma_est + y) / ((1 + beta_est) ^ 2)
+
+dmom_dt <- Diagonal(x=(gamma_est + y) / ((1 + beta_est) ^ 2))
+
+lr_cov_corr_exact <- dmom_dalpha %*% dalpha_dt
+
+stopifnot(max(abs(diag(dmom_dt) - lambda_true_df$fixed_var)) < 1e-12)
+
+
 ########################
 # Plots
 if (FALSE) {
@@ -217,17 +220,76 @@ if (FALSE) {
 lambda_sd_stats <-
   select(lambda_grouped, g, draw, method, lambda) %>%
   group_by(g, method) %>%
-  summarize(sd=sd(lambda))
+  summarize(sd=sd(lambda), mean=mean(lambda))
 
 lambda_stats_correction <-
-  data.frame(g=1:n_g, lr_diff=diag(cov_corr)) %>%
+  data.frame(g=1:n_g, lr_diff=diag(cov_corr), lr_diff_exact=diag(lr_cov_corr_exact)) %>%
   inner_join(lambda_true_df, by="g")
-  
-ggplot(lambda_stats_correction) +
-  geom_point(aes(x=free_var - fixed_var, y=lr_diff)) +
+
+# Compare fixed vs free
+ggplot(lambda_true_df) +
+  geom_point(aes(x=free_mean, y=fixed_mean)) +
   geom_abline(aes(slope=1, intercept=0)) +
   expand_limits(x=0, y=0)
-  
+
+ggplot(lambda_true_df) +
+  geom_point(aes(x=free_var, y=fixed_var, color="MCMC")) +
+  # geom_point(aes(x=free_var, y=fixed_var + diag(lr_cov_corr_exact), color="lr")) +
+  geom_abline(aes(slope=1, intercept=0)) +
+  expand_limits(x=0, y=0)
+
+ggplot(lambda_true_df) +
+  geom_line(aes(x=y, y=free_var, color="free")) +
+  geom_line(aes(x=y, y=fixed_var, color="fixed")) +
+  expand_limits(x=0, y=0)
+
+# Free shrinks more
+ggplot(lambda_true_df) +
+  geom_line(aes(x=y, y=free_mean, color="free")) +
+  geom_line(aes(x=y, y=fixed_mean, color="fixed")) +
+  geom_abline(aes(slope=1, intercept=0)) +
+  expand_limits(x=0, y=0)
+
+ggplot(lambda_true_df) +
+  geom_point(aes(x=y, y=free_var - fixed_var, color="MCMC")) +
+  geom_point(aes(x=y, y=diag(lr_cov_corr_exact), color="LR")) +
+  geom_hline(aes(yintercept=0)) +
+  geom_vline(aes(xintercept=0))
+   
+# Compare corrections to actual differences.
+ggplot(lambda_stats_correction) +
+  geom_point(aes(x=free_var - fixed_var, y=lr_diff_exact)) +
+  geom_abline(aes(slope=1, intercept=0)) +
+  expand_limits(x=0, y=0)
+
+# This should be an MCMC estimate of dmom / dalpha
+ggplot(lambda_stats_correction) +
+  geom_point(aes(x=lr_diff, y=lr_diff_exact)) +
+  geom_abline(aes(slope=1, intercept=0)) +
+  expand_limits(x=0, y=0)
+
+# Compare exact vs MCMC estimates
+lambda_sd_check  <-
+  dcast(lambda_sd_stats, g ~ method, value.var="sd") %>%
+  inner_join(lambda_true_df, by="g")
+
+ggplot(lambda_sd_check) + 
+  geom_point(aes(x=sqrt(free_var), y=free, color="free")) +
+  geom_point(aes(x=sqrt(fixed_var), y=fixed, color="fixed")) +
+  geom_abline(aes(slope=1, intercept=0)) +
+  expand_limits(x=0, y=0)
+
+lambda_mean_check  <-
+  dcast(lambda_sd_stats, g ~ method, value.var="mean") %>%
+  inner_join(lambda_true_df, by="g")
+
+ggplot(lambda_mean_check) + 
+  geom_point(aes(x=free_mean, y=free, color="free")) +
+  geom_point(aes(x=fixed_mean, y=fixed, color="fixed")) +
+  geom_abline(aes(slope=1, intercept=0)) +
+  expand_limits(x=0, y=0)
+
+# Comparisions
 lambda_stats_lr <-
   data.frame(g=1:n_g, method="lr", sd=sqrt(diag(lr_cov))) %>%
   rbind(lambda_sd_stats) %>%
@@ -238,7 +300,8 @@ lambda_stats_lr_wide <-
   inner_join(lambda_true_df, by="g")
 
 
-ggplot(dcast(lambda_sd_stats, g ~ method, value.var="sd") %>% inner_join(lambda_true_df, by="g")) +
+ggplot(dcast(lambda_sd_stats, g ~ method, value.var="sd") %>%
+  inner_join(lambda_true_df, by="g")) +
   geom_point(aes(x=y, y=fixed))
 
 # L1 error

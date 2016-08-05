@@ -296,7 +296,15 @@ Thus in the marginalized formula it suffices to increase by
 \end_inset
 
  for all calculations.
- In any case, since for any 
+ One could also take the MAP estimates, observing that
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Standard
+In any case, since for any 
 \begin_inset Formula $t$
 \end_inset
 
@@ -827,7 +835,7 @@ MCMC weights
 \end_layout
 
 \begin_layout Standard
-Here,
+Here, we include the priors, to get
 \begin_inset Formula 
 \begin{eqnarray*}
 \ell\left(\theta,\alpha,t\right) & = & \log p_{t}\left(y,\lambda\vert\gamma,\beta\right)+\log p\left(\gamma\right)+\log p\left(\beta\right)\\

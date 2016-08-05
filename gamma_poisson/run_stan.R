@@ -34,16 +34,34 @@ n_obs <- 100
 
 set.seed(42)
 true_params <- list()
-true_params$prior_gamma <- 30;
+true_params$prior_gamma <- 10;
 true_params$prior_beta <- 3;
 
 true_params$lambda <- rep(NaN, n_obs)
 true_params$lambda <- rgamma(n_obs, true_params$prior_gamma, true_params$prior_beta)
 y <- rpois(n_obs, lambda=true_params$lambda)
 
+prior_var <- 0.1 ^ 2
+prior_gamma_mean <- true_params$prior_gamma
+prior_beta_mean <- true_params$prior_beta
+
+gamma_alpha <- (prior_gamma_mean ^ 2) / prior_var;
+gamma_beta <- prior_gamma_mean / prior_var;
+
+beta_alpha <- (prior_beta_mean ^ 2) / prior_var;
+beta_beta <-prior_beta_mean / prior_var;
 
 ##################################
 # Get an empirical Bayes prior
+
+map_estimate <- TRUE
+
+LogPrior <- function(theta) {
+  par <- DecodeTheta(theta)
+  gamma_log_prior <- dgamma(par$gamma, shape=gamma_alpha, rate=gamma_beta, log=TRUE)
+  beta_log_prior <- dgamma(par$beta, shape=beta_alpha, rate=beta_beta, log=TRUE)
+  return(gamma_log_prior + beta_log_prior)  
+}
 
 DecodeTheta <- function(theta) {
   # Note: the negative binomial in R is opposite wikipedia notation
@@ -60,13 +78,27 @@ DecodeTheta <- function(theta) {
 NegBinLogLik <- function(theta) {
   par <- DecodeTheta(theta)
   log_lik <- sum(dnbinom(y, par$r, par$p, log=TRUE)) 
-  cat(log_lik, "\n")
   return(log_lik)
 }
 
-prior_mle_optim <- optim(c(0, 0), NegBinLogLik, control=list(fnscale=-1))
+
+OptimObjective <- function(theta) {
+  if (map_estimate) {
+    obj <- NegBinLogLik(theta) + LogPrior(theta)
+  } else {
+    obj <- NegBinLogLik(theta)
+  }
+  cat(obj, "\n")
+  return(obj)
+}
+
+prior_mle_optim <- optim(c(0, 0), OptimObjective, control=list(fnscale=-1))
 prior_mle <- DecodeTheta(prior_mle_optim$par)
 
+# prior_optim <-
+#   optim(c(0, 0), function(theta) { obj <- LogPrior(theta); print(obj); return(obj) },
+#         control=list(fnscale=-1))
+# prior_par <- DecodeTheta(prior_mle_optim$par)
 
 gamma_est <- prior_mle$gamma
 beta_est <- prior_mle$beta
@@ -82,16 +114,16 @@ fixed_model <- LoadStanModel("gamma_poisson_fixed_prior")
 stan_dat <- list(N = length(y),
                  y = y,
                  prior_gamma_mean=gamma_est,
-                 prior_gamma_var=20,
+                 prior_gamma_var=prior_var,
                  prior_beta_mean=beta_est,
-                 prior_beta_var=20,
+                 prior_beta_var=prior_var,
                  prior_gamma = gamma_est,
                  prior_beta = beta_est)
 
 # Some knobs we can tweak.  Note that we need many iterations to accurately assess
 # the prior sensitivity in the MCMC noise.
 chains <- 1
-iters <- 50000
+iters <- 10000
 seed <- 42
 
 # Draw the draws and save.
@@ -122,6 +154,7 @@ free_moment_df <- do.call(rbind, moment_list)
 ##################################
 # Save
 
-save(free_stan_sim, fixed_stan_sim, stan_dat, true_params, free_moment_df, file=stan_draws_file)
+save(free_stan_sim, fixed_stan_sim, stan_dat, true_params, free_moment_df, map_estimate,
+     file=stan_draws_file)
 
 

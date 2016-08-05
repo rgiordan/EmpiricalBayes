@@ -296,7 +296,15 @@ Thus in the marginalized formula it suffices to increase by
 \end_inset
 
  for all calculations.
- In any case, since for any 
+ One could also take the MAP estimates, observing that
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Standard
+In any case, since for any 
 \begin_inset Formula $t$
 \end_inset
 
@@ -858,7 +866,7 @@ Exact moments
 \end_layout
 
 \begin_layout Standard
-Instead of using MCMC, use exact moments.
+Instead of using MCMC, in this case we can use exact moments.
  Specifically,
 \end_layout
 
