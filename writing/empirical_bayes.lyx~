@@ -217,6 +217,7 @@ As a function of
 
 \end_layout
 
+<<<<<<< HEAD
 \begin_layout Subsection
 \begin_inset Formula $d\alpha/dt$
 \end_inset
@@ -378,6 +379,8 @@ Suppose that
 From MCMC draws
 \end_layout
 
+=======
+>>>>>>> c76c3ac705682084c1a9f1259620772c5c9ccf05
 \begin_layout Standard
 Suppose we also have 
 \begin_inset Formula $D$
@@ -593,6 +596,7 @@ where
  
 \end_layout
 
+<<<<<<< HEAD
 \begin_layout Standard
 Putting this all together, we get
 \end_layout
@@ -601,6 +605,25 @@ Putting this all together, we get
 \begin_inset Formula 
 \begin{eqnarray*}
 \hat{\Sigma}_{\theta} & = & \widehat{\textrm{Cov}\left(\theta\right)}-\frac{1}{D}\sum_{d=1}^{D}\left(\theta_{d}-\bar{\theta}\right)\ell_{\hat{\alpha},d}^{T}\left(\frac{\partial^{2}M}{\partial\alpha\partial\alpha^{T}}\right)^{-1}\frac{\partial^{2}M}{\partial\alpha\partial t^{T}}
+=======
+\begin_layout Subsection
+\begin_inset Formula $d\alpha/dt$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+It remains only to calculate 
+\begin_inset Formula $d\alpha/dt$
+\end_inset
+
+.
+ Recall that
+\begin_inset Formula 
+\begin{eqnarray*}
+\hat{\alpha}_{t} & := & \underset{\alpha}{\textrm{argmax}}\left\{ \log\int p\left(x\vert\theta,\alpha\right)p\left(\theta\right)p\left(\alpha\right)e^{t\theta}d\theta\right\} 
+>>>>>>> c76c3ac705682084c1a9f1259620772c5c9ccf05
 \end{eqnarray*}
 
 \end_inset
@@ -608,6 +631,7 @@ Putting this all together, we get
 
 \end_layout
 
+<<<<<<< HEAD
 \begin_layout Section
 Example
 \end_layout
@@ -619,6 +643,13 @@ Let's take a classic EB problem, a simple Gamma-Poisson model.
 y_{i}\vert\lambda_{i} & \sim & \textrm{Poisson}\left(\lambda_{i}\right)\\
 \lambda_{i} & \sim & \textrm{Gamma}\left(\gamma,\beta\right)\\
 \mbe\left[\lambda_{i}\right] & = & \frac{\gamma}{\beta}
+=======
+\begin_layout Standard
+Let us define 
+\begin_inset Formula 
+\begin{eqnarray*}
+M\left(\alpha,t\right) & := & \log\int p\left(x\vert\theta,\alpha\right)p\left(\theta\right)p\left(\alpha\right)e^{t\theta}d\theta
+>>>>>>> c76c3ac705682084c1a9f1259620772c5c9ccf05
 \end{eqnarray*}
 
 \end_inset
@@ -627,6 +658,7 @@ y_{i}\vert\lambda_{i} & \sim & \textrm{Poisson}\left(\lambda_{i}\right)\\
 \end_layout
 
 \begin_layout Standard
+<<<<<<< HEAD
 Additionally, we may put gamma priors on 
 \begin_inset Formula $\gamma$
 \end_inset
@@ -640,10 +672,38 @@ Additionally, we may put gamma priors on
 \begin{eqnarray*}
 \gamma & \sim & \textrm{Gamma}\left(a_{\gamma},b_{\gamma}\right)\\
 \beta & \sim & \textrm{Gamma}\left(a_{\beta},b_{\beta}\right)
+=======
+In many EB applications (e.g.
+ example below), 
+\begin_inset Formula $M\left(\alpha,t\right)$
+\end_inset
+
+ has a closed form since 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ and 
+\begin_inset Formula $\theta$
+\end_inset
+
+ are conjugate and the marginal is a ratio of normalizing constants.
+ Specifically,
+\begin_inset Formula 
+\begin{eqnarray*}
+p\left(x,\theta,\alpha\right) & = & p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)\\
+p_{t}\left(x,\theta,\alpha\right) & = & \frac{p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)e^{\theta t}}{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)e^{\theta t}dxd\theta d\alpha}\\
+p_{t}\left(x\vert\alpha\right) & = & \frac{\int p_{t}\left(x,\theta,\alpha\right)d\theta}{p_{t}\left(\alpha\right)}\\
+ & = & \frac{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)e^{\theta t}d\theta}{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)e^{\theta t}dxd\theta d\alpha}\frac{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)e^{\theta t}dxd\theta d\alpha}{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)e^{\theta t}dxd\theta}\\
+ & = & \frac{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)e^{\theta t}d\theta}{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)e^{\theta t}dxd\theta}\\
+ & = & \frac{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)e^{\theta t}d\theta}{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)e^{\theta t}dxd\theta}\\
+ & = & \frac{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)e^{\theta t}d\theta}{\left(\int p\left(x\vert\theta\right)dx\right)p\left(\theta\vert\alpha\right)e^{\theta t}d\theta}\\
+ & = & \int p\left(x\vert\theta\right)\frac{p\left(\theta\vert\alpha\right)e^{\theta t}}{\int p\left(\theta'\vert\alpha\right)e^{\theta't}d\theta'}d\theta
+>>>>>>> c76c3ac705682084c1a9f1259620772c5c9ccf05
 \end{eqnarray*}
 
 \end_inset
 
+<<<<<<< HEAD
 
 \end_layout
 
@@ -713,6 +773,32 @@ The derivatives are then
 \begin{eqnarray*}
 0=\frac{\partial}{\partial\gamma}\log p_{t} & = & \sum_{i}\log\left(\beta-t_{i}\right)-N\psi\left(\gamma\right)-\sum_{i}\log\left(\beta+1-t_{i}\right)+\sum_{i}\psi\left(\gamma+y_{i}\right)\\
 0=\frac{\partial}{\partial\beta}\log p_{t} & = & \sum_{i}\left(\frac{\gamma}{\beta-t_{i}}-\frac{\gamma+y_{i}}{1+\beta-t_{i}}\right)
+=======
+Thus in the marginalized formula it suffices to increase by 
+\begin_inset Formula $t$
+\end_inset
+
+ the natural parameter in front of the natural sufficient statistic 
+\begin_inset Formula $\theta$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+In any case, since for any 
+\begin_inset Formula $t$
+\end_inset
+
+, 
+\begin_inset Formula $\hat{\alpha}$
+\end_inset
+
+ is chosen so that
+\begin_inset Formula 
+\begin{eqnarray*}
+\left.\frac{\partial M}{\partial\alpha}\right|_{t} & = & 0
+>>>>>>> c76c3ac705682084c1a9f1259620772c5c9ccf05
 \end{eqnarray*}
 
 \end_inset
@@ -721,6 +807,7 @@ The derivatives are then
 \end_layout
 
 \begin_layout Standard
+<<<<<<< HEAD
 So
 \begin_inset Formula 
 \begin{eqnarray*}
@@ -732,6 +819,13 @@ So
 \frac{1}{1+\beta-t_{i}}-\frac{1}{\beta-t_{i}}\\
 \frac{\gamma}{\left(\beta-t_{i}\right)^{2}}-\frac{\gamma+y_{i}}{\left(1+\beta-t_{i}\right)^{2}}
 \end{array}\right)
+=======
+we can differentiate using the chain rule, giving
+\begin_inset Formula 
+\begin{eqnarray*}
+\frac{\partial^{2}M}{\partial\alpha\partial\alpha^{T}}\frac{d\alpha}{dt}+\frac{\partial^{2}M}{\partial\alpha\partial t} & = & 0\Rightarrow\\
+\frac{d\alpha}{dt} & = & -\left(\frac{\partial^{2}M}{\partial\alpha\partial\alpha^{T}}\right)^{-1}\frac{\partial^{2}M}{\partial\alpha\partial t^{T}}
+>>>>>>> c76c3ac705682084c1a9f1259620772c5c9ccf05
 \end{eqnarray*}
 
 \end_inset
@@ -740,6 +834,7 @@ So
 \end_layout
 
 \begin_layout Standard
+<<<<<<< HEAD
 Note that here 
 \begin_inset Formula $N$
 \end_inset
@@ -771,14 +866,26 @@ MAP estimates
 
 \begin_layout Standard
 Alternatively, we can take the MAP so that
+=======
+Note that since 
+\begin_inset Formula $M$
+\end_inset
+
+ is maximized, its Hessian will be negative definite.
+ Putting this all together, we get
+>>>>>>> c76c3ac705682084c1a9f1259620772c5c9ccf05
 \end_layout
 
 \begin_layout Standard
 \begin_inset Formula 
 \begin{eqnarray*}
+<<<<<<< HEAD
 p_{t}\left(\gamma,\beta\vert y\right) & = & \frac{p_{t}\left(y\vert\gamma,\beta\right)p\left(\gamma,\beta\right)}{p_{t}\left(y\right)}\\
 M_{MAP} & = & \log p_{t}\left(y\vert\gamma,\beta\right)+\log p\left(\gamma,\beta\right)-\log p_{t}\left(y\right)\\
  & = & M+\log p\left(\gamma,\beta\right)-\log p_{t}\left(y\right)
+=======
+\hat{\Sigma}_{\theta} & = & \widehat{\textrm{Cov}\left(\theta\right)}-\frac{1}{D}\sum_{d=1}^{D}\left(\theta_{d}-\bar{\theta}\right)\ell_{\hat{\alpha},d}^{T}\left(\frac{\partial^{2}M}{\partial\alpha\partial\alpha^{T}}\right)^{-1}\frac{\partial^{2}M}{\partial\alpha\partial t^{T}}
+>>>>>>> c76c3ac705682084c1a9f1259620772c5c9ccf05
 \end{eqnarray*}
 
 \end_inset
@@ -786,11 +893,25 @@ M_{MAP} & = & \log p_{t}\left(y\vert\gamma,\beta\right)+\log p\left(\gamma,\beta
 
 \end_layout
 
+<<<<<<< HEAD
 \begin_layout Standard
 Note that
 \begin_inset Formula 
 \begin{eqnarray*}
 \frac{\partial\log p_{t}\left(y\right)}{\partial\alpha} & = & 0
+=======
+\begin_layout Section
+Example
+\end_layout
+
+\begin_layout Standard
+Let's take a classic EB problem, a simple Gamma-Poisson model.
+\begin_inset Formula 
+\begin{eqnarray*}
+y_{i}\vert\lambda_{i} & \sim & \textrm{Poisson}\left(\lambda_{i}\right)\\
+\lambda_{i} & \sim & \textrm{Gamma}\left(\gamma,\beta\right)\\
+\mbe\left[\lambda_{i}\right] & = & \frac{\gamma}{\beta}
+>>>>>>> c76c3ac705682084c1a9f1259620772c5c9ccf05
 \end{eqnarray*}
 
 \end_inset
@@ -799,6 +920,7 @@ Note that
 \end_layout
 
 \begin_layout Standard
+<<<<<<< HEAD
 so that we don't have to worry about the normalizing constant's dependence
  on 
 \begin_inset Formula $t$
@@ -823,6 +945,27 @@ And similarly
 \begin_inset Formula 
 \begin{eqnarray*}
 \frac{\partial^{2}\log p\left(\beta\right)}{\partial\beta^{2}} & = & -\frac{a_{\beta}-1}{\beta^{2}}
+=======
+This can be marginalized exactly as a function of 
+\begin_inset Formula $t$
+\end_inset
+
+ (hat tip Alp):
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{eqnarray*}
+\log p\left(y_{i}\vert\lambda_{i}\right) & = & -\lambda_{i}+y_{i}\log\lambda_{i}-\log y_{i}!\\
+\log p\left(\lambda_{i}\vert\gamma,\beta\right) & = & \gamma\log\beta-\log\Gamma\left(\gamma\right)-\beta\lambda_{i}+\left(\gamma-1\right)\log\lambda_{i}\\
+\log p\left(y,\lambda\vert\gamma,\beta\right) & = & N\gamma\log\beta-N\log\Gamma\left(\gamma\right)-\sum_{i}\left(\beta+1\right)\lambda_{i}+\sum_{i}\left(\gamma+y_{i}-1\right)\log\lambda_{i}-\sum_{i}\log y_{i}!\\
+ & = & N\gamma\log\beta-N\log\Gamma\left(\gamma\right)-\sum_{i}\left(\beta+1\right)\lambda_{i}+\sum_{i}\left(\gamma+y_{i}-1\right)\log\lambda_{i}-\sum_{i}\log y_{i}!\\
+ & = & N\gamma\log\beta-N\log\Gamma\left(\gamma\right)-\sum_{i}\log y_{i}!\\
+ &  & +\sum_{i}\left[-\left(\beta+1\right)\lambda_{i}+\left(\gamma+y_{i}-1\right)\log\lambda_{i}+\left(\gamma+y_{i}\right)\log\left(\beta+1\right)-\log\Gamma\left(\gamma+y_{i}\right)\right]\\
+ &  & -\sum_{i}\left[\left(\gamma+y_{i}\right)\log\left(\beta+1\right)-\log\Gamma\left(\gamma+y_{i}\right)\right]\Rightarrow\\
+\log p\left(y\vert\gamma,\beta\right) & = & N\left(\gamma\log\beta-\log\Gamma\left(\gamma\right)\right)-\sum_{i}\left(\gamma+y_{i}\right)\log\left(\beta+1\right)+\sum_{i}\log\Gamma\left(\gamma+y_{i}\right)-\sum_{i}\log y_{i}!\\
+\log p_{t}\left(y\vert\gamma,\beta\right) & = & \sum_{i}\gamma\log\left(\beta-t_{i}\right)-N\log\Gamma\left(\gamma\right)-\sum_{i}\left(\gamma+y_{i}\right)\log\left(\beta+1-t_{i}\right)+\sum_{i}\log\Gamma\left(\gamma+y_{i}\right)-\sum_{i}\log y_{i}!
+>>>>>>> c76c3ac705682084c1a9f1259620772c5c9ccf05
 \end{eqnarray*}
 
 \end_inset
@@ -830,6 +973,7 @@ And similarly
 
 \end_layout
 
+<<<<<<< HEAD
 \begin_layout Subsubsection
 MCMC weights
 \end_layout
@@ -854,6 +998,22 @@ Here, we include the priors, to get
 \end{array}\right)\\
 \frac{\partial}{\partial\gamma}\ell\left(\theta,\alpha,0\right) & = & N\left(\log\beta-\psi\left(\gamma\right)+\frac{1}{N}\sum_{i}\log\lambda_{i}-b_{\gamma}+\frac{a_{\gamma}-1}{\gamma}\right)\\
 \frac{\partial}{\partial\beta}\ell\left(\theta,\alpha,0\right) & = & N\left(\frac{\gamma}{\beta}-\frac{1}{N}\sum\lambda_{i}-b_{\beta}+\frac{a_{\beta}-1}{\beta}\right)
+=======
+\begin_layout Standard
+We choose 
+\begin_inset Formula $\gamma$
+\end_inset
+
+ and 
+\begin_inset Formula $\beta$
+\end_inset
+
+ to maximize this, so that
+\begin_inset Formula 
+\begin{eqnarray*}
+0=\frac{\partial}{\partial\gamma}\log p_{t} & = & \sum_{i}\log\left(\beta-t_{i}\right)-N\psi\left(\gamma\right)-\sum_{i}\log\left(\beta+1-t_{i}\right)+\sum_{i}\psi\left(\gamma+y_{i}\right)\\
+0=\frac{\partial}{\partial\beta}\log p_{t} & = & \sum_{i}\left(\frac{\gamma}{\beta-t_{i}}-\frac{\gamma+y_{i}}{1+\beta-t_{i}}\right)
+>>>>>>> c76c3ac705682084c1a9f1259620772c5c9ccf05
 \end{eqnarray*}
 
 \end_inset
@@ -861,6 +1021,7 @@ Here, we include the priors, to get
 
 \end_layout
 
+<<<<<<< HEAD
 \begin_layout Subsection
 Exact moments
 \end_layout
@@ -887,6 +1048,28 @@ Instead of using MCMC, use exact moments.
 \left.\frac{\partial m_{i}}{\partial t_{i}}\right|_{t_{i}=0} & = & \frac{\gamma+y_{i}}{\left(1+\beta\right)^{2}}\\
 \left.\frac{\partial m_{i}}{\partial\gamma}\right|_{t_{i}=0} & = & \frac{1}{1+\beta}\\
 \left.\frac{\partial m_{i}}{\partial\beta}\right|_{t_{i}=0} & = & -\frac{\gamma+y_{i}}{\left(1+\beta\right)^{2}}
+=======
+\begin_layout Standard
+So
+\end_layout
+
+\begin_layout Standard
+TODO: I think there's a sign herror in the 
+\begin_inset Formula $\beta,\beta$
+\end_inset
+
+ term of the Hessian.
+\begin_inset Formula 
+\begin{eqnarray*}
+\frac{\partial^{2}M}{\partial\alpha\partial\alpha^{T}} & = & N\left(\begin{array}{cc}
+\frac{1}{N}\sum_{i}\left(\psi'\left(\gamma+y_{i}\right)-\psi'\left(\gamma\right)\right) & \frac{1}{N}\sum_{i}\left(\frac{1}{\beta-t_{i}}-\frac{1}{1+\beta-t_{i}}\right)\\
+\frac{1}{N}\sum_{i}\left(\frac{1}{\beta-t_{i}}-\frac{1}{1+\beta-t_{i}}\right) & \frac{1}{N}\sum_{i}\left(\frac{\gamma}{\left(\beta-t_{i}\right)^{2}}-\frac{\gamma+y_{i}}{\left(1+\beta-t_{i}\right)^{2}}\right)
+\end{array}\right)\\
+\frac{\partial^{2}M}{\partial\alpha\partial t_{i}} & = & \left(\begin{array}{c}
+\frac{1}{1+\beta-t_{i}}-\frac{1}{\beta-t_{i}}\\
+\frac{\gamma}{\left(\beta-t_{i}\right)^{2}}-\frac{\gamma+y_{i}}{\left(1+\beta-t_{i}\right)^{2}}
+\end{array}\right)
+>>>>>>> c76c3ac705682084c1a9f1259620772c5c9ccf05
 \end{eqnarray*}
 
 \end_inset
@@ -895,6 +1078,7 @@ Instead of using MCMC, use exact moments.
 \end_layout
 
 \begin_layout Standard
+<<<<<<< HEAD
 So
 \begin_inset Formula 
 \begin{eqnarray*}
@@ -918,10 +1102,18 @@ So
 -\frac{1}{\beta}\\
 \frac{\gamma}{\beta^{2}}
 \end{array}\right)+\frac{y_{i}+\gamma}{\left(\beta+1\right)^{2}}
+=======
+Here,
+\begin_inset Formula 
+\begin{eqnarray*}
+\ell\left(\theta,\alpha,t\right) & = & \log p_{t}\left(y,\lambda\vert\gamma,\beta\right)\\
+ & = & N\gamma\log\left(\beta-t_{i}\right)-N\log\Gamma\left(\gamma\right)-\sum_{i}\left(\beta+1-t_{i}\right)\lambda_{i}+\sum_{i}\left(\gamma+y_{i}-1\right)\log\lambda_{i}-\sum_{i}\log y_{i}!
+>>>>>>> c76c3ac705682084c1a9f1259620772c5c9ccf05
 \end{eqnarray*}
 
 \end_inset
 
+<<<<<<< HEAD
 
 \end_layout
 
@@ -943,6 +1135,17 @@ p_{t}\left(x\vert\alpha\right) & = & \frac{\int p_{t}\left(x,\theta,\alpha\right
  & = & \frac{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)e^{\alpha t}d\theta}{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)e^{\alpha t}dxd\theta}\\
  & = & \frac{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)d\theta}{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)dxd\theta}\\
  & = & p\left(x\vert\alpha\right)
+=======
+ 
+\begin_inset Formula 
+\begin{eqnarray*}
+\ell_{\hat{\alpha},d} & = & \left(\begin{array}{c}
+\frac{\partial}{\partial\gamma}\ell\left(\theta_{d},\hat{\alpha},0\right)\\
+\frac{\partial}{\partial\beta}\ell\left(\theta_{d},\hat{\alpha},0\right)
+\end{array}\right)\\
+\frac{\partial}{\partial\gamma}\ell\left(\theta,\alpha,0\right) & = & N\left(\log\beta-\psi\left(\gamma\right)+\frac{1}{N}\sum_{i}\log\lambda_{i}\right)\\
+\frac{\partial}{\partial\beta}\ell\left(\theta,\alpha,0\right) & = & N\left(\frac{\gamma}{\beta}-\frac{1}{N}\sum\lambda_{i}\right)
+>>>>>>> c76c3ac705682084c1a9f1259620772c5c9ccf05
 \end{eqnarray*}
 
 \end_inset
@@ -951,6 +1154,7 @@ p_{t}\left(x\vert\alpha\right) & = & \frac{\int p_{t}\left(x,\theta,\alpha\right
 \end_layout
 
 \begin_layout Standard
+<<<<<<< HEAD
 A similar argument will apply to 
 \begin_inset Formula $p_{t}\left(x,\theta\vert\alpha\right)$
 \end_inset
@@ -974,15 +1178,40 @@ A similar argument will apply to
 \begin_layout Standard
 ...from which we can infer (maybe) the moments of 
 \begin_inset Formula $\alpha$
+=======
+Note that here 
+\begin_inset Formula $N$
+\end_inset
+
+ refers to observations within a sample, not the number of MCMC draws, which
+ is denoted by 
+\begin_inset Formula $D$
+\end_inset
+
+.
+ Also, the leading 
+\begin_inset Formula $N$
+\end_inset
+
+ in the Hessian cancels the leading 
+\begin_inset Formula $N$
+\end_inset
+
+ in 
+\begin_inset Formula $\ell_{\alpha,d}$
+>>>>>>> c76c3ac705682084c1a9f1259620772c5c9ccf05
 \end_inset
 
 .
 \end_layout
 
+<<<<<<< HEAD
 \begin_layout Subsection
 Covariances as matrix products
 \end_layout
 
+=======
+>>>>>>> c76c3ac705682084c1a9f1259620772c5c9ccf05
 \begin_layout Standard
 Here, if the vector draws 
 \begin_inset Formula $\lambda_{d}$
@@ -1044,6 +1273,7 @@ Then the covariance correction can be estimated with
 
 \end_layout
 
+<<<<<<< HEAD
 \begin_layout Section
 Gamma moments
 \end_layout
@@ -1178,6 +1408,8 @@ height "1pt"
 
 \end_layout
 
+=======
+>>>>>>> c76c3ac705682084c1a9f1259620772c5c9ccf05
 \begin_layout Part
 Old writing, ignore past this point
 \end_layout
