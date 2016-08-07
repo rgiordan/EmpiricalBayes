@@ -88,12 +88,10 @@ beta_est <- stan_results$stan_dat$prior_beta
 gamma_est <- stan_results$stan_dat$prior_gamma
 stan_results$stan_dat$prior_gamma_mean
 
-gamma_prior_sd <- sqrt(stan_results$stan_dat$prior_gamma_var)
-beta_prior_sd <- sqrt(stan_results$stan_dat$prior_beta_var)
-
-# Sanity check
-median(lambda_free$gamma_alpha / lambda_free$gamma_beta) - gamma_est
-median(lambda_free$beta_alpha / lambda_free$beta_beta) - beta_est
+gamma_prior_sd <-
+  sqrt(stan_results$stan_dat$gamma_prior_alpha) / stan_results$stan_dat$gamma_prior_beta
+beta_prior_sd <-
+  sqrt(stan_results$stan_dat$beta_prior_alpha) / stan_results$stan_dat$beta_prior_beta
 
 if (FALSE) {
   ggplot(prior_df) +
@@ -133,12 +131,8 @@ M_aa <- M_aa * n_g
 
 # Add the prior Hessian if you're comparing with the MAP and not the maximum marignal likelihood
 M_prior_aa <- matrix(0, 2, 2)
-stopifnot(var(lambda_free$gamma_alpha) == 0)
-stopifnot(var(lambda_free$gamma_beta) == 0)
-stopifnot(var(lambda_free$beta_alpha) == 0)
-stopifnot(var(lambda_free$beta_beta) == 0)
-gamma_prior_alpha <- lambda_free$gamma_alpha[1]
-beta_prior_alpha <- lambda_free$beta_alpha[1]
+gamma_prior_alpha <- stan_results$stan_dat$gamma_prior_alpha
+beta_prior_alpha <- stan_results$stan_dat$beta_prior_alpha
 M_prior_aa[1, 1] <- -1 * (gamma_prior_alpha - 1) / (gamma_est ^ 2)
 M_prior_aa[2, 2] <- -1 * (beta_prior_alpha - 1) / (beta_est ^ 2)
 

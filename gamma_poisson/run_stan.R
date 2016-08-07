@@ -122,8 +122,8 @@ fixed_model <- LoadStanModel("gamma_poisson_fixed_prior")
 stan_dat <- list(N = length(y),
                  y = y,
                  # Priors for the free model:
-                 alpha_prior_alpha=gamma_prior_alpha,
-                 alpha_prior_beta=gamma_prior_beta,
+                 gamma_prior_alpha=gamma_prior_alpha,
+                 gamma_prior_beta=gamma_prior_beta,
                  beta_prior_alpha=beta_prior_alpha,
                  beta_prior_beta=beta_prior_beta,
                  # Fixed values for the fixed model:

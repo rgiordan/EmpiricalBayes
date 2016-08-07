@@ -7,6 +7,9 @@ data {
   real<lower=0> beta_prior_beta;
 }
 parameters {
+    real<lower=0> lambda[N];
+    real<lower=0> prior_gamma;
+    real<lower=0> prior_beta;
 }
 transformed parameters {
 }

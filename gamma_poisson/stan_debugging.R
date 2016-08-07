@@ -123,7 +123,7 @@ OptimObjective <- function(theta) {
 
 NegBinLogLikManual <- function(theta) {
   par <- DecodeTheta(theta)
-  return(NegBinLogLikArgs(c(par$gamma, par$beta, rep(0, n_obs))))
+  return(NegBinLogLikArgs(c(par$gamma, par$beta, t_vec)) + LogPrior(c(par$gamma, par$beta)))
 }
 
 gamma_est <- prior_mle$gamma
@@ -133,8 +133,7 @@ M_aa[2, 1] <- M_aa[1, 2] <- n_obs * (1 / beta_est - 1 / (1 + beta_est))
 M_aa[2, 2] <- sum(gamma_est / (beta_est ^ 2) - (gamma_est + y) / ((1 + beta_est) ^ 2))
 
 auto_hess <- hessian(NegBinLogLikArgs, c(gamma_est, beta_est, rep(0, n_obs)))
-auto_hess[1:2, 1:2]
-M_aa
+auto_hess[1:2, 1:2] - M_aa
 
 # Prior
 prior_auto_hess <- hessian(LogPrior, c(gamma_est, beta_est))
