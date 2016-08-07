@@ -366,7 +366,9 @@ Suppose that
  Then 
 \begin_inset Formula 
 \begin{eqnarray*}
-\Sigma_{\theta} & = & \frac{dm}{dt^{T}}=\frac{\partial m}{\partial\alpha^{T}}\frac{d\alpha}{dt^{T}}+\frac{\partial m}{\partial t}
+\Sigma_{\theta} & = & \frac{dm}{dt^{T}}\\
+ & = & \frac{\partial m}{\partial\alpha^{T}}\frac{d\alpha}{dt^{T}}+\frac{\partial m}{\partial t}\\
+ & = & -\frac{\partial m}{\partial\alpha^{T}}\left(\frac{\partial^{2}M}{\partial\alpha\partial\alpha^{T}}\right)^{-1}\frac{\partial^{2}M}{\partial\alpha\partial t^{T}}+\frac{\partial m}{\partial t}
 \end{eqnarray*}
 
 \end_inset
@@ -1130,7 +1132,7 @@ Note that we can use the law of total variance to avoid sampling variance
  sampling
 \begin_inset Formula 
 \begin{eqnarray*}
-\textrm{Var}\left(\theta\vert X\right) & = & \mbe\left[\textrm{Var}\left(\theta\vert\alpha,X\right)\right]+\textrm{Var}\left(\mbe\left[\theta\vert\alpha,X\right]\right)
+\textrm{Var}\left(\theta\vert X\right) & = & \mbe\left[\textrm{Var}\left(\theta\vert\alpha,X\right)\vert X\right]+\textrm{Var}\left(\mbe\left[\theta\vert\alpha,X\right]\vert X\right)
 \end{eqnarray*}
 
 \end_inset

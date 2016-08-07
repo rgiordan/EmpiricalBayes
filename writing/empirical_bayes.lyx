@@ -366,12 +366,26 @@ Suppose that
  Then 
 \begin_inset Formula 
 \begin{eqnarray*}
-\Sigma_{\theta} & = & \frac{dm}{dt^{T}}=\frac{\partial m}{\partial\alpha^{T}}\frac{d\alpha}{dt^{T}}+\frac{\partial m}{\partial t}
+\Sigma_{\theta} & = & \frac{dm}{dt^{T}}\\
+ & = & \frac{\partial m}{\partial\alpha^{T}}\frac{d\alpha}{dt^{T}}+\frac{\partial m}{\partial t}\\
+ & = & -\frac{\partial m}{\partial\alpha^{T}}\left(\frac{\partial^{2}M}{\partial\alpha\partial\alpha^{T}}\right)^{-1}\frac{\partial^{2}M}{\partial\alpha\partial t^{T}}+\frac{\partial m}{\partial t}
 \end{eqnarray*}
 
 \end_inset
 
 
+\end_layout
+
+\begin_layout Standard
+Note that 
+\begin_inset Formula $\partial m/\partial t$
+\end_inset
+
+ is the covariance for fixed 
+\begin_inset Formula $\alpha$
+\end_inset
+
+.
 \end_layout
 
 \begin_layout Subsection

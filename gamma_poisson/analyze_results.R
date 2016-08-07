@@ -140,6 +140,15 @@ M_at <- matrix(NaN, 2, n_g)
 M_at[1, ] <- 1 / (1 + beta_est) - 1 / beta_est
 M_at[2, ] <- gamma_est / (beta_est ^ 2) - (gamma_est + t(y)) / ((1 + beta_est) ^ 2)
 
+if (FALSE) {
+  # Check something out based on positive definiteness
+  # This is closer to correct though I don't see how it would be derived.
+  M_at <- matrix(NaN, 2, n_g)
+  M_at[1, ] <- 1 / (1 + beta_est)
+  M_at[2, ] <- - (gamma_est + t(y)) / ((1 + beta_est) ^ 2)
+}
+
+
 # Since we're using MLE estimates rather than MAP use the corresponding objective function.
 if (stan_results$map_estimate) {
   dalpha_dt <- -1 * solve(M_aa + M_prior_aa, M_at)
@@ -170,6 +179,19 @@ stopifnot(max(abs(diag(dmom_dt) - lambda_true_df$fixed_var)) < 1e-12)
 ########################
 # Plots
 if (FALSE) {
+  
+# Compare corrections to actual differences.
+lambda_stats_correction <-
+  data.frame(g=1:n_g, lr_diff_exact=diag(lr_cov_corr_exact)) %>%
+  inner_join(lambda_true_df, by="g") %>%
+  mutate(mcmc_diff=free_var - fixed_var)
+
+ggplot(lambda_stats_correction) +
+  geom_point(aes(x=mcmc_diff, y=lr_diff_exact)) +
+  geom_abline(aes(slope=1, intercept=0)) +
+  expand_limits(x=0, y=0)
+
+
 
 lambda_sd_stats <-
   select(lambda_grouped, g, draw, method, lambda) %>%
@@ -206,16 +228,6 @@ ggplot(lambda_true_df) +
   geom_hline(aes(yintercept=0)) +
   geom_vline(aes(xintercept=0))
    
-# Compare corrections to actual differences.
-lambda_stats_correction <-
-  data.frame(g=1:n_g, lr_diff_exact=diag(lr_cov_corr_exact)) %>%
-  inner_join(lambda_true_df, by="g")
-
-ggplot(lambda_stats_correction) +
-  geom_point(aes(x=free_var - fixed_var, y=lr_diff_exact)) +
-  geom_abline(aes(slope=1, intercept=0)) +
-  expand_limits(x=0, y=0)
-
 # # This should be an MCMC estimate of dmom / dalpha
 # ggplot(lambda_stats_correction) +
 #   geom_point(aes(x=lr_diff, y=lr_diff_exact)) +
