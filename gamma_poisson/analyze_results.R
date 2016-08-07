@@ -154,47 +154,6 @@ if (stan_results$map_estimate) {
 }
 
 
-
-##########################
-# MCMC version
-
-# Means within a draw
-lambda_moments <-
-  ungroup(lambda_fixed_df)  %>%
-  group_by(draw) %>%
-  summarize(e=mean(lambda), e_log=mean(log(lambda))) %>%
-  arrange(draw)
-
-ell_alpha <- matrix(NaN, max(lambda_moments$draw), 2)
-ell_gamma_prior <- -1 * lambda_free$gamma_beta + (lambda_free$gamma_alpha - 1) / lambda_free$prior_gamma
-ell_beta_prior <- -1 * lambda_free$beta_beta + (lambda_free$beta_alpha - 1) / lambda_free$prior_beta
-ell_alpha[, 1] <- n_g * (log(beta_est) - digamma(gamma_est) + lambda_moments$e_log) + ell_gamma_prior
-ell_alpha[, 2] <- n_g * (gamma_est / beta_est - lambda_moments$e) + ell_beta_prior
-
-# add prior
-ell_alpha[, 1] <-
-  ell_alpha[, 1]
-ell_alpha[, 2] <-
-  ell_alpha[, 2] 
-# Lambda draws as a matrix
-lambda_draws <- as.matrix(
-  select(lambda_fixed_df, lambda, g, draw) %>%
-    dcast(g ~ draw, value.var="lambda") %>%
-    select(-g))
-
-lambda_draws <- lambda_draws - rowMeans(lambda_draws)
-
-cov_corr <- lambda_draws %*% ell_alpha %*% dalpha_dt / n_draws
-
-lambda_means <- rowMeans(lambda_draws)
-sample_cov <- lambda_draws %*% t(lambda_draws) / (n_draws - 1) -
-              lambda_means %*% t(lambda_means) * n_draws / (n_draws - 1)
-
-lr_cov <- sample_cov + cov_corr
-lr_cov <- 0.5 * (lr_cov + t(lr_cov))
-
-
-
 ##########################
 # Exact version
 
@@ -213,6 +172,7 @@ lr_cov_corr_exact <- dmom_dalpha %*% dalpha_dt
 stopifnot(max(abs(diag(dmom_dt) - lambda_true_df$fixed_var)) < 1e-12)
 
 
+
 ########################
 # Plots
 if (FALSE) {
@@ -222,10 +182,6 @@ lambda_sd_stats <-
   group_by(g, method) %>%
   summarize(sd=sd(lambda), mean=mean(lambda))
 
-lambda_stats_correction <-
-  data.frame(g=1:n_g, lr_diff=diag(cov_corr), lr_diff_exact=diag(lr_cov_corr_exact)) %>%
-  inner_join(lambda_true_df, by="g")
-
 # Compare fixed vs free
 ggplot(lambda_true_df) +
   geom_point(aes(x=free_mean, y=fixed_mean)) +
@@ -234,10 +190,10 @@ ggplot(lambda_true_df) +
 
 ggplot(lambda_true_df) +
   geom_point(aes(x=free_var, y=fixed_var, color="MCMC")) +
-  # geom_point(aes(x=free_var, y=fixed_var + diag(lr_cov_corr_exact), color="lr")) +
   geom_abline(aes(slope=1, intercept=0)) +
   expand_limits(x=0, y=0)
 
+# Free has more variance
 ggplot(lambda_true_df) +
   geom_line(aes(x=y, y=free_var, color="free")) +
   geom_line(aes(x=y, y=fixed_var, color="fixed")) +
@@ -257,16 +213,20 @@ ggplot(lambda_true_df) +
   geom_vline(aes(xintercept=0))
    
 # Compare corrections to actual differences.
+lambda_stats_correction <-
+  data.frame(g=1:n_g, lr_diff_exact=diag(lr_cov_corr_exact)) %>%
+  inner_join(lambda_true_df, by="g")
+
 ggplot(lambda_stats_correction) +
   geom_point(aes(x=free_var - fixed_var, y=lr_diff_exact)) +
   geom_abline(aes(slope=1, intercept=0)) +
   expand_limits(x=0, y=0)
 
-# This should be an MCMC estimate of dmom / dalpha
-ggplot(lambda_stats_correction) +
-  geom_point(aes(x=lr_diff, y=lr_diff_exact)) +
-  geom_abline(aes(slope=1, intercept=0)) +
-  expand_limits(x=0, y=0)
+# # This should be an MCMC estimate of dmom / dalpha
+# ggplot(lambda_stats_correction) +
+#   geom_point(aes(x=lr_diff, y=lr_diff_exact)) +
+#   geom_abline(aes(slope=1, intercept=0)) +
+#   expand_limits(x=0, y=0)
 
 # Compare exact vs MCMC estimates
 lambda_sd_check  <-
@@ -339,3 +299,49 @@ max(abs(lambda_means - filter(lambda_stats, method == "fixed")$mean))
 max(abs(sqrt(diag(sample_cov)) - filter(lambda_stats, method == "fixed")$sd))
 
 }
+
+
+
+if (FALSE) {
+  
+##########################
+# MCMC version
+
+# Means within a draw
+lambda_moments <-
+  ungroup(lambda_fixed_df)  %>%
+  group_by(draw) %>%
+  summarize(e=mean(lambda), e_log=mean(log(lambda))) %>%
+  arrange(draw)
+
+ell_alpha <- matrix(NaN, max(lambda_moments$draw), 2)
+ell_gamma_prior <- -1 * lambda_free$gamma_beta + (lambda_free$gamma_alpha - 1) / lambda_free$prior_gamma
+ell_beta_prior <- -1 * lambda_free$beta_beta + (lambda_free$beta_alpha - 1) / lambda_free$prior_beta
+ell_alpha[, 1] <- n_g * (log(beta_est) - digamma(gamma_est) + lambda_moments$e_log) + ell_gamma_prior
+ell_alpha[, 2] <- n_g * (gamma_est / beta_est - lambda_moments$e) + ell_beta_prior
+
+# add prior
+ell_alpha[, 1] <-
+  ell_alpha[, 1]
+ell_alpha[, 2] <-
+  ell_alpha[, 2] 
+# Lambda draws as a matrix
+lambda_draws <- as.matrix(
+  select(lambda_fixed_df, lambda, g, draw) %>%
+    dcast(g ~ draw, value.var="lambda") %>%
+    select(-g))
+
+lambda_draws <- lambda_draws - rowMeans(lambda_draws)
+
+cov_corr <- lambda_draws %*% ell_alpha %*% dalpha_dt / n_draws
+
+lambda_means <- rowMeans(lambda_draws)
+sample_cov <- lambda_draws %*% t(lambda_draws) / (n_draws - 1) -
+  lambda_means %*% t(lambda_means) * n_draws / (n_draws - 1)
+
+lr_cov <- sample_cov + cov_corr
+lr_cov <- 0.5 * (lr_cov + t(lr_cov))
+
+
+}
+

@@ -111,6 +111,16 @@ NegBinLogLikArgs <- function(theta) {
   return(log_lik)
 }
 
+OptimObjective <- function(theta) {
+  if (map_estimate) {
+    obj <- NegBinLogLik(theta) + LogPrior(theta)
+  } else {
+    obj <- NegBinLogLik(theta)
+  }
+  cat(obj, "\n")
+  return(obj)
+}
+
 NegBinLogLikManual <- function(theta) {
   par <- DecodeTheta(theta)
   return(NegBinLogLikArgs(c(par$gamma, par$beta, rep(0, n_obs))))
@@ -125,6 +135,11 @@ M_aa[2, 2] <- sum(gamma_est / (beta_est ^ 2) - (gamma_est + y) / ((1 + beta_est)
 auto_hess <- hessian(NegBinLogLikArgs, c(gamma_est, beta_est, rep(0, n_obs)))
 auto_hess[1:2, 1:2]
 M_aa
+
+# Prior
+prior_auto_hess <- hessian(LogPrior, c(gamma_est, beta_est))
+M_prior_aa - prior_auto_hess
+
 
 auto_hess[1:2, 3:(2 + n_obs)][1, ] - M_at[1,]
 auto_hess[1:2, 3:(2 + n_obs)][2, ] - M_at[2,] 

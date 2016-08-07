@@ -30,7 +30,7 @@ LoadStanModel <- function(stan_model_name) {
 #############################
 # Simualate some data
 
-n_obs <- 100
+n_obs <- 10
 
 set.seed(42)
 true_params <- list()
@@ -41,26 +41,33 @@ true_params$lambda <- rep(NaN, n_obs)
 true_params$lambda <- rgamma(n_obs, true_params$prior_gamma, true_params$prior_beta)
 y <- rpois(n_obs, lambda=true_params$lambda)
 
-prior_var <- 0.1 ^ 2
+# Set the gamma prior parameters from more intuitive mean and variance.
+prior_var <- 2 ^ 2
 prior_gamma_mean <- true_params$prior_gamma
 prior_beta_mean <- true_params$prior_beta
 
-gamma_alpha <- (prior_gamma_mean ^ 2) / prior_var;
-gamma_beta <- prior_gamma_mean / prior_var;
+gamma_prior_alpha <- (prior_gamma_mean ^ 2) / prior_var;
+gamma_prior_beta <- prior_gamma_mean / prior_var;
 
-beta_alpha <- (prior_beta_mean ^ 2) / prior_var;
-beta_beta <-prior_beta_mean / prior_var;
+beta_prior_alpha <- (prior_beta_mean ^ 2) / prior_var;
+beta_prior_beta <-prior_beta_mean / prior_var;
 
 ##################################
 # Get an empirical Bayes prior
 
 map_estimate <- TRUE
 
-LogPrior <- function(theta) {
-  par <- DecodeTheta(theta)
-  gamma_log_prior <- dgamma(par$gamma, shape=gamma_alpha, rate=gamma_beta, log=TRUE)
-  beta_log_prior <- dgamma(par$beta, shape=beta_alpha, rate=beta_beta, log=TRUE)
+LogPrior <- function(par) {
+  gamma <- par[1]
+  beta <- par[2]
+  gamma_log_prior <- dgamma(gamma, shape=gamma_prior_alpha, rate=gamma_prior_beta, log=TRUE)
+  beta_log_prior <- dgamma(beta, shape=beta_prior_alpha, rate=beta_prior_beta, log=TRUE)
   return(gamma_log_prior + beta_log_prior)  
+}
+
+OptimLogPrior <- function(theta) {
+  par <- DecodeTheta(theta)
+  return(LogPrior(c(par$gamma, par$beta)))
 }
 
 DecodeTheta <- function(theta) {
@@ -84,7 +91,7 @@ NegBinLogLik <- function(theta) {
 
 OptimObjective <- function(theta) {
   if (map_estimate) {
-    obj <- NegBinLogLik(theta) + LogPrior(theta)
+    obj <- NegBinLogLik(theta) + OptimLogPrior(theta)
   } else {
     obj <- NegBinLogLik(theta)
   }
@@ -95,10 +102,11 @@ OptimObjective <- function(theta) {
 prior_mle_optim <- optim(c(0, 0), OptimObjective, control=list(fnscale=-1))
 prior_mle <- DecodeTheta(prior_mle_optim$par)
 
-# prior_optim <-
-#   optim(c(0, 0), function(theta) { obj <- LogPrior(theta); print(obj); return(obj) },
-#         control=list(fnscale=-1))
-# prior_par <- DecodeTheta(prior_mle_optim$par)
+# Sanity check
+prior_optim <-
+  optim(c(0, 0), function(theta) { obj <- OptimLogPrior(theta); print(obj); return(obj) },
+        control=list(fnscale=-1))
+prior_par <- DecodeTheta(prior_optim$par)
 
 gamma_est <- prior_mle$gamma
 beta_est <- prior_mle$beta
@@ -113,17 +121,19 @@ fixed_model <- LoadStanModel("gamma_poisson_fixed_prior")
 # Stan data.
 stan_dat <- list(N = length(y),
                  y = y,
-                 prior_gamma_mean=gamma_est,
-                 prior_gamma_var=prior_var,
-                 prior_beta_mean=beta_est,
-                 prior_beta_var=prior_var,
+                 # Priors for the free model:
+                 alpha_prior_alpha=gamma_prior_alpha,
+                 alpha_prior_beta=gamma_prior_beta,
+                 beta_prior_alpha=beta_prior_alpha,
+                 beta_prior_beta=beta_prior_beta,
+                 # Fixed values for the fixed model:
                  prior_gamma = gamma_est,
                  prior_beta = beta_est)
 
 # Some knobs we can tweak.  Note that we need many iterations to accurately assess
 # the prior sensitivity in the MCMC noise.
 chains <- 1
-iters <- 10000
+iters <- 50000
 seed <- 42
 
 # Draw the draws and save.
