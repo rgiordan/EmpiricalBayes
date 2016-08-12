@@ -28,11 +28,11 @@ lambda_true_df <-
 if (FALSE) {
   ggplot(lambda_true_df) +
     geom_point(aes(x=free_mean, y=fixed_mean)) +
-    geom_abline(aes(slope=1, intercept=0)) 
-  
+    geom_abline(aes(slope=1, intercept=0))
+
   ggplot(lambda_true_df) +
     geom_point(aes(x=free_var, y=fixed_var)) +
-    geom_abline(aes(slope=1, intercept=0)) 
+    geom_abline(aes(slope=1, intercept=0))
 }
 
 lambda_free_df <-
@@ -67,7 +67,7 @@ lambda_grouped <-
 rmse <-
   group_by(lambda_grouped, g, method) %>%
   summarize(abs_bias=abs(mean(lambda - true_lambda)),
-            sd=sd(lambda - true_lambda), 
+            sd=sd(lambda - true_lambda),
             rmse=sqrt(mean((lambda - true_lambda) ^ 2))) %>%
   melt(id.vars=c("g", "method")) %>%
   rename(measure=variable)
@@ -99,7 +99,7 @@ if (FALSE) {
     geom_vline(aes(xintercept=gamma_est), lwd=3) +
     geom_vline(aes(xintercept=gamma_est - 2 * gamma_prior_sd), lwd=1) +
     geom_vline(aes(xintercept=gamma_est + 2 * gamma_prior_sd), lwd=1)
-  
+
   ggplot(prior_df) +
     geom_histogram(aes(x=beta), bins=100) +
     geom_vline(aes(xintercept=beta_est), lwd=3) +
@@ -140,21 +140,14 @@ M_at <- matrix(NaN, 2, n_g)
 M_at[1, ] <- 1 / (1 + beta_est) - 1 / beta_est
 M_at[2, ] <- gamma_est / (beta_est ^ 2) - (gamma_est + t(y)) / ((1 + beta_est) ^ 2)
 
-if (FALSE) {
-  # Check something out based on positive definiteness
-  # This is closer to correct though I don't see how it would be derived.
-  M_at <- matrix(NaN, 2, n_g)
-  M_at[1, ] <- 1 / (1 + beta_est)
-  M_at[2, ] <- - (gamma_est + t(y)) / ((1 + beta_est) ^ 2)
-}
-
-
 # Since we're using MLE estimates rather than MAP use the corresponding objective function.
+M_hess <- matrix(NaN, 2, 2)
 if (stan_results$map_estimate) {
-  dalpha_dt <- -1 * solve(M_aa + M_prior_aa, M_at)
+  M_hess <- M_aa + M_prior_aa
 } else {
-  dalpha_dt <- -1 * solve(M_aa, M_at)
+  M_hess <- M_aa
 }
+dalpha_dt <- -1 * solve(M_hess, M_at)
 
 
 ##########################
@@ -174,12 +167,19 @@ lr_cov_corr_exact <- dmom_dalpha %*% dalpha_dt
 
 stopifnot(max(abs(diag(dmom_dt) - lambda_true_df$fixed_var)) < 1e-12)
 
+if (FALSE) {
+  # Check something out based on positive definiteness
+  # This is closer to correct though I don't see how it would be derived.
+  lr_cov_corr_exact <- -1 * t(M_at) %*% solve(M_hess, M_at) # Bad
+  lr_cov_corr_exact <- -1 * dmom_dalpha %*% solve(M_hess, t(dmom_dalpha)) # Good
+}
+
 
 
 ########################
 # Plots
 if (FALSE) {
-  
+
 # Compare corrections to actual differences.
 lambda_stats_correction <-
   data.frame(g=1:n_g, lr_diff_exact=diag(lr_cov_corr_exact)) %>%
@@ -227,7 +227,7 @@ ggplot(lambda_true_df) +
   geom_point(aes(x=y, y=diag(lr_cov_corr_exact), color="LR")) +
   geom_hline(aes(yintercept=0)) +
   geom_vline(aes(xintercept=0))
-   
+
 # # This should be an MCMC estimate of dmom / dalpha
 # ggplot(lambda_stats_correction) +
 #   geom_point(aes(x=lr_diff, y=lr_diff_exact)) +
@@ -239,7 +239,7 @@ lambda_sd_check  <-
   dcast(lambda_sd_stats, g ~ method, value.var="sd") %>%
   inner_join(lambda_true_df, by="g")
 
-ggplot(lambda_sd_check) + 
+ggplot(lambda_sd_check) +
   geom_point(aes(x=sqrt(free_var), y=free, color="free")) +
   geom_point(aes(x=sqrt(fixed_var), y=fixed, color="fixed")) +
   geom_abline(aes(slope=1, intercept=0)) +
@@ -249,7 +249,7 @@ lambda_mean_check  <-
   dcast(lambda_sd_stats, g ~ method, value.var="mean") %>%
   inner_join(lambda_true_df, by="g")
 
-ggplot(lambda_mean_check) + 
+ggplot(lambda_mean_check) +
   geom_point(aes(x=free_mean, y=free, color="free")) +
   geom_point(aes(x=fixed_mean, y=fixed, color="fixed")) +
   geom_abline(aes(slope=1, intercept=0)) +
@@ -309,7 +309,7 @@ max(abs(sqrt(diag(sample_cov)) - filter(lambda_stats, method == "fixed")$sd))
 
 
 if (FALSE) {
-  
+
 ##########################
 # MCMC version
 
@@ -330,7 +330,7 @@ ell_alpha[, 2] <- n_g * (gamma_est / beta_est - lambda_moments$e) + ell_beta_pri
 ell_alpha[, 1] <-
   ell_alpha[, 1]
 ell_alpha[, 2] <-
-  ell_alpha[, 2] 
+  ell_alpha[, 2]
 # Lambda draws as a matrix
 lambda_draws <- as.matrix(
   select(lambda_fixed_df, lambda, g, draw) %>%
