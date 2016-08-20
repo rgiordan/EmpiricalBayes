@@ -205,8 +205,7 @@ Under the assumption that the Empirical Bayes approximation is good, then
 \begin_inset Formula 
 \begin{eqnarray*}
 \mbe_{p_{t}}\left[\theta\vert x\right] & \approx & \mbe_{p_{t}}\left[\theta\vert x,\alpha\right]\Rightarrow\\
-\hat{\Sigma}_{\theta} & := & \frac{d}{dt^{T}}\mbe_{p_{t}}\left[\theta\vert x,\alpha\right]\approx\frac{d}{dt^{T}}\mbe_{p_{t}}\left[\theta\vert x\right]\\
-\hat{\Sigma}_{\theta} & = & \frac{\partial\mbe_{p_{t}}\left[\theta\vert x,\alpha\right]}{\partial\alpha^{T}}\frac{d\alpha}{dt^{T}}+\frac{\partial\mbe_{p_{t}}\left[\theta\vert x,\alpha\right]}{\partial t}
+\hat{\Sigma}_{\theta} & := & \frac{d}{dt^{T}}\mbe_{p_{t}}\left[\theta\vert x,\alpha\right]\approx\frac{d}{dt^{T}}\mbe_{p_{t}}\left[\theta\vert x\right]
 \end{eqnarray*}
 
 \end_inset
@@ -232,6 +231,42 @@ Note that
 \begin{eqnarray*}
 \hat{\alpha}_{t} & := & \underset{\alpha}{\textrm{argmax}}\left\{ \int p\left(x\vert\theta,\alpha\right)p\left(\theta\right)p\left(\alpha\right)e^{t\theta}d\theta\right\} \\
 \hat{\alpha} & = & \hat{\alpha}_{0}
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Note at this point that 
+\begin_inset Formula $\hat{\alpha}_{t}$
+\end_inset
+
+ is a function of 
+\begin_inset Formula $t$
+\end_inset
+
+, and 
+\begin_inset Formula $\mbe_{p_{t}}\left[\theta\vert x,\hat{\alpha}_{t}\right]$
+\end_inset
+
+ is a function of both 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ and 
+\begin_inset Formula $t$
+\end_inset
+
+.
+ Taking the total derivative,
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{eqnarray*}
+\hat{\Sigma}_{\theta} & = & \left.\frac{\partial\mbe_{p_{t}}\left[\theta\vert x,\alpha\right]}{\partial\alpha^{T}}\frac{d\alpha}{dt^{T}}\right|_{\alpha=\hat{\alpha}_{0},t=0}+\left.\frac{\partial\mbe_{p_{t}}\left[\theta\vert x,\hat{\alpha}_{0}\right]}{\partial t}\right|_{t=0}
 \end{eqnarray*}
 
 \end_inset
@@ -1305,7 +1340,7 @@ Let's take an even more classic example:
 \begin_inset Formula 
 \begin{eqnarray*}
 x_{i}\vert\theta_{i} & \sim & \mathcal{N}\left(\theta_{i},1\right)\\
-\theta_{i}\vert\alpha,\sigma^{2} & \sim & \mathcal{N}\left(\alpha,\tau^{-1}\right)\\
+\theta_{i}\vert\alpha & \sim & \mathcal{N}\left(\alpha,\tau^{-1}\right)\\
 \alpha & \sim & \mathcal{N}\left(0,\tau_{\alpha}^{-1}\right)\\
 \tau,\tau_{\alpha} &  & \textrm{are known}
 \end{eqnarray*}
@@ -1320,7 +1355,9 @@ Then
 \begin_inset Formula 
 \begin{eqnarray*}
 \log p\left(x_{i}\vert\theta_{i}\right) & = & -\frac{1}{2}\left(x_{i}-\theta_{i}\right)^{2}+C\\
+ & = & -\frac{1}{2}x_{i}^{2}+x_{i}\theta_{i}-\frac{1}{2}\theta_{i}^{2}\\
 \log p\left(\theta_{i}\vert\alpha\right) & = & -\frac{1}{2}\left(\tau\left(\theta_{i}-\alpha\right)^{2}-\log\tau\right)+C\\
+ & = & -\frac{1}{2}\tau\theta_{i}^{2}+\tau\theta_{i}\alpha-\frac{1}{2}\tau\alpha^{2}-\frac{1}{2}\log\tau+C\\
 \log p\left(\alpha\right) & = & -\frac{1}{2}\tau_{\alpha}\alpha^{2}
 \end{eqnarray*}
 
@@ -1329,12 +1366,98 @@ Then
 
 \end_layout
 
+\begin_layout Subsection
+True posterior: integrating out 
+\begin_inset Formula $\alpha$
+\end_inset
+
+
+\end_layout
+
 \begin_layout Standard
-Integrating out,
+Here, we know that marginally over 
+\begin_inset Formula $\alpha$
+\end_inset
+
+,
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{eqnarray*}
+\theta_{i} & \sim & \mathcal{N}\left(0,\tau^{-1}+\tau_{\alpha}^{-1}\right)\\
+\tau_{m} & := & \left(\tau^{-1}+\tau_{\alpha}^{-1}\right)^{-1}\\
+ & = & \frac{\tau\tau_{\alpha}}{\tau+\tau_{\alpha}}
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Note that
+\begin_inset Formula 
+\begin{eqnarray*}
+\tau_{m}^{-1} & = & \tau^{-1}+\tau_{\alpha}^{-1}>\tau^{-1}\Rightarrow\\
+\tau & > & \tau_{m}
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Thus the posterior is given by
+\begin_inset Formula 
+\begin{eqnarray*}
+\mbe\left[\theta_{i}\vert x_{i}\right] & = & \frac{1}{\tau_{m}+1}\left(0\cdot\tau_{m}+x_{i}\right)\\
+ & = & \frac{x_{i}}{\tau_{m}+1}
+\end{eqnarray*}
+
+\end_inset
+
+
+\begin_inset Formula 
+\begin{eqnarray*}
+\theta_{i}\vert x_{i} & \sim & \mathcal{N}\left(\frac{x_{i}}{\tau_{m}+1},\left(\tau_{m}+1\right)^{-1}\right)\\
+\frac{1}{\tau_{m}+1} & = & \frac{\tau_{\alpha}+\tau}{\tau_{\alpha}+\tau+\tau\tau_{\alpha}}
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+This is the variance we hope to recover with linear response.
+\end_layout
+
+\begin_layout Subsection
+Integrating out 
+\begin_inset Formula $\theta_{i}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Integrating out 
+\begin_inset Formula $\theta_{i}$
+\end_inset
+
+,
 \begin_inset Formula 
 \begin{eqnarray*}
 x_{i}\vert\alpha & \sim & \mathcal{N}\left(\alpha,1+\tau^{-1}\right)\\
-M_{MLE}=\log p\left(x_{i}\vert\alpha\right) & = & -\frac{1}{2}\left(1+\tau^{-1}\right)^{-1}\left(x_{i}-\alpha\right)^{2}
+\alpha & \sim & \mathcal{N}\left(0,\tau_{\alpha}^{-1}\right)\\
+\mbe\left[\alpha\vert x_{i}\right] & = & \frac{1}{\tau_{\alpha}+\left(1+\tau^{-1}\right)^{-1}}\left(\left(1+\tau^{-1}\right)^{-1}x_{i}\right)\\
+ & = & \frac{1}{\left(1+\tau^{-1}\right)\tau_{\alpha}+1}x_{i}\\
+ & = & \frac{\tau}{\left(\tau+1\right)\tau_{\alpha}+\tau}x_{i}\\
+ & = & \frac{\tau}{\tau\tau_{\alpha}+\tau_{\alpha}+\tau}x_{i}\\
+\frac{\tau}{\tau\tau_{\alpha}+\tau_{\alpha}+\tau} & = & \frac{\tau}{\left(\frac{\tau\tau_{\alpha}}{\tau+\tau_{\alpha}}+1\right)}\frac{1}{\left(\tau+\tau_{\alpha}\right)}\frac{\tau_{\alpha}}{\tau_{\alpha}}\\
+ & = & \frac{\tau_{m}}{\tau_{\alpha}\left(\tau_{m}+1\right)}
 \end{eqnarray*}
 
 \end_inset
@@ -1343,13 +1466,24 @@ M_{MLE}=\log p\left(x_{i}\vert\alpha\right) & = & -\frac{1}{2}\left(1+\tau^{-1}\
 \end_layout
 
 \begin_layout Standard
-Since
+Note that this is maximized at 
+\begin_inset Formula $\hat{\alpha}=\frac{\tau}{\tau\tau_{\alpha}+\tau_{\alpha}+\tau}x_{i}$
+\end_inset
+
+.
+ Thus
 \end_layout
 
 \begin_layout Standard
 \begin_inset Formula 
 \begin{eqnarray*}
-\log p_{t}\left(\theta_{i}\vert\alpha\right) & = & -\frac{1}{2}\left(\tau\theta_{i}^{2}-2\tau\left(\alpha+\frac{t_{i}}{\tau}\right)\theta_{i}+\tau\left(\alpha+t_{i}\right)^{2}-\log\tau\right)+C
+\theta_{i}\vert\hat{\alpha} & \sim & \mathcal{N}\left(\frac{\tau_{m}}{\tau_{\alpha}\left(\tau_{m}+1\right)}x_{i},\tau^{-1}\right)\\
+x_{i}\vert\theta_{i} & \sim & \mathcal{N}\left(\theta_{i},1\right)\\
+\textrm{Var}\left(\theta_{i}\vert\hat{\alpha},x_{i}\right) & = & \left(1+\tau\right)^{-1}\\
+\mbe\left[\theta_{i}\vert\hat{\alpha},x_{i}\right] & = & \frac{1}{1+\tau}\left(\frac{\tau_{m}\tau}{\tau_{\alpha}\left(\tau_{m}+1\right)}+1\right)x_{i}\\
+\frac{\tau_{m}\tau}{\tau_{\alpha}\left(\tau_{m}+1\right)\left(1+\tau\right)} & = & \frac{\tau_{m}\tau}{\left(\tau_{m}+1\right)\left(\tau_{\alpha}+\tau_{\alpha}\tau\right)}\\
+ & = & \frac{\tau_{m}\tau}{\left(\tau_{m}+1\right)\left(\frac{\tau_{\alpha}}{\tau+\tau_{\alpha}}+\tau_{m}\right)\left(\tau+\tau_{\alpha}\right)}\\
+ & = & \frac{\tau_{m}^{2}}{\left(\tau_{m}+1\right)\left(\frac{\tau_{\alpha}}{\tau+\tau_{\alpha}}+\tau_{m}\right)\tau_{\alpha}}
 \end{eqnarray*}
 
 \end_inset
@@ -1358,16 +1492,260 @@ Since
 \end_layout
 
 \begin_layout Standard
-TODO: this is wrong, fix it
+Old, wrong:
+\begin_inset Formula 
+\begin{eqnarray*}
+\theta_{i}\vert\hat{\alpha} & \sim & \mathcal{N}\left(\frac{x_{i}}{1+\tau_{\alpha}},\tau^{-1}\right)\\
+x_{i}\vert\theta_{i} & \sim & \mathcal{N}\left(\theta_{i},1\right)\\
+\theta_{i}\vert\hat{\alpha},x_{i} & \sim & \mathcal{N}\left(\frac{1}{\tau+1}\left(\tau\hat{\alpha}+x_{i}\right),\left(1+\tau\right)^{-1}\right)\\
+ & = & \mathcal{N}\left(\frac{1+\tau_{\alpha}+\tau}{1+\tau_{\alpha}\tau+\tau+\tau_{\alpha}}x_{i},\left(1+\tau\right)^{-1}\right)\\
+\frac{1}{\tau+1}\left(\tau\frac{x_{i}}{1+\tau_{\alpha}}+x_{i}\right) & = & \frac{1+\tau_{\alpha}+\tau}{\left(\tau+1\right)\left(1+\tau_{\alpha}\right)}x_{i}\\
+ & = & \frac{1+\tau_{\alpha}+\tau}{1+\tau_{\alpha}\tau+\tau+\tau_{\alpha}}x_{i}
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Here, in contrast to the correct model with 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ marginalized out, 
+\begin_inset Formula $\theta_{i}\vert\hat{\alpha},x_{i}$
+\end_inset
+
+ is shrunk less towards 
+\begin_inset Formula $0$
+\end_inset
+
+ and its variance is too small since 
+\begin_inset Formula $\tau>\tau_{m}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsection
+Tilted model
+\end_layout
+
+\begin_layout Standard
+Suppose we are interested in the variance of 
+\begin_inset Formula $\theta_{i}$
+\end_inset
+
+.
+ Then we perturb with 
+\begin_inset Formula $t_{i}\theta_{i}$
+\end_inset
+
+:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{eqnarray*}
+\log p_{t}\left(\theta_{i}\vert\alpha\right) & = & -\frac{1}{2}\tau\theta_{i}^{2}+\tau\theta_{i}\alpha+t_{i}\theta_{i}+C\\
+ & = & -\frac{1}{2}\tau\theta_{i}^{2}+\tau\left(\alpha+\tau^{-1}t_{i}\right)\theta_{i}+C\\
+ & = & -\frac{1}{2}\tau\left(\theta_{i}-\left(\alpha+\tau^{-1}t_{i}\right)\right)^{2}+C
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Thus
+\begin_inset Formula 
+\begin{eqnarray*}
+\theta_{i}\vert\alpha,t_{i} & \sim & \mathcal{N}\left(\alpha+\tau^{-1}t_{i},\tau^{-1}\right)
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Consequently,
+\begin_inset Formula 
+\begin{eqnarray*}
+\theta_{i}\vert\alpha,t_{i},x_{i} & \sim & \mathcal{N}\left(\frac{1}{1+\tau}\left(\tau\left(\alpha+\tau^{-1}t_{i}\right)+x_{i}\right),\left(1+\tau\right)^{-1}\right)\\
+\frac{1}{1+\tau}\left(\tau\left(\alpha+\tau^{-1}t_{i}\right)+x_{i}\right) & = & \frac{\tau\alpha+t_{i}+x_{i}}{1+\tau}
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+So that
+\begin_inset Formula 
+\begin{eqnarray*}
+\mbe\left[\theta_{i}\vert\alpha,t_{i},x_{i}\right] & = & \frac{\tau\alpha+t_{i}+x_{i}}{1+\tau}\\
+m & := & \mbe\left[\theta_{i}\vert\alpha,t_{i},x_{i}\right]\\
+\frac{\partial m}{\partial t_{i}} & = & \frac{1}{1+\tau}\\
+\frac{\partial m}{\partial\alpha} & = & \frac{\tau}{1+\tau}
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Next, we see that
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{eqnarray*}
+x_{i}\vert\alpha,t_{i} & \sim & \mathcal{N}\left(\alpha+\tau^{-1}t_{i},1+\tau^{-1}\right)\Rightarrow\\
+x_{i}-\tau^{-1}t_{i}\vert\alpha,t_{i} & \sim & \mathcal{N}\left(\alpha,1+\tau^{-1}\right)\\
+\alpha\vert x_{i},t_{i} & \sim & \mathcal{N}\left(\frac{1}{1+\tau_{m}}\right)
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+As a function of 
+\begin_inset Formula $\alpha$
+\end_inset
+
+, this is maximized at
+\begin_inset Formula 
+\begin{eqnarray*}
+\hat{\alpha}+\tau^{-1}t_{i} & = & x_{i}\\
+\hat{\alpha} & = & x_{i}-\tau^{-1}t_{i}
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Thus
+\begin_inset Formula 
+\begin{eqnarray*}
+\frac{d\hat{\alpha}}{dt} & = & -\tau^{-1}
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Putting this together, we get that
+\begin_inset Formula 
+\begin{eqnarray*}
+\frac{dm}{dt} & = & \left(1+\tau\right)^{-1}+\frac{\tau}{1+\tau}
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Linear response correction
+\end_layout
+
+\begin_layout Standard
+OLD MAYBE NOT RIGHT
+\end_layout
+
+\begin_layout Standard
+Of course
+\begin_inset Formula 
+\begin{eqnarray*}
+\mbe_{t}\left[\theta_{i}\vert\alpha\right] & = & \alpha+\tau^{-1}t_{i}\\
+\frac{\partial}{\partial t_{i}}\mbe_{t}\left[\theta_{i}\vert\alpha\right] & = & \tau^{-1}\\
+\frac{\partial}{\partial\alpha}\mbe_{t}\left[\theta_{i}\vert\alpha\right] & = & 1
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+For a given 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ and 
+\begin_inset Formula $t_{i}$
+\end_inset
+
+, we then have
+\begin_inset Formula 
+\begin{eqnarray*}
+x_{i}\vert\alpha,t_{i} & \sim & \mathcal{N}\left(\alpha+\tau^{-1}t_{i},1+\tau^{-1}\right)
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Then
+\begin_inset Formula 
+\begin{eqnarray*}
+M_{MLE,t,i}\left(\alpha,t\right) & = & -\frac{1}{2}\left(1+\tau^{-1}\right)^{-1}\left(x_{i}-\left(\alpha+\tau^{-1}t_{i}\right)\right)^{2}
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+For a given 
+\begin_inset Formula $t_{i}$
+\end_inset
+
+, this is maximized at
+\begin_inset Formula 
+\begin{eqnarray*}
+\hat{\alpha}_{EB} & = & x_{i}-\tau^{-1}t_{i}
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Thus
+\begin_inset Formula 
+\begin{eqnarray*}
+\mbe_{t}\left[\theta_{i}\vert\hat{\alpha}_{EB},x_{i}\right] & = & \frac{1}{1+\tau}\left(\tau\hat{\alpha}_{EB}+x_{i}\right)
+\end{eqnarray*}
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
 We have
 \begin_inset Formula 
 \begin{eqnarray*}
+\left.\frac{\partial M_{MLE}}{\partial\alpha}\right|_{t_{i}} & = & \left(1+\tau^{-1}\right)^{-1}\left(x_{i}-\alpha-\tau^{-1}t_{i}\right)\\
 \left.\frac{\partial M_{MLE}}{\partial\alpha}\right|_{t_{i}=0} & = & \left(1+\tau^{-1}\right)^{-1}\left(x_{i}-\alpha\right)\\
 \left.\frac{\partial^{2}M_{MLE}}{\partial\alpha^{2}}\right|_{t_{i}=0} & = & -\left(1+\tau^{-1}\right)^{-1}\\
-\left.\frac{\partial^{2}M_{MLE}}{\partial\alpha\partial t}\right|_{t_{i}=0} & = & -\left(1+\tau^{-1}\right)^{-1}
+\left.\frac{\partial^{2}M_{MLE}}{\partial\alpha\partial t}\right|_{t_{i}=0} & = & -\tau^{-1}\left(1+\tau^{-1}\right)^{-1}
 \end{eqnarray*}
 
 \end_inset
@@ -1392,8 +1770,38 @@ So that
 \begin_inset Formula 
 \begin{eqnarray*}
 \frac{d\alpha}{dt} & = & -\left(\frac{\partial^{2}M}{\partial\alpha^{2}}\right)^{-1}\frac{\partial^{2}M_{MLE}}{\partial\alpha\partial t}\\
- & = & -\left(\left(1+\tau^{-1}\right)^{-1}-\tau_{\alpha}\right)^{-1}\left(1+\tau^{-1}\right)^{-1}\\
- & =
+ & = & \tau^{-1}\left(\left(1+\tau^{-1}\right)^{-1}-\tau_{\alpha}\right)^{-1}\left(1+\tau^{-1}\right)^{-1}\\
+\left(\frac{d\alpha}{dt}\right)^{-1} & = & \tau\left(\frac{1}{1+\tau^{-1}}-\tau_{\alpha}\right)\left(1+\tau^{-1}\right)\\
+ & = & \left(\frac{\tau}{\tau+1}-\tau_{\alpha}\right)\left(\tau+1\right)\\
+ & = & \left(\tau+\tau_{\alpha}\left(\tau+1\right)\right)
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+So
+\begin_inset Formula 
+\begin{eqnarray*}
+m\left(t,\alpha_{t}\right) & = & \mbe_{t_{i}}\left[\theta_{i}\vert\alpha_{t}\right]\\
+\frac{dm}{dt} & = & \frac{\partial m}{\partial\alpha}\frac{d\alpha}{dt}+\frac{\partial m}{\partial t}\\
+ & = & \left(\tau+\tau_{\alpha}\left(\tau+1\right)\right)^{-1}+\tau^{-1}\\
+ & = & \frac{1}{\tau+\tau\tau_{\alpha}+\tau_{\alpha}}+\frac{1}{\tau}\\
+ & = & \frac{\tau+\tau_{\alpha}\tau+\tau_{\alpha}+\tau}{\tau\left(\tau+\tau_{\alpha}\tau+\tau_{\alpha}\right)}\\
+ & = & \frac{\tau+\tau_{\alpha}\tau+\tau_{\alpha}+\tau}{\tau\left(\tau+\tau_{\alpha}\tau+\tau_{\alpha}\right)}
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{eqnarray*}
+\frac{\tau_{\alpha}+\tau}{\tau_{\alpha}+\tau\tau_{\alpha}+\tau} & = & \textrm{target}
 \end{eqnarray*}
 
 \end_inset
