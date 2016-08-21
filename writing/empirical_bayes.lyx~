@@ -1432,6 +1432,7 @@ Thus the posterior is given by
 
 \begin_layout Standard
 This is the variance we hope to recover with linear response.
+ 
 \end_layout
 
 \begin_layout Subsection
@@ -1531,33 +1532,22 @@ Here, in contrast to the correct model with
 
 .
  However, the shrinkage matches the marginal case exactly.
-\end_layout
-
-\begin_layout Standard
-Suppose we use the MLE instead of the MAP, so that 
-\begin_inset Formula $\hat{\alpha}=x_{i}$
-\end_inset
-
-.
- Then
-\end_layout
-
-\begin_layout Standard
+ The difference in the variances is given by
 \begin_inset Formula 
 \begin{eqnarray*}
-\theta_{i}\vert\hat{\alpha} & \sim & \mathcal{N}\left(x_{i},\tau^{-1}\right)\\
-x_{i}\vert\theta_{i} & \sim & \mathcal{N}\left(\theta_{i},1\right)\\
-\textrm{Var}\left(\theta_{i}\vert\hat{\alpha},x_{i}\right) & = & \left(1+\tau\right)^{-1}\\
-\mbe\left[\theta_{i}\vert\hat{\alpha},x_{i}\right] & = & x_{i}
+\frac{1}{1+\tau_{\theta}}-\frac{1}{1+\tau} & = & \frac{\tau+\tau_{\alpha}}{\tau+\tau\tau_{\alpha}+\tau_{\alpha}}-\frac{1}{1+\tau}\\
+ & = & \frac{\left(1+\tau\right)\left(\tau+\tau_{\alpha}\right)-\tau-\tau\tau_{\alpha}-\tau_{\alpha}}{\left(\tau+\tau\tau_{\alpha}+\tau_{\alpha}\right)\left(1+\tau\right)}\\
+ & = & \frac{\tau+\tau_{\alpha}+\tau^{2}+\tau\tau_{\alpha}-\tau-\tau\tau_{\alpha}-\tau_{\alpha}}{\left(\tau+\tau\tau_{\alpha}+\tau_{\alpha}\right)\left(1+\tau\right)}\\
+ & = & \frac{\tau^{2}}{\left(\tau+\tau\tau_{\alpha}+\tau_{\alpha}\right)\left(1+\tau\right)}\\
+ & = & \frac{\tau_{x}^{2}\left(1+\tau\right)}{\left(\tau+\tau\tau_{\alpha}+\tau_{\alpha}\right)}\\
+ & = & \frac{\tau_{x}^{2}\left(1+\tau\right)}{\left(\tau+\left(\tau+1\right)\tau_{\alpha}\right)}\\
+ & = & \frac{\tau_{x}^{2}}{\frac{\tau}{\left(1+\tau\right)}+\tau_{\alpha}}\\
+ & = & \frac{\tau_{x}^{2}}{\tau_{x}+\tau_{\alpha}}
 \end{eqnarray*}
 
 \end_inset
 
 
-\end_layout
-
-\begin_layout Standard
-Then there is no shrinkage at all.
 \end_layout
 
 \begin_layout Subsection
@@ -1773,7 +1763,7 @@ So that
 \begin{eqnarray*}
 m & := & \mbe\left[\theta_{i}\vert\alpha,t_{i},x_{i}\right]\\
 \frac{\partial m}{\partial t_{i}} & = & \frac{1}{1+\tau}\\
-\frac{\partial m}{\partial\alpha} & = & \frac{\tau}{1+\tau}
+\frac{\partial m}{\partial\alpha} & = & \frac{\tau}{1+\tau}=\tau_{x}
 \end{eqnarray*}
 
 \end_inset
@@ -1821,7 +1811,7 @@ As a function of
 , this is maximized at
 \begin_inset Formula 
 \begin{eqnarray*}
-\hat{\alpha} & = & x_{i}+t_{i}
+\hat{\alpha} & = & \frac{\tau_{x}}{\tau_{\alpha}+\tau_{x}}\left(x_{i}+t_{i}\right)
 \end{eqnarray*}
 
 \end_inset
@@ -1833,7 +1823,7 @@ As a function of
 Thus
 \begin_inset Formula 
 \begin{eqnarray*}
-\frac{d\hat{\alpha}}{dt} & = & 1
+\frac{d\hat{\alpha}}{dt} & = & \frac{\tau_{x}}{\tau_{\alpha}+\tau_{x}}
 \end{eqnarray*}
 
 \end_inset
@@ -1849,8 +1839,7 @@ Putting this together, we get that
 \begin_inset Formula 
 \begin{eqnarray*}
 \frac{dm}{dt} & = & \frac{\partial m}{\partial\alpha}\frac{d\alpha}{dt}+\frac{\partial m}{\partial t}\\
- & = & \frac{\tau}{1+\tau}+\frac{1}{1+\tau}\\
- & = & 1
+ & = & \frac{\tau_{x}^{2}}{\tau_{\alpha}+\tau_{x}}+\frac{1}{1+\tau}
 \end{eqnarray*}
 
 \end_inset
@@ -1860,10 +1849,6 @@ Putting this together, we get that
 
 \begin_layout Standard
 Um.
-\end_layout
-
-\begin_layout Subsection
-
 \end_layout
 
 \begin_layout Section
