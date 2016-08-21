@@ -1385,8 +1385,8 @@ Here, we know that marginally over
 \begin_layout Standard
 \begin_inset Formula 
 \begin{eqnarray*}
-\theta_{i} & \sim & \mathcal{N}\left(0,\tau^{-1}+\tau_{\alpha}^{-1}\right)\\
-\tau_{m} & := & \left(\tau^{-1}+\tau_{\alpha}^{-1}\right)^{-1}\\
+\theta_{i} & \sim & \mathcal{N}\left(0,\tau_{\theta}^{-1}\right)\\
+\tau_{\theta} & := & \left(\tau^{-1}+\tau_{\alpha}^{-1}\right)^{-1}\\
  & = & \frac{\tau\tau_{\alpha}}{\tau+\tau_{\alpha}}
 \end{eqnarray*}
 
@@ -1399,8 +1399,8 @@ Here, we know that marginally over
 Note that
 \begin_inset Formula 
 \begin{eqnarray*}
-\tau_{m}^{-1} & = & \tau^{-1}+\tau_{\alpha}^{-1}>\tau^{-1}\Rightarrow\\
-\tau & > & \tau_{m}
+\tau_{\theta}^{-1} & = & \tau^{-1}+\tau_{\alpha}^{-1}>\tau^{-1}\Rightarrow\\
+\tau & > & \tau_{\theta}
 \end{eqnarray*}
 
 \end_inset
@@ -1412,8 +1412,8 @@ Note that
 Thus the posterior is given by
 \begin_inset Formula 
 \begin{eqnarray*}
-\mbe\left[\theta_{i}\vert x_{i}\right] & = & \frac{1}{\tau_{m}+1}\left(0\cdot\tau_{m}+x_{i}\right)\\
- & = & \frac{x_{i}}{\tau_{m}+1}
+\mbe\left[\theta_{i}\vert x_{i}\right] & = & \frac{1}{\tau_{\theta}+1}\left(0\cdot\tau_{\theta}+x_{i}\right)\\
+ & = & \frac{x_{i}}{\tau_{\theta}+1}
 \end{eqnarray*}
 
 \end_inset
@@ -1421,8 +1421,8 @@ Thus the posterior is given by
 
 \begin_inset Formula 
 \begin{eqnarray*}
-\theta_{i}\vert x_{i} & \sim & \mathcal{N}\left(\frac{x_{i}}{\tau_{m}+1},\left(\tau_{m}+1\right)^{-1}\right)\\
-\frac{1}{\tau_{m}+1} & = & \frac{\tau_{\alpha}+\tau}{\tau_{\alpha}+\tau+\tau\tau_{\alpha}}
+\theta_{i}\vert x_{i} & \sim & \mathcal{N}\left(\frac{1}{\tau_{\theta}+1}\cdot x_{i},\left(\tau_{\theta}+1\right)^{-1}\right)\\
+\frac{1}{\tau_{\theta}+1} & = & \frac{\tau_{\alpha}+\tau}{\tau_{\alpha}+\tau+\tau\tau_{\alpha}}
 \end{eqnarray*}
 
 \end_inset
@@ -1439,7 +1439,7 @@ Integrating out
 \begin_inset Formula $\theta_{i}$
 \end_inset
 
-
+ for Empirical Bayes
 \end_layout
 
 \begin_layout Standard
@@ -1450,14 +1450,10 @@ Integrating out
 ,
 \begin_inset Formula 
 \begin{eqnarray*}
-x_{i}\vert\alpha & \sim & \mathcal{N}\left(\alpha,1+\tau^{-1}\right)\\
+x_{i}\vert\alpha & \sim & \mathcal{N}\left(\alpha,\tau_{x}^{-1}\right)\\
+\tau_{x} & := & \left(1+\tau^{-1}\right)^{-1}=\frac{\tau}{1+\tau}\\
 \alpha & \sim & \mathcal{N}\left(0,\tau_{\alpha}^{-1}\right)\\
-\mbe\left[\alpha\vert x_{i}\right] & = & \frac{1}{\tau_{\alpha}+\left(1+\tau^{-1}\right)^{-1}}\left(\left(1+\tau^{-1}\right)^{-1}x_{i}\right)\\
- & = & \frac{1}{\left(1+\tau^{-1}\right)\tau_{\alpha}+1}x_{i}\\
- & = & \frac{\tau}{\left(\tau+1\right)\tau_{\alpha}+\tau}x_{i}\\
- & = & \frac{\tau}{\tau\tau_{\alpha}+\tau_{\alpha}+\tau}x_{i}\\
-\frac{\tau}{\tau\tau_{\alpha}+\tau_{\alpha}+\tau} & = & \frac{\tau}{\left(\frac{\tau\tau_{\alpha}}{\tau+\tau_{\alpha}}+1\right)}\frac{1}{\left(\tau+\tau_{\alpha}\right)}\frac{\tau_{\alpha}}{\tau_{\alpha}}\\
- & = & \frac{\tau_{m}}{\tau_{\alpha}\left(\tau_{m}+1\right)}
+\mbe\left[\alpha\vert x_{i}\right] & = & \frac{\tau_{x}}{\tau_{\alpha}+\tau_{x}}x_{i}
 \end{eqnarray*}
 
 \end_inset
@@ -1467,23 +1463,24 @@ x_{i}\vert\alpha & \sim & \mathcal{N}\left(\alpha,1+\tau^{-1}\right)\\
 
 \begin_layout Standard
 Note that this is maximized at 
-\begin_inset Formula $\hat{\alpha}=\frac{\tau}{\tau\tau_{\alpha}+\tau_{\alpha}+\tau}x_{i}$
+\begin_inset Formula $\hat{\alpha}=\frac{\tau_{x}}{\tau_{\alpha}+\tau_{x}}x_{i}$
 \end_inset
 
 .
- Thus
+ Thus the EB posterior of 
+\begin_inset Formula $\theta_{i}$
+\end_inset
+
+ is given by
 \end_layout
 
 \begin_layout Standard
 \begin_inset Formula 
 \begin{eqnarray*}
-\theta_{i}\vert\hat{\alpha} & \sim & \mathcal{N}\left(\frac{\tau_{m}}{\tau_{\alpha}\left(\tau_{m}+1\right)}x_{i},\tau^{-1}\right)\\
+\theta_{i}\vert\hat{\alpha} & \sim & \mathcal{N}\left(\frac{\tau_{x}}{\tau_{\alpha}+\tau_{x}}x_{i},\tau^{-1}\right)\\
 x_{i}\vert\theta_{i} & \sim & \mathcal{N}\left(\theta_{i},1\right)\\
 \textrm{Var}\left(\theta_{i}\vert\hat{\alpha},x_{i}\right) & = & \left(1+\tau\right)^{-1}\\
-\mbe\left[\theta_{i}\vert\hat{\alpha},x_{i}\right] & = & \frac{1}{1+\tau}\left(\frac{\tau_{m}\tau}{\tau_{\alpha}\left(\tau_{m}+1\right)}+1\right)x_{i}\\
-\frac{\tau_{m}\tau}{\tau_{\alpha}\left(\tau_{m}+1\right)\left(1+\tau\right)} & = & \frac{\tau_{m}\tau}{\left(\tau_{m}+1\right)\left(\tau_{\alpha}+\tau_{\alpha}\tau\right)}\\
- & = & \frac{\tau_{m}\tau}{\left(\tau_{m}+1\right)\left(\frac{\tau_{\alpha}}{\tau+\tau_{\alpha}}+\tau_{m}\right)\left(\tau+\tau_{\alpha}\right)}\\
- & = & \frac{\tau_{m}^{2}}{\left(\tau_{m}+1\right)\left(\frac{\tau_{\alpha}}{\tau+\tau_{\alpha}}+\tau_{m}\right)\tau_{\alpha}}
+\mbe\left[\theta_{i}\vert\hat{\alpha},x_{i}\right] & = & \frac{1}{1+\tau}\left(\frac{\tau_{x}\tau}{\tau_{\alpha}+\tau_{x}}+1\right)x_{i}
 \end{eqnarray*}
 
 \end_inset
@@ -1492,15 +1489,26 @@ x_{i}\vert\theta_{i} & \sim & \mathcal{N}\left(\theta_{i},1\right)\\
 \end_layout
 
 \begin_layout Standard
-Old, wrong:
+Dig that
 \begin_inset Formula 
 \begin{eqnarray*}
-\theta_{i}\vert\hat{\alpha} & \sim & \mathcal{N}\left(\frac{x_{i}}{1+\tau_{\alpha}},\tau^{-1}\right)\\
-x_{i}\vert\theta_{i} & \sim & \mathcal{N}\left(\theta_{i},1\right)\\
-\theta_{i}\vert\hat{\alpha},x_{i} & \sim & \mathcal{N}\left(\frac{1}{\tau+1}\left(\tau\hat{\alpha}+x_{i}\right),\left(1+\tau\right)^{-1}\right)\\
- & = & \mathcal{N}\left(\frac{1+\tau_{\alpha}+\tau}{1+\tau_{\alpha}\tau+\tau+\tau_{\alpha}}x_{i},\left(1+\tau\right)^{-1}\right)\\
-\frac{1}{\tau+1}\left(\tau\frac{x_{i}}{1+\tau_{\alpha}}+x_{i}\right) & = & \frac{1+\tau_{\alpha}+\tau}{\left(\tau+1\right)\left(1+\tau_{\alpha}\right)}x_{i}\\
- & = & \frac{1+\tau_{\alpha}+\tau}{1+\tau_{\alpha}\tau+\tau+\tau_{\alpha}}x_{i}
+\frac{\tau_{x}\tau}{\tau_{\alpha}+\tau_{x}} & = & \frac{\tau^{2}}{\tau_{\alpha}+\tau_{\alpha}\tau+\tau}\\
+\frac{\tau_{x}\tau}{\tau_{\alpha}+\tau_{x}}+1 & = & \frac{\tau^{2}+\tau_{\alpha}+\tau_{\alpha}\tau+\tau}{\tau_{\alpha}+\tau_{\alpha}\tau+\tau}\\
+ & = & \frac{\tau\left(\tau+\tau_{\alpha}\right)+\tau_{\alpha}+\tau}{\tau_{\alpha}+\tau_{\alpha}\tau+\tau}\\
+ & = & \frac{\left(1+\tau\right)\left(\tau+\tau_{\alpha}\right)}{\tau_{\alpha}+\tau_{\alpha}\tau+\tau}\\
+ & = & \frac{1+\tau}{1+\tau_{\theta}}
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+So that
+\begin_inset Formula 
+\begin{eqnarray*}
+\mbe\left[\theta_{i}\vert\hat{\alpha},x_{i}\right] & = & \frac{1}{1+\tau_{\theta}}x_{i}
 \end{eqnarray*}
 
 \end_inset
@@ -1517,15 +1525,39 @@ Here, in contrast to the correct model with
 \begin_inset Formula $\theta_{i}\vert\hat{\alpha},x_{i}$
 \end_inset
 
- is shrunk less towards 
-\begin_inset Formula $0$
-\end_inset
-
- and its variance is too small since 
+ has an estimated variance that is too small since 
 \begin_inset Formula $\tau>\tau_{m}$
 \end_inset
 
 .
+ However, the shrinkage matches the marginal case exactly.
+\end_layout
+
+\begin_layout Standard
+Suppose we use the MLE instead of the MAP, so that 
+\begin_inset Formula $\hat{\alpha}=x_{i}$
+\end_inset
+
+.
+ Then
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{eqnarray*}
+\theta_{i}\vert\hat{\alpha} & \sim & \mathcal{N}\left(x_{i},\tau^{-1}\right)\\
+x_{i}\vert\theta_{i} & \sim & \mathcal{N}\left(\theta_{i},1\right)\\
+\textrm{Var}\left(\theta_{i}\vert\hat{\alpha},x_{i}\right) & = & \left(1+\tau\right)^{-1}\\
+\mbe\left[\theta_{i}\vert\hat{\alpha},x_{i}\right] & = & x_{i}
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Then there is no shrinkage at all.
 \end_layout
 
 \begin_layout Subsection
@@ -1571,6 +1603,86 @@ Thus
 \end_layout
 
 \begin_layout Standard
+Note that, as expected,
+\begin_inset Formula 
+\begin{eqnarray*}
+\frac{d}{dt_{i}}\mbe\left[\theta_{i}\vert\alpha,t_{i}\right] & = & \tau^{-1}
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Exact tilted posterior
+\end_layout
+
+\begin_layout Standard
+Given 
+\begin_inset Formula $t_{i}$
+\end_inset
+
+ we can again integrate out 
+\begin_inset Formula $\alpha$
+\end_inset
+
+:
+\begin_inset Formula 
+\begin{eqnarray*}
+\theta_{i}\vert t_{i} & \sim & \mathcal{N}\left(\tau^{-1}t_{i},\tau_{\theta}^{-1}\right)\\
+x_{i}\vert\theta_{i},t_{i} & \sim & \mathcal{N}\left(\theta_{i},1\right)\Rightarrow\\
+\mbe\left[\theta_{i}\vert x_{i},t_{i}\right] & = & \frac{1}{1+\tau_{\theta}}\left(x_{i}+\tau_{\theta}\tau^{-1}t_{i}\right)
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Observe that
+\begin_inset Formula 
+\begin{eqnarray*}
+\frac{d}{dt_{i}}\left.\mbe\left[\theta_{i}\vert x_{i},t_{i}\right]\right|_{t_{i}=0} & = & \frac{\tau_{\theta}\tau^{-1}}{1+\tau_{\theta}}\\
+ & = & \left(\frac{\tau_{\alpha}}{\tau_{\alpha}+\tau}\right)\left(\frac{\tau_{\alpha}+\tau}{\tau_{\alpha}+\tau\tau_{\alpha}+\tau}\right)\\
+ & = & \frac{\tau_{\alpha}+\tau}{\tau_{\alpha}+\tau\tau_{\alpha}+\tau}-\frac{\tau}{\tau_{\alpha}+\tau\tau_{\alpha}+\tau}\\
+ & = & \frac{1}{1+\tau_{\theta}}-\frac{\tau}{\tau_{\alpha}+\tau\tau_{\alpha}+\tau}\\
+ & < & \frac{1}{1+\tau_{\theta}}
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+...which cannot be correct.
+ :( What follows is probably not correct then either.
+\end_layout
+
+\begin_layout Standard
+Aha:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{eqnarray*}
+p\left(x,\theta,\alpha,t\right) & = & \frac{p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)\exp\left(t\theta\right)}{\int\int\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)\exp\left(t\theta\right)dxd\theta d\alpha}\\
+ & = & \frac{p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)\exp\left(t\theta\right)}{\int\int p\left(\theta\vert\alpha\right)\exp\left(t\theta\right)p\left(\alpha\right)d\theta d\alpha}\\
+ & = & \frac{p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)\exp\left(t\theta\right)}{\int\int p\left(\theta\vert\alpha\right)\exp\left(t\theta\right)d\theta p\left(\alpha\right)d\alpha}
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+EB with a tilted posterior
+\end_layout
+
+\begin_layout Standard
 Consequently,
 \begin_inset Formula 
 \begin{eqnarray*}
@@ -1598,6 +1710,17 @@ m & := & \mbe\left[\theta_{i}\vert\alpha,t_{i},x_{i}\right]\\
 
 \end_layout
 
+\begin_layout Subsubsection
+\begin_inset Formula $\hat{\alpha}$
+\end_inset
+
+ as a function of 
+\begin_inset Formula $t_{i}$
+\end_inset
+
+
+\end_layout
+
 \begin_layout Standard
 Next, we see that
 \end_layout
@@ -1605,9 +1728,10 @@ Next, we see that
 \begin_layout Standard
 \begin_inset Formula 
 \begin{eqnarray*}
-x_{i}\vert\alpha,t_{i} & \sim & \mathcal{N}\left(\alpha+\tau^{-1}t_{i},1+\tau^{-1}\right)\Rightarrow\\
-x_{i}-\tau^{-1}t_{i}\vert\alpha,t_{i} & \sim & \mathcal{N}\left(\alpha,1+\tau^{-1}\right)\\
-\alpha\vert x_{i},t_{i} & \sim & \mathcal{N}\left(\frac{1}{1+\tau_{m}}\right)
+x_{i}\vert\alpha,t_{i} & \sim & \mathcal{N}\left(\alpha+\tau^{-1}t_{i},\tau_{x}^{-1}\right)\Rightarrow\\
+x_{i}-\tau^{-1}t_{i}\vert\alpha,t_{i} & \sim & \mathcal{N}\left(\alpha,\tau_{x}^{-1}\right)\\
+\alpha & \sim & \mathcal{N}\left(0,\tau_{\alpha}^{-1}\right)\\
+\mbe\left[\alpha\vert x_{i},t_{i}\right] & = & \frac{\tau_{x}}{\tau_{\alpha}+\tau_{x}}\left(x_{i}-\tau^{-1}t_{i}\right)
 \end{eqnarray*}
 
 \end_inset
