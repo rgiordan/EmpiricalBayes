@@ -147,7 +147,6 @@ if (stan_results$map_estimate) {
 } else {
   M_hess <- M_aa
 }
-dalpha_dt <- -1 * solve(M_hess, M_at)
 
 
 ##########################
@@ -163,17 +162,9 @@ dmom_dalpha[, 2] <- -1 * (gamma_est + y) / ((1 + beta_est) ^ 2)
 
 dmom_dt <- Diagonal(x=(gamma_est + y) / ((1 + beta_est) ^ 2))
 
-lr_cov_corr_exact <- dmom_dalpha %*% dalpha_dt
+lr_cov_corr_exact <- -1 * dmom_dalpha %*% solve(M_hess, t(dmom_dalpha))
 
 stopifnot(max(abs(diag(dmom_dt) - lambda_true_df$fixed_var)) < 1e-12)
-
-if (FALSE) {
-  # Check something out based on positive definiteness
-  # This is closer to correct though I don't see how it would be derived.
-  lr_cov_corr_exact <- -1 * t(M_at) %*% solve(M_hess, M_at) # Bad
-  lr_cov_corr_exact <- -1 * dmom_dalpha %*% solve(M_hess, t(dmom_dalpha)) # Good
-}
-
 
 
 ########################
@@ -306,48 +297,4 @@ max(abs(sqrt(diag(sample_cov)) - filter(lambda_stats, method == "fixed")$sd))
 
 }
 
-
-
-if (FALSE) {
-
-##########################
-# MCMC version
-
-# Means within a draw
-lambda_moments <-
-  ungroup(lambda_fixed_df)  %>%
-  group_by(draw) %>%
-  summarize(e=mean(lambda), e_log=mean(log(lambda))) %>%
-  arrange(draw)
-
-ell_alpha <- matrix(NaN, max(lambda_moments$draw), 2)
-ell_gamma_prior <- -1 * lambda_free$gamma_beta + (lambda_free$gamma_alpha - 1) / lambda_free$prior_gamma
-ell_beta_prior <- -1 * lambda_free$beta_beta + (lambda_free$beta_alpha - 1) / lambda_free$prior_beta
-ell_alpha[, 1] <- n_g * (log(beta_est) - digamma(gamma_est) + lambda_moments$e_log) + ell_gamma_prior
-ell_alpha[, 2] <- n_g * (gamma_est / beta_est - lambda_moments$e) + ell_beta_prior
-
-# add prior
-ell_alpha[, 1] <-
-  ell_alpha[, 1]
-ell_alpha[, 2] <-
-  ell_alpha[, 2]
-# Lambda draws as a matrix
-lambda_draws <- as.matrix(
-  select(lambda_fixed_df, lambda, g, draw) %>%
-    dcast(g ~ draw, value.var="lambda") %>%
-    select(-g))
-
-lambda_draws <- lambda_draws - rowMeans(lambda_draws)
-
-cov_corr <- lambda_draws %*% ell_alpha %*% dalpha_dt / n_draws
-
-lambda_means <- rowMeans(lambda_draws)
-sample_cov <- lambda_draws %*% t(lambda_draws) / (n_draws - 1) -
-  lambda_means %*% t(lambda_means) * n_draws / (n_draws - 1)
-
-lr_cov <- sample_cov + cov_corr
-lr_cov <- 0.5 * (lr_cov + t(lr_cov))
-
-
-}
 
