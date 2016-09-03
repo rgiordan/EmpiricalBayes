@@ -150,6 +150,83 @@ A common question is how uncertainty in
 \end_layout
 
 \begin_layout Section
+Re-thinking the derivation
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{eqnarray*}
+\log\mbe\left[e^{\theta t}\right] & = & \log\frac{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)e^{t\theta}d\theta d\alpha}{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)d\theta d\alpha}\\
+\frac{d}{dt}\log\mbe\left[e^{\theta t}\right] & = & \frac{d}{dt}\log\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)e^{t\theta}d\theta d\alpha\\
+ & = & \frac{\frac{d}{dt}\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)e^{t\theta}d\theta d\alpha}{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)e^{t\theta}d\theta d\alpha}\\
+ & = & \frac{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)\theta e^{t\theta}d\theta d\alpha}{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)e^{t\theta}d\theta d\alpha}\\
+ & = & \mbe\left[\theta\vert x,t\right]\\
+ & \approx & \mbe\left[\theta\vert x,\hat{\alpha}_{t},t\right]\\
+\frac{d^{2}}{dtdt^{T}}\log\mbe\left[e^{\theta t}\right] & = & \frac{d}{dt^{T}}\frac{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)\theta e^{t\theta}d\theta d\alpha}{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)e^{t\theta}d\theta d\alpha}\\
+ & = & \frac{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)\theta\theta^{T}e^{t\theta}d\theta d\alpha}{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)e^{t\theta}d\theta d\alpha}-\\
+ &  & \frac{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)\theta^{T}e^{t\theta}d\theta d\alpha}{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)e^{t\theta}d\theta d\alpha}\mbe\left[\theta\vert x,\alpha,t\right]-\\
+ & = & \mbe\left[\theta\theta^{T}\vert x,\alpha,t\right]-\mbe\left[\theta\vert x,\alpha,t\right]\mbe\left[\theta\vert x,\alpha,t\right]^{T}
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Ok, our approximation is
+\begin_inset Formula 
+\begin{eqnarray*}
+\frac{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)\theta e^{t\theta}d\theta d\alpha}{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)e^{t\theta}d\theta d\alpha} & \approx & \frac{\int p\left(x\vert\theta\right)p\left(\theta\vert\hat{\alpha}_{t}\right)\theta e^{t\theta}d\theta}{\int p\left(x\vert\theta\right)p\left(\theta\vert\hat{\alpha}_{t}\right)e^{t\theta}d\theta}=\mbe\left[\theta\vert x,\alpha,t\right]\\
+\\
+\textrm{Numerator:}\\
+\frac{d}{dt^{T}}\int p\left(x\vert\theta\right)p\left(\theta\vert\hat{\alpha}_{t}\right)\theta e^{t\theta}d\theta & = & \int p\left(x\vert\theta\right)p\left(\theta\vert\hat{\alpha}_{t}\right)\theta\theta^{T}e^{t\theta}d\theta+\int p\left(x\vert\theta\right)\left.\frac{\partial p\left(\theta\vert\alpha\right)}{\partial\alpha}\frac{d\alpha}{dt^{T}}\right|_{\alpha=\hat{\alpha}_{t}}\theta e^{t\theta}d\theta\\
+ & = & \int p\left(x\vert\theta\right)p\left(\theta\vert\hat{\alpha}_{t}\right)\theta\theta^{T}e^{t\theta}d\theta+\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)e^{t\theta}\theta\left.\frac{\partial\log p\left(\theta\vert\alpha\right)}{\partial\alpha}\right|_{\alpha=\hat{\alpha}_{t}}d\theta\frac{d\hat{\alpha}_{t}}{dt^{T}}\\
+\\
+\textrm{Denominator:}\\
+\frac{d}{dt}\int p\left(x\vert\theta\right)p\left(\theta\vert\hat{\alpha}_{t}\right)e^{t\theta}d\theta & = & \int p\left(x\vert\theta\right)p\left(\theta\vert\hat{\alpha}_{t}\right)e^{t\theta}\theta d\theta+\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)e^{t\theta}\left.\frac{\partial\log p\left(\theta\vert\alpha\right)}{\partial\alpha}\right|_{\alpha=\hat{\alpha}_{t}}d\theta\frac{d\hat{\alpha}_{t}}{dt}
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Note of course also that
+\begin_inset Formula 
+\begin{eqnarray*}
+\mbe\left[\theta\vert x,\alpha\right] & = & \int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)\theta d\theta\\
+\frac{\partial}{\partial\alpha^{T}}\mbe\left[\theta\vert x,\alpha\right] & = & \int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)\theta\frac{\partial\log p\left(\theta\vert\alpha\right)}{\partial\alpha}d\theta\\
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+So
+\begin_inset Formula 
+\begin{eqnarray*}
+\frac{d}{dt}\left.\mbe\left[\theta\vert x,\alpha,t\right]\right|_{t=0} & = & \mbe\left[\theta\theta^{T}\vert x,\hat{\alpha}_{t}\right]+\mbe\left[\theta\frac{\partial\log p\left(\theta\vert\alpha\right)}{\partial\alpha}\vert x,\hat{\alpha}_{t}\right]\frac{d\hat{\alpha}_{t}}{dt^{T}}-\\
+ &  & \mbe\left[\theta\vert x,\hat{\alpha}_{t}\right]\left(\int p\left(x\vert\theta\right)p\left(\theta\vert\hat{\alpha}_{t}\right)d\theta\right)^{-1}\left(\int p\left(x\vert\theta\right)p\left(\theta\vert\hat{\alpha}_{t}\right)\theta^{T}d\theta+\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)\left.\frac{\partial\log p\left(\theta\vert\alpha\right)}{\partial\alpha^{T}}\right|_{\alpha=\hat{\alpha}_{t}}d\theta\frac{d\hat{\alpha}_{t}}{dt^{T}}\right)\\
+ & = & \mbe\left[\theta\theta^{T}\vert x,\hat{\alpha}_{t}\right]+\mbe\left[\theta\frac{\partial\log p\left(\theta\vert\alpha\right)}{\partial\alpha^{T}}\vert x,\hat{\alpha}_{t}\right]\frac{d\hat{\alpha}_{t}}{dt^{T}}-\mbe\left[\theta\vert x,\hat{\alpha}_{t}\right]\left(\mbe\left[\theta\vert x,\hat{\alpha}_{t}\right]+\mbe\left[\frac{\partial\log p\left(\theta\vert\alpha\right)}{\partial\alpha^{T}}\vert x,\hat{\alpha}_{t}\right]\frac{d\hat{\alpha}_{t}}{dt^{T}}\right)\\
+ & = & \mbe\left[\theta\theta^{T}\vert x,\hat{\alpha}_{t}\right]-\mbe\left[\theta\vert x,\hat{\alpha}_{t}\right]\mbe\left[\theta\vert x,\hat{\alpha}_{t}\right]+\left(\mbe\left[\theta\frac{\partial\log p\left(\theta\vert\alpha\right)}{\partial\alpha^{T}}\vert x,\hat{\alpha}_{t}\right]-\mbe\left[\theta\vert x,\hat{\alpha}_{t}\right]\mbe\left[\frac{\partial\log p\left(\theta\vert\alpha\right)}{\partial\alpha^{T}}\vert x,\hat{\alpha}_{t}\right]\right)\frac{d\hat{\alpha}_{t}}{dt^{T}}\\
+ & = & \textrm{Var}\left(\theta\vert x,\hat{\alpha}_{t}\right)+\textrm{Cov}\left(\theta,\frac{\partial\log p\left(\theta\vert\alpha\right)}{\partial\alpha^{T}}\vert x,\hat{\alpha}_{t}\right)\frac{d\hat{\alpha}_{t}}{dt^{T}}\\
+ & = & \textrm{Var}\left(\theta\vert x,\hat{\alpha}_{t}\right)+\left.\frac{\partial}{\partial\alpha}\mbe\left[\theta\vert x,\alpha\right]\right|_{\alpha=\hat{\alpha}_{t}}\frac{d\hat{\alpha}_{t}}{dt^{T}}
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Which matches what was done below.
+\end_layout
+
+\begin_layout Section
 Derivation
 \end_layout
 
@@ -157,7 +234,7 @@ Derivation
 Suppose we have a tilted posterior
 \begin_inset Formula 
 \begin{eqnarray*}
-p_{t}\left(\theta,\alpha\vert x\right) & = & \frac{p\left(x\vert\theta,\alpha\right)p\left(\theta\right)p\left(\alpha\right)e^{t\theta}}{\int p\left(x\vert\theta,\alpha\right)p\left(\theta\right)p\left(\alpha\right)e^{t\theta}d\theta d\alpha}\\
+p\left(\theta,\alpha\vert x,t\right) & = & \frac{p\left(x\vert\theta,\alpha\right)p\left(\theta\right)p\left(\alpha\right)e^{t\theta}}{\int p\left(x\vert\theta,\alpha\right)p\left(\theta\right)p\left(\alpha\right)e^{t\theta}d\theta d\alpha}\\
  & = & \exp\left(\ell\left(\theta,\alpha,t\right)-c\left(t\right)\right)
 \end{eqnarray*}
 
@@ -184,15 +261,11 @@ with implicit dependence on
 \begin_inset Formula $x$
 \end_inset
 
- and 
-\begin_inset Formula $\theta$
-\end_inset
-
 .
  Then
 \begin_inset Formula 
 \begin{eqnarray*}
-\Sigma_{\theta}:=\frac{d}{dt^{T}}\mbe_{p_{t}}\left[\theta\vert x\right] & = & Cov_{p}\left(\theta\right)
+\Sigma_{\theta}:=\frac{d}{dt^{T}}\left.\mbe_{p}\left[\theta\vert x,t\right]\right|_{t=0} & = & Cov_{p}\left(\theta\right)
 \end{eqnarray*}
 
 \end_inset
@@ -204,8 +277,8 @@ with implicit dependence on
 Under the assumption that the Empirical Bayes approximation is good, then
 \begin_inset Formula 
 \begin{eqnarray*}
-\mbe_{p_{t}}\left[\theta\vert x\right] & \approx & \mbe_{p_{t}}\left[\theta\vert x,\alpha\right]\Rightarrow\\
-\hat{\Sigma}_{\theta} & := & \frac{d}{dt^{T}}\mbe_{p_{t}}\left[\theta\vert x,\alpha\right]\approx\frac{d}{dt^{T}}\mbe_{p_{t}}\left[\theta\vert x\right]
+\mbe_{p}\left[\theta\vert x,t\right] & \approx & \mbe_{p}\left[\theta\vert x,\alpha,t\right]\Rightarrow\\
+\hat{\Sigma}_{\theta} & := & \frac{d}{dt^{T}}\mbe_{p}\left[\theta\vert x,\alpha,t\right]\approx\frac{d}{dt^{T}}\mbe_{p}\left[\theta\vert x,t\right]
 \end{eqnarray*}
 
 \end_inset
@@ -229,7 +302,8 @@ Note that
 , we have
 \begin_inset Formula 
 \begin{eqnarray*}
-\hat{\alpha}_{t} & := & \underset{\alpha}{\textrm{argmax}}\left\{ \int p\left(x\vert\theta,\alpha\right)p\left(\theta\right)p\left(\alpha\right)e^{t\theta}d\theta\right\} \\
+\hat{\alpha}_{t} & := & \underset{\alpha}{\textrm{argmax}}\left\{ \log p\left(\alpha\vert x,t\right)\right\} \\
+ & = & \underset{\alpha}{\textrm{argmax}}\left\{ \log\int p\left(x\vert\theta,\alpha\right)p\left(\theta\right)p\left(\alpha\right)e^{t\theta}d\theta-\log\int\int p\left(x\vert\theta,\alpha'\right)p\left(\theta\right)p\left(\alpha'\right)e^{t\theta}d\theta d\alpha'\right\} \\
 \hat{\alpha} & = & \hat{\alpha}_{0}
 \end{eqnarray*}
 
@@ -248,7 +322,7 @@ Note at this point that
 \end_inset
 
 , and 
-\begin_inset Formula $\mbe_{p_{t}}\left[\theta\vert x,\hat{\alpha}_{t}\right]$
+\begin_inset Formula $\mbe_{p}\left[\theta\vert x,\hat{\alpha}_{t},t\right]$
 \end_inset
 
  is a function of both 
@@ -266,7 +340,7 @@ Note at this point that
 \begin_layout Standard
 \begin_inset Formula 
 \begin{eqnarray*}
-\hat{\Sigma}_{\theta} & = & \left.\frac{\partial\mbe_{p_{t}}\left[\theta\vert x,\alpha\right]}{\partial\alpha^{T}}\frac{d\alpha}{dt^{T}}\right|_{\alpha=\hat{\alpha}_{0},t=0}+\left.\frac{\partial\mbe_{p_{t}}\left[\theta\vert x,\hat{\alpha}_{0}\right]}{\partial t}\right|_{t=0}
+\hat{\Sigma}_{\theta} & = & \left.\frac{\partial\mbe_{p}\left[\theta\vert x,\alpha,t\right]}{\partial\alpha^{T}}\frac{d\alpha_{t}}{dt^{T}}\right|_{\alpha=\hat{\alpha}_{0},t=0}+\left.\frac{\partial\mbe_{p}\left[\theta\vert x,\hat{\alpha}_{0},t\right]}{\partial t}\right|_{t=0}
 \end{eqnarray*}
 
 \end_inset
@@ -276,20 +350,20 @@ Note at this point that
 
 \begin_layout Standard
 In order to evaluate 
-\begin_inset Formula $\frac{d}{dt^{T}}\mbe_{p_{t}}\left[\theta\right]$
+\begin_inset Formula $\frac{d}{dt^{T}}\mbe_{p}\left[\theta\vert x,\alpha_{t},t\right]$
 \end_inset
 
  we will need two terms: 
-\begin_inset Formula $\frac{d}{d\alpha^{T}}\mbe_{p_{t}}\left[\theta\vert x,\alpha\right]$
+\begin_inset Formula $\frac{\partial}{\partial\alpha^{T}}\mbe_{p}\left[\theta\vert x,\alpha\right]$
 \end_inset
 
  and 
-\begin_inset Formula $\frac{d\alpha}{dt}$
+\begin_inset Formula $\frac{d\alpha_{t}}{dt}$
 \end_inset
 
 .
  Note that 
-\begin_inset Formula $\frac{\partial\mbe_{p_{t}}\left[\theta\vert x,\alpha\right]}{\partial t}=\textrm{Var}\left(\theta\vert x,\alpha\right)$
+\begin_inset Formula $\frac{\partial\mbe_{p}\left[\theta\vert x,\alpha,t\right]}{\partial t}=\textrm{Var}\left(\theta\vert x,\alpha\right)$
 \end_inset
 
 , so this has the form of the conditional variance plus a correction term.
@@ -311,7 +385,10 @@ First, we will calculate
  Recall that
 \begin_inset Formula 
 \begin{eqnarray*}
-\hat{\alpha}_{t} & := & \underset{\alpha}{\textrm{argmax}}\left\{ \log\int p\left(x\vert\theta,\alpha\right)p\left(\theta\right)p\left(\alpha\right)e^{t\theta}d\theta\right\} 
+\hat{\alpha}_{t} & := & \underset{\alpha}{\textrm{argmax}}\left\{ p\left(\alpha\vert x,t\right)\right\} \\
+ & = & \underset{\alpha}{\textrm{argmax}}\left\{ \frac{p\left(x\vert\alpha,t\right)p\left(\alpha\right)}{\int p\left(x\vert\alpha',t\right)p\left(\alpha'\right)d\alpha'}\right\} \\
+ & = & \underset{\alpha}{\textrm{argmax}}\left\{ \frac{\int p\left(x\vert\alpha\right)p\left(\theta\vert\alpha,t\right)p\left(\alpha\right)d\theta}{\int\int p\left(x\vert\alpha'\right)p\left(\theta'\vert\alpha',t\right)p\left(\alpha'\right)d\alpha'd\theta'}\right\} \\
+ & = & \underset{\alpha}{\textrm{argmax}}\left\{ \log\int p\left(x\vert\theta,\alpha\right)p\left(\theta\vert\alpha,t\right)p\left(\alpha\right)d\theta-\log\int\int p\left(x\vert\theta,\alpha'\right)p\left(\theta\vert\alpha',t\right)p\left(\alpha'\right)d\theta d\alpha'\right\} 
 \end{eqnarray*}
 
 \end_inset
@@ -320,10 +397,10 @@ First, we will calculate
 \end_layout
 
 \begin_layout Standard
-Let us define 
+Where
 \begin_inset Formula 
 \begin{eqnarray*}
-M\left(\alpha,t\right) & := & \log\int p\left(x\vert\theta,\alpha\right)p\left(\theta\right)p\left(\alpha\right)e^{t\theta}d\theta
+p\left(\theta\vert\alpha,t\right) & = & \frac{p\left(\theta\vert\alpha\right)e^{\theta^{T}t}}{\int p\left(\theta'\vert\alpha\right)e^{\theta^{T}t}d\theta'}
 \end{eqnarray*}
 
 \end_inset
@@ -332,30 +409,17 @@ M\left(\alpha,t\right) & := & \log\int p\left(x\vert\theta,\alpha\right)p\left(\
 \end_layout
 
 \begin_layout Standard
-In many EB applications (e.g.
- example below), 
-\begin_inset Formula $M\left(\alpha,t\right)$
-\end_inset
+Since
+\end_layout
 
- has a closed form since 
-\begin_inset Formula $\alpha$
-\end_inset
-
- and 
-\begin_inset Formula $\theta$
-\end_inset
-
- are conjugate and the marginal is a ratio of normalizing constants.
- Specifically,
+\begin_layout Standard
 \begin_inset Formula 
 \begin{eqnarray*}
-p\left(x,\theta,\alpha\right) & = & p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)\\
-p_{t}\left(x,\theta,\alpha\right) & = & \frac{p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)e^{\theta t}}{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)e^{\theta t}dxd\theta d\alpha}\\
-p_{t}\left(x\vert\alpha\right) & = & \frac{\int p_{t}\left(x,\theta,\alpha\right)d\theta}{p_{t}\left(\alpha\right)}\\
- & = & \frac{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)e^{\theta t}d\theta}{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)e^{\theta t}dxd\theta d\alpha}\frac{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)e^{\theta t}dxd\theta d\alpha}{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)e^{\theta t}dxd\theta}\\
- & = & \frac{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)e^{\theta t}d\theta}{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)e^{\theta t}dxd\theta}\\
- & = & \frac{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)e^{\theta t}d\theta}{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)e^{\theta t}dxd\theta}\\
- & = & \frac{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)e^{\theta t}d\theta}{\left(\int p\left(x\vert\theta\right)dx\right)p\left(\theta\vert\alpha\right)e^{\theta t}d\theta}\\
+p\left(x\vert\alpha,t\right) & = & \frac{\int p\left(x,\theta,\alpha\vert t\right)d\theta}{p\left(\alpha\vert t\right)}\\
+ & = & \frac{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)e^{\theta t}d\theta}{\int\int\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)e^{\theta t}dxd\theta d\alpha}\frac{\int\int\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)e^{\theta t}dxd\theta d\alpha}{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)e^{\theta t}dxd\theta}\\
+ & = & \frac{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)e^{\theta t}d\theta}{\int\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)p\left(\alpha\right)e^{\theta t}dxd\theta}\\
+ & = & \frac{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)e^{\theta t}d\theta}{\int\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)e^{\theta t}dxd\theta}\\
+ & = & \frac{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)e^{\theta t}d\theta}{\int\left(\int p\left(x\vert\theta\right)dx\right)p\left(\theta\vert\alpha\right)e^{\theta t}d\theta}\\
  & = & \int p\left(x\vert\theta\right)\frac{p\left(\theta\vert\alpha\right)e^{\theta t}}{\int p\left(\theta'\vert\alpha\right)e^{\theta't}d\theta'}d\theta
 \end{eqnarray*}
 
@@ -365,7 +429,8 @@ p_{t}\left(x\vert\alpha\right) & = & \frac{\int p_{t}\left(x,\theta,\alpha\right
 \end_layout
 
 \begin_layout Standard
-Thus in the marginalized formula it suffices to increase by 
+Thus in the first term of the marginalized formula it suffices to increase
+ by 
 \begin_inset Formula $t$
 \end_inset
 
@@ -383,13 +448,13 @@ Thus in the marginalized formula it suffices to increase by
 \end_inset
 
  with 
-\begin_inset Formula $p_{t}\left(\theta\vert\alpha\right)$
+\begin_inset Formula $p\left(\theta\vert\alpha,t\right)$
 \end_inset
 
 
 \begin_inset Formula 
 \begin{eqnarray*}
-p_{t}\left(\theta\vert\alpha\right) & = & \frac{p\left(\theta\vert\alpha\right)e^{\theta t}}{\int p\left(\theta'\vert\alpha\right)e^{\theta't}d\theta'}
+p\left(\theta\vert\alpha,t\right) & = & \frac{p\left(\theta\vert\alpha\right)e^{\theta t}}{\int p\left(\theta'\vert\alpha\right)e^{\theta't}d\theta'}
 \end{eqnarray*}
 
 \end_inset
@@ -398,11 +463,10 @@ p_{t}\left(\theta\vert\alpha\right) & = & \frac{p\left(\theta\vert\alpha\right)e
 \end_layout
 
 \begin_layout Standard
-One could also take the MAP estimates, observing that
+Let us define 
 \begin_inset Formula 
 \begin{eqnarray*}
-p_{t}\left(\alpha\vert x\right) & = & \frac{p_{t}\left(x\vert\alpha\right)p\left(\alpha\right)}{p_{t}\left(x\right)}\\
-M_{MAP} & = & \log p_{t}\left(x\vert\alpha\right)+\log p\left(\alpha\right)-\log p_{t}\left(x\right)
+M\left(\alpha,t\right) & := & \log\int p\left(x\vert\theta,\alpha\right)p\left(\theta\vert\alpha,t\right)p\left(\alpha\right)d\theta-\log\int\int p\left(x\vert\theta,\alpha'\right)p\left(\theta\vert\alpha',t\right)p\left(\alpha'\right)e^{t\theta}d\theta d\alpha'
 \end{eqnarray*}
 
 \end_inset
@@ -411,11 +475,176 @@ M_{MAP} & = & \log p_{t}\left(x\vert\alpha\right)+\log p\left(\alpha\right)-\log
 \end_layout
 
 \begin_layout Standard
+In many EB applications (e.g.
+ example below), the first term in 
+\begin_inset Formula $M\left(\alpha,t\right)$
+\end_inset
+
+ has a closed form since 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ and 
+\begin_inset Formula $\theta$
+\end_inset
+
+ are conjugate and the marginal is a ratio of normalizing constants.
+ We will define this log normalizing constant as
+\begin_inset Formula 
+\begin{eqnarray*}
+C_{\alpha}\left(t\right) & := & \log\int\int p\left(x\vert\theta,\alpha'\right)p\left(\theta\vert\alpha'\right)p\left(\alpha'\right)e^{t\theta}d\theta d\alpha'
+\end{eqnarray*}
+
+\end_inset
+
 
 \end_layout
 
 \begin_layout Standard
-In any case, since for any 
+Note that 
+\begin_inset Formula $C_{\alpha}\left(t\right)$
+\end_inset
+
+ is a function only of 
+\begin_inset Formula $t$
+\end_inset
+
+ and not of 
+\begin_inset Formula $\alpha$
+\end_inset
+
+, so it is irrelevant to the optimization.
+\end_layout
+
+\begin_layout Standard
+Plugging in,
+\begin_inset Formula 
+\begin{eqnarray*}
+M\left(\alpha,t\right) & = & \log\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha,t\right)d\theta+\log p\left(\alpha\right)-C_{\alpha}\left(t\right)
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Note that
+\begin_inset Formula 
+\begin{eqnarray*}
+p\left(\theta\vert x,\alpha,t\right) & = & \frac{p\left(x\vert\theta\right)p\left(\theta\vert\alpha,t\right)}{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha,t\right)d\theta}
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+So that the first term in 
+\begin_inset Formula $M\left(\alpha,t\right)$
+\end_inset
+
+ is the log normalizer of the posterior of 
+\begin_inset Formula $p\left(\theta\vert x,\alpha,t\right)$
+\end_inset
+
+.
+ And
+\begin_inset Formula 
+\begin{eqnarray*}
+\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha,t\right)d\theta & = & \int p\left(x\vert\theta\right)\frac{p\left(\theta\vert\alpha\right)e^{\theta t}}{\int p\left(\theta\vert\alpha\right)e^{\theta t}d\theta}d\theta\\
+ & = & \frac{\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)e^{\theta t}d\theta}{\int p\left(\theta\vert\alpha\right)e^{\theta t}d\theta}
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+is the ratio of normalizers of the tilted posterior and prior on 
+\begin_inset Formula $\theta$
+\end_inset
+
+.
+ The derivative 
+\begin_inset Formula $\partial^{2}/\partial\alpha\partial t^{T}\log\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)e^{\theta t}d\theta$
+\end_inset
+
+ gives us 
+\begin_inset Formula $\partial/\partial\alpha\mbe\left[\theta\vert x,\alpha\right]$
+\end_inset
+
+.
+ The second, however, seems to be unaccounted for and may lead the covariance
+ estimate to be asymmetric.
+ It gives 
+\begin_inset Formula $\partial/\partial\alpha\mbe\left[\theta\vert\alpha\right]$
+\end_inset
+
+, which will also depend much more strongly on 
+\begin_inset Formula $\alpha$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+This is choosing 
+\begin_inset Formula $\hat{\alpha}$
+\end_inset
+
+ to maximize the difference between two CGFS:
+\begin_inset Formula 
+\begin{eqnarray*}
+M\left(\alpha,t\right) & = & \log\mbe\left[e^{\theta t}\vert x,\alpha\right]-\log\mbe\left[e^{\theta t}\vert\alpha\right]+\log p\left(\alpha\right)
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Strange, dig that
+\begin_inset Formula 
+\begin{eqnarray*}
+\frac{\partial}{\partial t}\log\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha,t\right)d\theta & = & \frac{\partial}{\partial t}\left(\log\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha\right)e^{\theta t}d\theta-\log\int p\left(\theta\vert\alpha\right)e^{\theta t}d\theta\right)\\
+ & = & \mbe\left[\theta\vert x,\alpha,t\right]-\mbe\left[\theta\vert\alpha,t\right]
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+But since 
+\begin_inset Formula $\log\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha,t\right)d\theta$
+\end_inset
+
+ is the log normalizer of 
+\begin_inset Formula $p\left(\theta\vert x,\alpha,t\right)$
+\end_inset
+
+, one might expect instead
+\begin_inset Formula 
+\begin{eqnarray*}
+\frac{\partial}{\partial t}\log\int p\left(x\vert\theta\right)p\left(\theta\vert\alpha,t\right)d\theta & = & \mbe\left[\theta\vert x,\alpha,t\right]
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+....
+\end_layout
+
+\begin_layout Standard
+For any 
 \begin_inset Formula $t$
 \end_inset
 
@@ -426,7 +655,7 @@ In any case, since for any
  is chosen so that
 \begin_inset Formula 
 \begin{eqnarray*}
-\left.\frac{\partial M}{\partial\alpha}\right|_{t} & = & 0
+\left.\frac{\partial M}{\partial\alpha}\right|_{t,\alpha_{t}} & = & 0
 \end{eqnarray*}
 
 \end_inset
@@ -438,7 +667,7 @@ In any case, since for any
 we can differentiate using the chain rule, giving
 \begin_inset Formula 
 \begin{eqnarray*}
-\frac{\partial^{2}M}{\partial\alpha\partial\alpha^{T}}\frac{d\alpha}{dt}+\frac{\partial^{2}M}{\partial\alpha\partial t} & = & 0\Rightarrow\\
+\frac{\partial^{2}M}{\partial\alpha\partial\alpha^{T}}\frac{d\alpha_{t}}{dt}+\frac{\partial^{2}M}{\partial\alpha\partial t} & = & 0\Rightarrow\\
 \frac{d\alpha}{dt} & = & -\left(\frac{\partial^{2}M}{\partial\alpha\partial\alpha^{T}}\right)^{-1}\frac{\partial^{2}M}{\partial\alpha\partial t^{T}}
 \end{eqnarray*}
 
@@ -453,11 +682,42 @@ Note that since
 \end_inset
 
  is maximized, its Hessian will be negative definite.
- 
+ Note that 
+\begin_inset Formula $C_{\alpha}\left(t\right)$
+\end_inset
+
+ doesn't enter this calculation since it is not a function of 
+\begin_inset Formula $\alpha$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Finally, observe that
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{eqnarray*}
+\left.\frac{\partial^{2}M}{\partial\alpha\partial t^{t}}\right|_{t=0} & = & \left.\frac{\partial^{2}}{\partial\alpha\partial t^{t}}\log\int p\left(x\vert\theta,\alpha\right)p\left(\theta\vert\alpha,t\right)d\theta\right|_{t=0}\\
+\left.\frac{\partial M}{\partial t}\right|_{t=0} & = & \frac{\left.\frac{\partial}{\partial t^{T}}\int p\left(x\vert\theta,\alpha\right)p\left(\theta\vert\alpha,t\right)d\theta\right|_{t=0}}{\int p\left(x\vert\theta,\alpha\right)p\left(\theta\vert\alpha\right)d\theta}\\
+ & = & \frac{\int p\left(x\vert\theta,\alpha\right)\frac{\partial}{\partial t^{T}}p\left(\theta\vert\alpha,t\right)d\theta}{\int p\left(x\vert\theta,\alpha\right)p\left(\theta\vert\alpha\right)d\theta}\\
+\frac{\partial}{\partial t^{T}}p\left(\theta\vert\alpha,t\right) & = & \frac{\partial}{\partial t^{T}}\frac{p\left(\theta\vert\alpha\right)e^{\theta t}}{\int p\left(\theta\vert\alpha\right)e^{\theta t}d\theta}\\
+ & = & \frac{\theta p\left(\theta\vert\alpha\right)e^{\theta t}}{\int p\left(\theta\vert\alpha\right)e^{\theta t}d\theta}-\frac{p\left(\theta\vert\alpha\right)e^{\theta t}\int p\left(\theta\vert\alpha\right)e^{\theta t}\theta d\theta}{\left(\int p\left(\theta\vert\alpha\right)e^{\theta t}d\theta\right)^{2}}\\
+\left.\frac{\partial}{\partial t^{T}}p\left(\theta\vert\alpha,t\right)\right|_{t=0} & = & p\left(\theta\vert\alpha\right)\left(\theta-\mbe\left[\theta\vert\alpha\right]\right)\Rightarrow\\
+\left.\frac{\partial M}{\partial t}\right|_{t=0} & = & \frac{\int p\left(x\vert\theta,\alpha\right)p\left(\theta\vert\alpha\right)\left(\theta-\mbe\left[\theta\vert\alpha\right]\right)d\theta}{\int p\left(x\vert\theta,\alpha\right)p\left(\theta\vert\alpha\right)d\theta}\Rightarrow\\
+ & = & \mbe\left[\theta\vert\alpha,x\right]-\mbe\left[\theta\vert\alpha\right]\\
+ & \ne & \mbe\left[\theta\vert\alpha,x\right]
+\end{eqnarray*}
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Subsection
-\begin_inset Formula $d\mbe_{p_{t}}\left[\theta\vert x,\alpha\right]/d\alpha$
+\begin_inset Formula $\partial\mbe_{p}\left[\theta\vert x,\alpha,t\right]/\partial\alpha$
 \end_inset
 
 
@@ -475,7 +735,7 @@ With analytic expectation
 \begin_layout Standard
 In certain cases (e.g.
  conjugate exponential families), 
-\begin_inset Formula $\mbe_{p_{t}}\left[\theta\vert x,\alpha\right]=m\left(\alpha,t\right)$
+\begin_inset Formula $\mbe_{p}\left[\theta\vert x,\alpha,t\right]=m\left(\alpha,t\right)$
 \end_inset
 
  is a known function of 
@@ -510,9 +770,11 @@ Note that
 \end_inset
 
 .
- Strangely, the covariance correction is not guaranteed to be symmetric
- or positive definite.
- Does this represent an error? (See exponential family examples below.)
+ As shown above, 
+\begin_inset Formula $\frac{\partial^{2}M}{\partial\alpha\partial t^{T}}\ne\frac{\partial m^{T}}{\partial\alpha}$
+\end_inset
+
+, so this not is guaranteed to be positive definite and symmetric.
 \end_layout
 
 \begin_layout Subsubsection
@@ -520,321 +782,8 @@ From MCMC draws
 \end_layout
 
 \begin_layout Standard
-This section is essentially an MCMC estimate of the derivative by differentiatin
-g under the integral.
- An cleaner derivation is certainly possible.
-\end_layout
-
-\begin_layout Standard
-Suppose we have 
-\begin_inset Formula $D$
-\end_inset
-
- MCMC draws from 
-\begin_inset Formula $p\left(\theta\vert x,\hat{\alpha}\right)$
-\end_inset
-
-,
-\begin_inset Formula 
-\begin{eqnarray*}
-\theta_{1},...,\theta_{N} & \sim & p\left(\theta\vert x,\hat{\alpha}\right)\\
-\mbe_{p}\left[\theta\vert x,\hat{\alpha}\right] & \approx & \frac{1}{D}\sum_{d=1}^{D}\theta_{d}
-\end{eqnarray*}
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-As a function of 
-\begin_inset Formula $t$
-\end_inset
-
-, we can calculate expectations with respect to 
-\begin_inset Formula $p_{t}\left(\theta\vert x,\hat{\alpha}_{t}\right)$
-\end_inset
-
- using importance sampling:
-\begin_inset Formula 
-\begin{eqnarray*}
-\mbe_{p_{t}}\left[\theta\vert x,\hat{\alpha}_{t}\right] & \approx & \sum_{d=1}^{D}\bar{w}_{d,t}\theta_{d}\\
-w_{d,t} & = & \exp\left(\ell\left(\theta_{d},\hat{\alpha}_{t},t\right)-c\left(t\right)-\ell\left(\theta_{d},\hat{\alpha},0\right)+c\left(0\right)\right)\\
-\bar{w}_{d,t} & = & \frac{w_{d,t}}{\sum_{d'}w_{d',t}}\\
-\hat{\Sigma}_{\theta} & := & \frac{d}{dt}\mbe_{p_{t}}\left[\theta\vert x,\hat{\alpha}_{t}\right]
-\end{eqnarray*}
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-This can be differentiated:
-\begin_inset Formula 
-\begin{eqnarray*}
-\frac{d}{dt^{T}}\sum_{d=1}^{D}w_{d,t}\theta_{d} & = & \sum_{d=1}^{D}\theta_{d}\frac{d\bar{w}_{d,t}}{dt^{T}}
-\end{eqnarray*}
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-By the product rule,
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula 
-\begin{eqnarray*}
-\frac{d\bar{w}_{d,t}}{dt} & = & \frac{1}{\sum_{d'}w_{d',t}}\frac{dw_{d,t}}{dt}-\frac{w_{d,t}}{\left(\sum_{d'}w_{d',t}\right)^{2}}\sum_{d''}\frac{dw_{d'',t}}{dt}\\
- & = & \frac{1}{\sum_{d'}w_{d',t}}\left(\frac{dw_{d,t}}{dt}-\frac{w_{d,t}}{\sum_{d'}w_{d',t}}\sum_{d''}\frac{dw_{d'',t}}{dt}\right)
-\end{eqnarray*}
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-Note that
-\begin_inset Formula 
-\begin{eqnarray*}
-\sum_{d}\frac{d\bar{w}_{d,t}}{dt} & = & \frac{1}{\sum_{d'}w_{d',t}}\left(\sum_{d}\frac{dw_{d,t}}{dt}-\frac{\sum_{d}w_{d,t}}{\sum_{d'}w_{d',t}}\sum_{d''}\frac{dw_{d'',t}}{dt}\right)\\
- & = & \frac{1}{\sum_{d'}w_{d',t}}\left(\sum_{d}\frac{dw_{d,t}}{dt}-\sum_{d''}\frac{dw_{d'',t}}{dt}\right)\\
- & = & 0
-\end{eqnarray*}
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-Consequently the estimate is shift invariant in 
-\begin_inset Formula $\theta$
-\end_inset
-
-, as would be hoped.
- This is just a sanity check, since automatically:
-\begin_inset Formula 
-\begin{eqnarray*}
-\sum_{d}\bar{w}_{d,t} & = & 1\Rightarrow\\
-\sum_{d}\frac{d\bar{w}_{d,t}}{dt} & = & 0
-\end{eqnarray*}
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-Above,
-\begin_inset Formula 
-\begin{eqnarray*}
-\frac{dw_{d,t}}{dt} & = & \frac{d\alpha^{T}}{dt}\frac{\partial w_{d,t}}{\partial\alpha}+\frac{\partial w_{d,t}}{\partial t}\\
-\frac{\partial w_{d,t}}{\partial\alpha} & = & w_{d,t}\frac{\partial\ell\left(\theta_{d},\alpha,t\right)}{\partial\alpha}\\
-\frac{\partial w_{d,t}}{\partial t} & = & w_{d,t}\left(\frac{\partial\ell\left(\theta_{d},\alpha,t\right)}{\partial t}-\frac{\partial c\left(t\right)}{\partial t}\right)
-\end{eqnarray*}
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-From above, we can see that
-\begin_inset Formula 
-\begin{eqnarray*}
-\frac{\partial\ell\left(\theta_{d},\alpha,t\right)}{\partial t}-\frac{\partial c\left(t\right)}{\partial t} & = & \frac{\theta_{d}\cdot p\left(x\vert\theta_{d},\alpha\right)p\left(\theta_{d}\right)p\left(\alpha\right)e^{t\theta_{d}}}{p\left(x\vert\theta_{d},\alpha\right)p\left(\theta_{d}\right)p\left(\alpha\right)e^{t\theta_{d}}}-\frac{\int\exp\left(\ell\left(\alpha,t\right)\right)\theta d\theta d\alpha}{\int\exp\left(\ell\left(\alpha,t\right)\right)d\theta d\alpha}\\
- & = & \theta_{d}-\mbe_{p_{t}}\left[\theta\right]
-\end{eqnarray*}
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-Denoting
-\begin_inset Formula 
-\begin{eqnarray*}
-\ell_{\alpha,d} & := & \frac{\partial\ell\left(\theta_{d},\alpha,0\right)}{\partial\alpha}
-\end{eqnarray*}
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-And substituting again
-\begin_inset Formula 
-\begin{eqnarray*}
-\left.\frac{\partial c\left(t\right)}{\partial t}\right|_{t=0}=\mbe_{p}\left[\theta\right] & \approx & \frac{1}{D}\sum_{d=1}^{D}\theta_{n}
-\end{eqnarray*}
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-then plugging in
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula 
-\begin{eqnarray*}
-\frac{d\bar{w}_{d,t}}{dt} & = & \frac{1}{\sum_{d'}w_{d',t}}\left(w_{d,t}\left(\frac{d\alpha^{T}}{dt}\frac{\partial\ell\left(\theta_{d},\alpha,t\right)}{\partial\alpha^{T}}+\theta_{d}-\mbe_{p_{t}}\left[\theta\right]\right)-\frac{w_{d,t}}{\sum_{d'}w_{d',t}}\sum_{d''}\frac{dw_{d'',t}}{dt}\right)\\
-\left.\frac{d\bar{w}_{d,t}}{dt}\right|_{t=0} & = & \frac{1}{D}\left(\frac{d\alpha^{T}}{dt}\ell_{\alpha,d}+\theta_{d}-\mbe_{p_{t}}\left[\theta\right]-\frac{1}{D}\sum_{d'}\left(\frac{d\alpha^{T}}{dt}\ell_{\alpha,d'}+\theta_{d'}-\mbe_{p_{t}}\left[\theta\right]\right)\right)\\
- & = & \frac{1}{D}\left(\ell_{\alpha,d}^{T}\frac{d\alpha}{dt}+\theta_{d}-\frac{1}{D}\sum_{d'}\left(\frac{d\alpha^{T}}{dt}\ell_{\alpha,d'}+\theta_{d'}\right)\right)
-\end{eqnarray*}
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-Of course, in general
-\begin_inset Formula 
-\begin{eqnarray*}
-\sum x\left(y-\bar{y}\right) & = & \sum\left(x-\bar{x}\right)\left(y-\bar{y}\right)=\sum\left(x-\bar{x}\right)y
-\end{eqnarray*}
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-So we can center 
-\begin_inset Formula $\theta$
-\end_inset
-
- instead of 
-\begin_inset Formula $d\bar{w}/dt$
-\end_inset
-
- for simplicity to get 
-\begin_inset Formula 
-\begin{eqnarray*}
-\hat{\Sigma}_{\theta} & = & \left.\frac{d}{dt^{T}}\sum_{d=1}^{D}w_{d,t}\theta_{d}\right|_{t=0}\\
- & = & \frac{1}{D}\sum_{d=1}^{D}\left(\theta_{d}-\bar{\theta}\right)\left(\ell_{\alpha,d}^{T}\frac{d\alpha}{dt^{T}}+\theta_{d}^{T}\right)\\
- & = & \frac{1}{D}\sum_{d=1}^{D}\left(\theta_{d}-\bar{\theta}\right)\ell_{\alpha,d}^{T}\left.\frac{d\alpha}{dt^{T}}\right|_{\alpha=\hat{\alpha}}+\widehat{\textrm{Cov}\left(\theta\right)}
-\end{eqnarray*}
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-where 
-\begin_inset Formula $\widehat{\textrm{Cov}\left(\theta\right)}$
-\end_inset
-
- is the usual MCMC sampling covariance.
- 
-\end_layout
-
-\begin_layout Standard
-Putting this all together, we get
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula 
-\begin{eqnarray*}
-\hat{\Sigma}_{\theta} & = & \widehat{\textrm{Cov}\left(\theta\right)}-\frac{1}{D}\sum_{d=1}^{D}\left(\theta_{d}-\bar{\theta}\right)\ell_{\hat{\alpha},d}^{T}\left(\frac{\partial^{2}M}{\partial\alpha\partial\alpha^{T}}\right)^{-1}\frac{\partial^{2}M}{\partial\alpha\partial t^{T}}
-\end{eqnarray*}
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Subsection
-Exponential families
-\end_layout
-
-\begin_layout Standard
-If we have a conjugate exponential family:
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula 
-\begin{eqnarray*}
-\log p\left(x_{i}\vert\theta_{i}\right) & = & \theta_{i}^{T}x_{i}-A_{x}\left(\theta_{i}\right)\\
-\log p\left(\theta_{i}\vert\alpha\right) & = & \alpha_{\theta}^{T}\theta_{i}-\alpha_{x}A_{x}\left(\theta_{i}\right)-A\left(\alpha_{\theta},\alpha_{x}\right)\\
-p_{t}\left(\theta_{i}\vert\alpha\right) & = & \frac{p\left(\theta_{i}\vert\alpha\right)e^{\theta_{i}t_{i}-t_{A,i}A_{x}\left(\theta_{i}\right)}}{\int p\left(\theta_{i}\vert\alpha\right)e^{\theta_{i}t_{i}+t_{A,i}A_{x}\left(\theta_{i}\right)}d\theta_{i}}
-\end{eqnarray*}
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula 
-\begin{eqnarray*}
-p_{t}\left(x\vert\alpha\right) & = & \int\prod_{i}p\left(x_{i}\vert\theta_{i}\right)p_{t}\left(\theta_{i}\vert\alpha\right)p\left(\alpha\right)d\theta\\
- & = & \frac{\int\prod_{i}p\left(x_{i}\vert\theta_{i}\right)p\left(\theta_{i}\vert\alpha\right)e^{\theta_{i}t_{i}-t_{A,i}A_{x}\left(\theta_{i}\right)}p\left(\alpha\right)d\theta}{\int\prod_{i}p\left(\theta_{i}\vert\alpha\right)e^{\theta_{i}t_{i}+t_{A,i}A_{x}\left(\theta_{i}\right)}d\theta_{i}}\\
- & = & \frac{\int\exp\left(\sum_{i}\left(x_{i}+\alpha_{\theta}+t_{i}\right)^{T}\theta_{i}-\sum_{i}\left(1+\alpha_{x}+t_{A,i}\right)A_{x}\left(\theta_{i}\right)\right)d\theta}{\int\exp\left(\sum_{i}\left(\alpha_{\theta}+t_{i}\right)^{T}\theta-\sum_{i}\left(\alpha_{x}+t_{A,i}\right)A_{x}\left(\theta_{i}\right)\right)d\theta}\\
- & = & \exp\left(\sum_{i}\left(A\left(x_{i}+\alpha_{\theta}+t_{i},1+\alpha_{x}+t_{A,i}\right)-A\left(\alpha_{\theta}+t_{i},\alpha_{x}+t_{A,i}\right)\right)\right)\\
- & =: & \exp\left(\sum_{i}\left(A\left(x_{i}+\alpha+t_{i}\right)-A\left(\alpha+t_{i}\right)\right)\right)\textrm{ (slight abuse of notation)}
-\end{eqnarray*}
-
-\end_inset
-
-In the case of the MLE for an exponential family,
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula 
-\begin{eqnarray*}
-M & = & \sum_{i}\left(A\left(x_{i}+\alpha+t_{i}\right)-A\left(\alpha+t_{i}\right)\right)\\
-\frac{\partial^{2}M}{\partial\alpha\partial\alpha^{T}} & = & \sum_{i}\left(\textrm{Var}_{p\left(\theta_{i}\vert x_{i}+\alpha\right)}\left(\theta_{i}\right)-\textrm{Var}_{p\left(\theta_{i}\vert\alpha\right)}\left(\theta_{i}\right)\right)\\
-\frac{\partial^{2}M}{\partial\alpha\partial t_{i}^{t}} & = & \textrm{Var}_{p\left(\theta_{i}\vert x_{i}+\alpha\right)}\left(\theta_{i}\right)-\textrm{Var}_{p\left(\theta_{i}\vert\alpha\right)}\left(\theta_{i}\right)
-\end{eqnarray*}
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-The expectation is given by
-\begin_inset Formula 
-\begin{eqnarray*}
-\log p_{t}\left(\theta_{i}\vert\alpha,x\right) & = & \left(\alpha_{\theta}+t_{i}\right)^{T}\theta_{i}-\left(\alpha_{x}+t_{A,i}\right)A_{x}\left(\theta_{i}\right)-A\left(\alpha_{\theta}+t_{i},\alpha_{x}+t_{A,i}\right)\Rightarrow\\
-\frac{\partial\mbe_{p_{t}}\left[\theta_{i}\vert\alpha,x\right]}{\partial\alpha} & = & \textrm{Var}_{p\left(\theta_{i}\vert x_{i}+\alpha\right)}\left(\theta_{i}\vert\alpha\right)
-\end{eqnarray*}
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-Note that since 
-\begin_inset Formula $\frac{\partial^{2}M}{\partial\alpha\partial t_{i}^{t}}\ne\frac{\partial\mbe_{p_{t}}\left[\theta_{i}\vert\alpha,x\right]}{\partial\alpha}$
-\end_inset
-
-, the correction is not symmetric, nor is it guaranteed to be positive definite.
- Simulations also suggest that a better correction uses 
-\begin_inset Formula $\frac{\partial^{2}M}{\partial\alpha\partial t_{i}^{t}}=\textrm{Var}_{p\left(\theta_{i}\vert x_{i}+\alpha\right)}\left(\theta_{i}\right)$
-\end_inset
-
-, which would also result in a symmetric, positive definite corrected matrix.
-\end_layout
-
-\begin_layout Standard
-
-\series bold
-\color red
-Alp: can you find an error that would support this?
+You can estimate this parametric sensitivity by differentiating under the
+ intergral and calculating the covariance with MCMC draws.
 \end_layout
 
 \begin_layout Section
@@ -876,6 +825,20 @@ Additionally, we may put gamma priors on
 
 \end_layout
 
+\begin_layout Standard
+In the above notation, we have
+\begin_inset Formula 
+\begin{eqnarray*}
+x & = & y\\
+\theta & = & \left(\lambda_{1},...,\lambda_{K}\right)^{T}\\
+\alpha & = & \left(\gamma,\beta\right)^{T}
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout Subsection
 Variance of 
 \begin_inset Formula $\lambda$
@@ -902,8 +865,8 @@ This can be marginalized exactly as a function of
  & = & N\gamma\log\beta-N\log\Gamma\left(\gamma\right)-\sum_{i}\log y_{i}!\\
  &  & +\sum_{i}\left[-\left(\beta+1\right)\lambda_{i}+\left(\gamma+y_{i}-1\right)\log\lambda_{i}+\left(\gamma+y_{i}\right)\log\left(\beta+1\right)-\log\Gamma\left(\gamma+y_{i}\right)\right]\\
  &  & -\sum_{i}\left[\left(\gamma+y_{i}\right)\log\left(\beta+1\right)-\log\Gamma\left(\gamma+y_{i}\right)\right]\Rightarrow\\
-\log p\left(y\vert\gamma,\beta\right) & = & N\left(\gamma\log\beta-\log\Gamma\left(\gamma\right)\right)-\sum_{i}\left(\gamma+y_{i}\right)\log\left(\beta+1\right)+\sum_{i}\log\Gamma\left(\gamma+y_{i}\right)-\sum_{i}\log y_{i}!\\
-\log p_{t}\left(y\vert\gamma,\beta\right) & = & \sum_{i}\gamma\log\left(\beta-t_{i}\right)-N\log\Gamma\left(\gamma\right)-\sum_{i}\left(\gamma+y_{i}\right)\log\left(\beta+1-t_{i}\right)+\sum_{i}\log\Gamma\left(\gamma+y_{i}\right)-\sum_{i}\log y_{i}!
+\log p\left(y\vert\gamma,\beta\right) & = & \sum_{i}\gamma\log\beta-N\log\Gamma\left(\gamma\right)-\sum_{i}\left(\gamma+y_{i}\right)\log\left(\beta+1\right)+\sum_{i}\log\Gamma\left(\gamma+y_{i}\right)-\sum_{i}\log y_{i}!\\
+\log p\left(y\vert\gamma,\beta,t\right) & = & \sum_{i}\gamma\log\left(\beta-t_{i}\right)-N\log\Gamma\left(\gamma\right)-\sum_{i}\left(\gamma+y_{i}\right)\log\left(\beta+1-t_{i}\right)+\sum_{i}\log\Gamma\left(\gamma+y_{i}\right)-\sum_{i}\log y_{i}!
 \end{eqnarray*}
 
 \end_inset
@@ -1583,7 +1546,19 @@ p\left(x,\theta,\alpha,t\right) & = & \frac{p\left(x\vert\theta\right)p\left(\th
 \begin_layout Standard
 \begin_inset Formula 
 \begin{eqnarray*}
-p\left(\theta_{i},\alpha\vert t_{i}\right) & = & \frac{p\left(\theta_{i}\vert\alpha,t_{i}\right)p\left(\alpha\vert t_{i}\right)\exp\left(t_{i}\theta_{i}\right)}{\int p\left(\theta_{i}\vert\alpha,t_{i}\right)p\left(\alpha\vert t_{i}\right)\exp\left(t_{i}\theta_{i}\right)d\theta_{i}d\alpha}
+p\left(\theta_{i},\alpha\vert t_{i}\right) & = & \frac{p\left(\theta_{i}\vert\alpha,t_{i}\right)p\left(\alpha\right)\exp\left(t_{i}\theta_{i}\right)}{\int\int p\left(\theta_{i}\vert\alpha,t_{i}\right)p\left(\alpha\right)\exp\left(t_{i}\theta_{i}\right)d\theta_{i}d\alpha}
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{eqnarray*}
+p\left(\alpha\vert t_{i}\right) & = & \frac{\int p\left(\theta_{i}\vert\alpha,t_{i}\right)p\left(\alpha\right)\exp\left(t_{i}\theta_{i}\right)d\theta_{i}}{\int\int p\left(\theta_{i}\vert\alpha,t_{i}\right)p\left(\alpha\right)\exp\left(t_{i}\theta_{i}\right)d\theta_{i}d\alpha}\\
+ & = & \frac{p\left(\alpha\right)\int p\left(\theta_{i}\vert\alpha,t_{i}\right)\exp\left(t_{i}\theta_{i}\right)d\theta_{i}}{\int p\left(\alpha\right)\int p\left(\theta_{i}\vert\alpha,t_{i}\right)\exp\left(t_{i}\theta_{i}\right)d\theta_{i}d\alpha}
 \end{eqnarray*}
 
 \end_inset
@@ -1848,7 +1823,8 @@ Putting this together, we get that
 \end_layout
 
 \begin_layout Standard
-Um.
+Note that the difference is exactly what is expected from the above calculation
+ -- the linear response variance adjustment is exact.
 \end_layout
 
 \begin_layout Section
@@ -2527,6 +2503,93 @@ s on
 \end_inset
 
 .
+\end_layout
+
+\begin_layout Subsection
+Exponential families
+\end_layout
+
+\begin_layout Standard
+I think this is wrong.
+\end_layout
+
+\begin_layout Standard
+If we have a conjugate exponential family:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{eqnarray*}
+\log p\left(x_{i}\vert\theta_{i}\right) & = & \theta_{i}^{T}x_{i}-A_{x}\left(\theta_{i}\right)\\
+\log p\left(\theta_{i}\vert\alpha\right) & = & \alpha_{\theta}^{T}\theta_{i}-\alpha_{x}A_{x}\left(\theta_{i}\right)-A\left(\alpha_{\theta},\alpha_{x}\right)\\
+p\left(\theta_{i}\vert\alpha,t\right) & = & \frac{p\left(\theta_{i}\vert\alpha\right)e^{\theta_{i}t_{i}}}{\int p\left(\theta_{i}\vert\alpha\right)e^{\theta_{i}t_{i}}d\theta_{i}}\\
+ & = & p\left(\theta_{i}\vert\alpha+t_{i}\right)
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{eqnarray*}
+p\left(x\vert\alpha,t\right) & = & \int\prod_{i}p\left(x_{i}\vert\theta_{i}\right)p\left(\theta_{i}\vert\alpha,t_{i}\right)d\theta\\
+ & = & \frac{\int\prod_{i}p\left(x_{i}\vert\theta_{i}\right)p\left(\theta_{i}\vert\alpha\right)e^{\theta_{i}t_{i}-t_{A,i}A_{x}\left(\theta_{i}\right)}p\left(\alpha\right)d\theta}{\int\prod_{i}p\left(\theta_{i}\vert\alpha\right)e^{\theta_{i}t_{i}+t_{A,i}A_{x}\left(\theta_{i}\right)}d\theta_{i}}\\
+ & = & \frac{\int\exp\left(\sum_{i}\left(x_{i}+\alpha_{\theta}+t_{i}\right)^{T}\theta_{i}-\sum_{i}\left(1+\alpha_{x}+t_{A,i}\right)A_{x}\left(\theta_{i}\right)\right)d\theta}{\int\exp\left(\sum_{i}\left(\alpha_{\theta}+t_{i}\right)^{T}\theta_{i}-\sum_{i}\left(\alpha_{x}+t_{A,i}\right)A_{x}\left(\theta_{i}\right)\right)d\theta}\\
+ & = & \exp\left(\sum_{i}\left(A\left(x_{i}+\alpha_{\theta}+t_{i},1+\alpha_{x}+t_{A,i}\right)-A\left(\alpha_{\theta}+t_{i},\alpha_{x}+t_{A,i}\right)\right)\right)\\
+ & =: & \exp\left(\sum_{i}\left(A\left(x_{i}+\alpha+t_{i}\right)-A\left(\alpha+t_{i}\right)\right)\right)\textrm{ (slight abuse of notation)}
+\end{eqnarray*}
+
+\end_inset
+
+In the case of the MLE for an exponential family,
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{eqnarray*}
+M & = & \sum_{i}\left(A\left(x_{i}+\alpha+t_{i}\right)-A\left(\alpha+t_{i}\right)\right)\\
+\frac{\partial^{2}M}{\partial\alpha\partial\alpha^{T}} & = & \sum_{i}\left(\textrm{Var}_{p\left(\theta_{i}\vert x_{i}+\alpha\right)}\left(\theta_{i}\right)-\textrm{Var}_{p\left(\theta_{i}\vert\alpha\right)}\left(\theta_{i}\right)\right)\\
+\frac{\partial^{2}M}{\partial\alpha\partial t_{i}^{t}} & = & \textrm{Var}_{p\left(\theta_{i}\vert x_{i}+\alpha\right)}\left(\theta_{i}\right)-\textrm{Var}_{p\left(\theta_{i}\vert\alpha\right)}\left(\theta_{i}\right)
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The expectation is given by
+\begin_inset Formula 
+\begin{eqnarray*}
+\log p_{t}\left(\theta_{i}\vert\alpha,x\right) & = & \left(\alpha_{\theta}+t_{i}\right)^{T}\theta_{i}-\left(\alpha_{x}+t_{A,i}\right)A_{x}\left(\theta_{i}\right)-A\left(\alpha_{\theta}+t_{i},\alpha_{x}+t_{A,i}\right)\Rightarrow\\
+\frac{\partial\mbe_{p_{t}}\left[\theta_{i}\vert\alpha,x\right]}{\partial\alpha} & = & \textrm{Var}_{p\left(\theta_{i}\vert x_{i}+\alpha\right)}\left(\theta_{i}\vert\alpha\right)
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Note that since 
+\begin_inset Formula $\frac{\partial^{2}M}{\partial\alpha\partial t_{i}^{t}}\ne\frac{\partial\mbe_{p_{t}}\left[\theta_{i}\vert\alpha,x\right]}{\partial\alpha}$
+\end_inset
+
+, the correction is not symmetric, nor is it guaranteed to be positive definite.
+ Simulations also suggest that a better correction uses 
+\begin_inset Formula $\frac{\partial^{2}M}{\partial\alpha\partial t_{i}^{t}}=\textrm{Var}_{p\left(\theta_{i}\vert x_{i}+\alpha\right)}\left(\theta_{i}\right)$
+\end_inset
+
+, which would also result in a symmetric, positive definite corrected matrix.
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\color red
+Alp: can you find an error that would support this?
 \end_layout
 
 \end_body
