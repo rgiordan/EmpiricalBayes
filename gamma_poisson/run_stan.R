@@ -30,19 +30,20 @@ LoadStanModel <- function(stan_model_name) {
 #############################
 # Simualate some data
 
-n_obs <- 10
+n_obs <- 50
 
 set.seed(42)
 true_params <- list()
 true_params$prior_gamma <- 10;
 true_params$prior_beta <- 3;
+print(true_params$prior_gamma / true_params$prior_beta)
 
 true_params$lambda <- rep(NaN, n_obs)
 true_params$lambda <- rgamma(n_obs, true_params$prior_gamma, true_params$prior_beta)
 y <- rpois(n_obs, lambda=true_params$lambda)
 
 # Set the gamma prior parameters from more intuitive mean and variance.
-prior_var <- 2 ^ 2
+prior_var <- 0.5 ^ 2
 prior_gamma_mean <- true_params$prior_gamma
 prior_beta_mean <- true_params$prior_beta
 
@@ -62,7 +63,7 @@ LogPrior <- function(par) {
   beta <- par[2]
   gamma_log_prior <- dgamma(gamma, shape=gamma_prior_alpha, rate=gamma_prior_beta, log=TRUE)
   beta_log_prior <- dgamma(beta, shape=beta_prior_alpha, rate=beta_prior_beta, log=TRUE)
-  return(gamma_log_prior + beta_log_prior)  
+  return(gamma_log_prior + beta_log_prior)
 }
 
 OptimLogPrior <- function(theta) {
@@ -84,7 +85,7 @@ DecodeTheta <- function(theta) {
 
 NegBinLogLik <- function(theta) {
   par <- DecodeTheta(theta)
-  log_lik <- sum(dnbinom(y, par$r, par$p, log=TRUE)) 
+  log_lik <- sum(dnbinom(y, par$r, par$p, log=TRUE))
   return(log_lik)
 }
 
@@ -111,6 +112,8 @@ prior_par <- DecodeTheta(prior_optim$par)
 gamma_est <- prior_mle$gamma
 beta_est <- prior_mle$beta
 
+print(gamma_est)
+print(beta_est)
 
 ######################################
 # STAN
@@ -133,7 +136,7 @@ stan_dat <- list(N = length(y),
 # Some knobs we can tweak.  Note that we need many iterations to accurately assess
 # the prior sensitivity in the MCMC noise.
 chains <- 1
-iters <- 50000
+iters <- 10000
 seed <- 42
 
 # Draw the draws and save.
@@ -141,6 +144,8 @@ stan_draws_file <- file.path(data_directory, "gamma_poisson_mcmc_draws.Rdata")
 free_stan_sim <- sampling(free_model, data = stan_dat, seed = seed, chains = chains, iter = iters)
 fixed_stan_sim <- sampling(fixed_model, data = stan_dat, seed = seed, chains = chains, iter = iters)
 
+print(free_stan_sim)
+print(fixed_stan_sim)
 
 ###############################
 # Condition to get moments

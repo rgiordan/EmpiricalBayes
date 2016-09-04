@@ -167,15 +167,32 @@ lr_cov_corr_exact <- -1 * dmom_dalpha %*% solve(M_hess, t(dmom_dalpha))
 stopifnot(max(abs(diag(dmom_dt) - lambda_true_df$fixed_var)) < 1e-12)
 
 
+###########################
+# Summaries
+
+lambda_stats <-
+  select(lambda_grouped, g, draw, method, lambda) %>%
+  group_by(g, method) %>%
+  summarize(sd=sd(lambda), mean=mean(lambda))
+
+fixed_sd <-
+  filter(lambda_stats, method == "fixed") %>%
+  arrange(g) %>%
+  `[[`("sd")
+
+lr_var <- diag(lr_cov_corr_exact) + fixed_sd ^ 2
+lr_diff_exact <- sqrt(lr_var) - fixed_sd
+
+
+
 ########################
 # Plots
-if (FALSE) {
 
 # Compare corrections to actual differences.
 lambda_stats_correction <-
-  data.frame(g=1:n_g, lr_diff_exact=diag(lr_cov_corr_exact)) %>%
+  data.frame(g=1:n_g, lr_diff_exact=lr_diff_exact) %>%
   inner_join(lambda_true_df, by="g") %>%
-  mutate(mcmc_diff=free_var - fixed_var)
+  mutate(mcmc_diff=sqrt(free_var) - sqrt(fixed_var))
 
 ggplot(lambda_stats_correction) +
   geom_point(aes(x=mcmc_diff, y=lr_diff_exact)) +
@@ -183,11 +200,7 @@ ggplot(lambda_stats_correction) +
   expand_limits(x=0, y=0)
 
 
-
-lambda_sd_stats <-
-  select(lambda_grouped, g, draw, method, lambda) %>%
-  group_by(g, method) %>%
-  summarize(sd=sd(lambda), mean=mean(lambda))
+if (FALSE) {
 
 # Compare fixed vs free
 ggplot(lambda_true_df) +
@@ -195,10 +208,12 @@ ggplot(lambda_true_df) +
   geom_abline(aes(slope=1, intercept=0)) +
   expand_limits(x=0, y=0)
 
+max_sd <- max(lambda_true_df$free_var)
 ggplot(lambda_true_df) +
-  geom_point(aes(x=free_var, y=fixed_var, color="MCMC")) +
+  geom_point(aes(x=sqrt(free_var), y=sqrt(fixed_var), color="MCMC")) +
   geom_abline(aes(slope=1, intercept=0)) +
-  expand_limits(x=0, y=0)
+  expand_limits(x=0, y=0) +
+  expand_limits(x=max_sd, y=max_sd)
 
 # Free has more variance
 ggplot(lambda_true_df) +
@@ -206,7 +221,7 @@ ggplot(lambda_true_df) +
   geom_line(aes(x=y, y=fixed_var, color="fixed")) +
   expand_limits(x=0, y=0)
 
-# Free shrinks more
+# Free shrinks more (just a little bit though)
 ggplot(lambda_true_df) +
   geom_line(aes(x=y, y=free_mean, color="free")) +
   geom_line(aes(x=y, y=fixed_mean, color="fixed")) +
@@ -227,7 +242,7 @@ ggplot(lambda_true_df) +
 
 # Compare exact vs MCMC estimates
 lambda_sd_check  <-
-  dcast(lambda_sd_stats, g ~ method, value.var="sd") %>%
+  dcast(lambda_stats, g ~ method, value.var="sd") %>%
   inner_join(lambda_true_df, by="g")
 
 ggplot(lambda_sd_check) +
@@ -237,19 +252,25 @@ ggplot(lambda_sd_check) +
   expand_limits(x=0, y=0)
 
 lambda_mean_check  <-
-  dcast(lambda_sd_stats, g ~ method, value.var="mean") %>%
-  inner_join(lambda_true_df, by="g")
+  mutate(lambda_stats, upper=mean + 2 * sd, lower=mean - 2 * sd) %>%
+  melt(id.var=c("g", "method")) %>%
+  filter(variable != "sd") %>%
+  dcast(g ~ method + variable, value.var="value") %>%
+  inner_join(select(lambda_true_df, g, true_lambda, y), by="g")
 
 ggplot(lambda_mean_check) +
-  geom_point(aes(x=free_mean, y=free, color="free")) +
-  geom_point(aes(x=fixed_mean, y=fixed, color="fixed")) +
+  geom_point(aes(x=true_lambda, y=free_mean, color="free")) +
+  geom_crossbar(aes(x=true_lambda, y=free_mean, ymin=free_lower, ymax=free_upper, color="free")) +
+  geom_point(aes(x=true_lambda, y=fixed_mean, color="fixed")) +
+  geom_crossbar(aes(x=true_lambda, y=fixed_mean, ymin=fixed_lower, ymax=fixed_upper, color="fixed")) +
   geom_abline(aes(slope=1, intercept=0)) +
   expand_limits(x=0, y=0)
+
 
 # Comparisions
 lambda_stats_lr <-
   data.frame(g=1:n_g, method="lr", sd=sqrt(diag(lr_cov))) %>%
-  rbind(lambda_sd_stats) %>%
+  rbind(lambda_stats) %>%
   inner_join(lambda_true_df, by="g")
 
 lambda_stats_lr_wide <-
@@ -257,7 +278,7 @@ lambda_stats_lr_wide <-
   inner_join(lambda_true_df, by="g")
 
 
-ggplot(dcast(lambda_sd_stats, g ~ method, value.var="sd") %>%
+ggplot(dcast(lambda_stats, g ~ method, value.var="sd") %>%
   inner_join(lambda_true_df, by="g")) +
   geom_point(aes(x=y, y=fixed))
 
