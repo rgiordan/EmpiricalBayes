@@ -184,7 +184,6 @@ lr_var <- diag(lr_cov_corr_exact) + fixed_sd ^ 2
 lr_diff_exact <- sqrt(lr_var) - fixed_sd
 
 
-
 ########################
 # Plots
 
@@ -197,8 +196,15 @@ lambda_stats_correction <-
 ggplot(lambda_stats_correction) +
   geom_point(aes(x=mcmc_diff, y=lr_diff_exact)) +
   geom_abline(aes(slope=1, intercept=0)) +
-  expand_limits(x=0, y=0)
+  expand_limits(x=0, y=0) +
+  xlab("Difference between MCMC runs") +
+  ylab("Difference predicted by linear response") +
+  ggtitle("Difference in standard deviation between free and fixed priors")
 
+if (FALSE) {
+  # Save data for knitr
+  save(lambda_true_df, lambda_stats_correction, file=file.path(data_directory, "simulation_example.Rdata"))
+}
 
 if (FALSE) {
 

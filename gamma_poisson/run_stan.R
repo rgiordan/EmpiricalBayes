@@ -30,23 +30,32 @@ LoadStanModel <- function(stan_model_name) {
 #############################
 # Simualate some data
 
-n_obs <- 50
-
 set.seed(42)
 true_params <- list()
+
+# Parameters you can set
+# Number of observations
+n_obs <- 50
+
+# The true value of alpha
 true_params$prior_gamma <- 10;
 true_params$prior_beta <- 3;
 print(true_params$prior_gamma / true_params$prior_beta)
 
-true_params$lambda <- rep(NaN, n_obs)
-true_params$lambda <- rgamma(n_obs, true_params$prior_gamma, true_params$prior_beta)
-y <- rpois(n_obs, lambda=true_params$lambda)
-
+# The mean and variance of our priors on alpha
 # Set the gamma prior parameters from more intuitive mean and variance.
 prior_var <- 0.5 ^ 2
 prior_gamma_mean <- true_params$prior_gamma
 prior_beta_mean <- true_params$prior_beta
 
+##############################
+# Draw the actual data
+
+true_params$lambda <- rep(NaN, n_obs)
+true_params$lambda <- rgamma(n_obs, true_params$prior_gamma, true_params$prior_beta)
+y <- rpois(n_obs, lambda=true_params$lambda)
+
+# Convert the prior mean and variance to gamma parameters
 gamma_prior_alpha <- (prior_gamma_mean ^ 2) / prior_var;
 gamma_prior_beta <- prior_gamma_mean / prior_var;
 
