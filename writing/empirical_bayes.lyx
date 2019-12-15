@@ -1020,7 +1020,6 @@ status open
 status open
 
 \begin_layout Plain Layout
-
 echo=FALSE,warning=FALSE,message=FALSE
 \end_layout
 
@@ -1079,7 +1078,6 @@ status open
 status open
 
 \begin_layout Plain Layout
-
 echo=FALSE,warning=FALSE,message=FALSE,fig.width=4,fig.height=3
 \end_layout
 
@@ -1128,7 +1126,6 @@ status open
 status open
 
 \begin_layout Plain Layout
-
 echo=FALSE,warning=FALSE,message=FALSE,fig.width=4,fig.height=3
 \end_layout
 
@@ -1159,7 +1156,7 @@ ggplot(lambda_true_df) +
 
 \begin_layout Plain Layout
 
-  ylab("MCMC variancefor the fixed model")
+  ylab("MCMC variance for the fixed model")
 \end_layout
 
 \end_inset
@@ -1181,7 +1178,6 @@ status open
 status open
 
 \begin_layout Plain Layout
-
 echo=FALSE,warning=FALSE,message=FALSE,fig.width=4,fig.height=3
 \end_layout
 

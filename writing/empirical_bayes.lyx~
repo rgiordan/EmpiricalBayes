@@ -565,56 +565,6 @@ where we have used the fact that
 This covariance can be estimated with MCMC draws.
 \end_layout
 
-\begin_layout Subsubsection
-With analytic expectation
-\end_layout
-
-\begin_layout Standard
-In certain cases (e.g.
- conjugate exponential families), 
-\begin_inset Formula $\mbe_{p}\left[\theta\vert x,\alpha,t\right]=m\left(\alpha,t\right)$
-\end_inset
-
- is a known function of 
-\begin_inset Formula $\alpha$
-\end_inset
-
- and 
-\begin_inset Formula $t$
-\end_inset
-
-.
- Then 
-\begin_inset Formula 
-\begin{eqnarray*}
-\hat{\Sigma}_{\theta} & = & \frac{dm}{dt^{T}}\\
- & = & \frac{\partial m}{\partial\alpha^{T}}\frac{d\alpha}{dt^{T}}+\frac{\partial m}{\partial t}\\
- & = & -\frac{\partial m}{\partial\alpha^{T}}\left(\frac{\partial^{2}M}{\partial\alpha\partial\alpha^{T}}\right)^{-1}\frac{\partial^{2}M}{\partial\alpha\partial t^{T}}+\frac{\partial m}{\partial t}\\
- & = & -\frac{\partial m}{\partial\alpha^{T}}\left(\frac{\partial^{2}M}{\partial\alpha\partial\alpha^{T}}\right)^{-1}\frac{\partial m^{T}}{\partial\alpha}+\frac{\partial m}{\partial t}
-\end{eqnarray*}
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-Note that 
-\begin_inset Formula $\partial m/\partial t$
-\end_inset
-
- is the covariance for fixed 
-\begin_inset Formula $\alpha$
-\end_inset
-
-.
- As shown above, 
-\begin_inset Formula $\frac{\partial^{2}M}{\partial\alpha\partial t^{T}}=\frac{\partial m^{T}}{\partial\alpha}$
-\end_inset
-
-, so the correction is guaranteed to be positive definite and symmetric.
-\end_layout
-
 \begin_layout Subsection
 Putting it all together
 \end_layout
